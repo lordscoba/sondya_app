@@ -8,14 +8,29 @@ import 'package:sondya_app/presentation/pages/auth/reset_password_screen.dart';
 import 'package:sondya_app/presentation/pages/auth/verification_code_screen.dart';
 import 'package:sondya_app/presentation/pages/error_screen.dart';
 import 'package:sondya_app/presentation/pages/home_screen.dart';
+import 'package:sondya_app/presentation/pages/onboarding_screen.dart';
+import 'package:sondya_app/presentation/pages/splash_screen.dart';
+import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/verificationCode',
+  initialLocation: '/onboarding',
   errorBuilder: (context, state) => const ErrorScreen(),
   routes: [
     GoRoute(
       path: '/',
       builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: '/splash',
+      builder: (context, state) => const SplashScreen(),
+    ),
+    GoRoute(
+      path: '/welcome',
+      builder: (context, state) => const WelcomeScreen(),
+    ),
+    GoRoute(
+      path: '/onboarding',
+      builder: (context, state) => const OnboardingScreen(),
     ),
 
     // Auth routes

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sondya_app/presentation/widgets/circle_images.dart';
 
 class VerificationCodeBody extends StatefulWidget {
@@ -119,7 +120,9 @@ class _VerificationCodeBodyState extends State<VerificationCodeBody> {
                 ],
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push('/resetPassword');
+                },
                 child: const Text("Verify"),
               ),
               const Align(
