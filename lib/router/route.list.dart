@@ -10,7 +10,7 @@ import 'package:sondya_app/presentation/pages/error_screen.dart';
 import 'package:sondya_app/presentation/pages/home_screen.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/register',
+  initialLocation: '/verificationCode',
   errorBuilder: (context, state) => const ErrorScreen(),
   routes: [
     GoRoute(
@@ -48,9 +48,5 @@ final GoRouter router = GoRouter(
       path: '/registerSuccess',
       builder: (context, state) => const RegisterSuccessScreen(),
     ),
-
-    // Seller routes
-
-    // User routes
   ],
 );
