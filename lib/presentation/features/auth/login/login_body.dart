@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sondya_app/presentation/widgets/circle_images.dart';
 
-class LoginBody extends StatelessWidget {
+class LoginBody extends StatefulWidget {
   const LoginBody({super.key});
+
+  @override
+  State<LoginBody> createState() => _LoginBodyState();
+}
+
+class _LoginBodyState extends State<LoginBody> {
+  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Center(
         child: SizedBox(
-          height: 500,
+          height: 650,
           width: 380,
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -33,17 +41,31 @@ class LoginBody extends StatelessWidget {
                 ),
               ),
               TextFormField(
-                decoration: const InputDecoration(
+                obscureText: _obscureText,
+                decoration: InputDecoration(
                   hintText: " Enter your Password",
                   labelText: 'Password',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                        _obscureText ? Icons.visibility : Icons.visibility_off),
+                    onPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
+                  ),
                 ),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push('/home');
+                },
                 child: const Text("Login"),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push('/forgotPassword');
+                },
                 child: const Text("Forgot Password?"),
               ),
               const AuthFooterImages(),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sondya_app/presentation/widgets/circle_images.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
 import 'package:sondya_app/utils/decode_json.dart';
@@ -126,11 +127,15 @@ class _RegisterBodyState extends State<RegisterBody> {
                 ],
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push('/home');
+                },
                 child: const Text("Register"),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push('/login');
+                },
                 child: const Text("Already have account? Log in"),
               ),
               const AuthFooterImages(),

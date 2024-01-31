@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sondya_app/presentation/widgets/circle_images.dart';
 
 class ForgotPasswordBody extends StatefulWidget {
@@ -38,7 +39,9 @@ class _ForgotPasswordBodyState extends State<ForgotPasswordBody> {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push('/verificationCode');
+                },
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -59,7 +62,9 @@ class _ForgotPasswordBodyState extends State<ForgotPasswordBody> {
                       children: [
                         const Text("Already have account?"),
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            context.push('/login');
+                          },
                           child: const Text(
                             "Sign in",
                           ),
@@ -70,7 +75,9 @@ class _ForgotPasswordBodyState extends State<ForgotPasswordBody> {
                       children: [
                         const Text("Don’t have account?"),
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            context.push('/register');
+                          },
                           child: const Text(
                             "Sign Up",
                           ),

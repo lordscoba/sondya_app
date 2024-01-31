@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sondya_app/presentation/widgets/circle_images.dart';
 
 class ResetPasswordBody extends StatefulWidget {
@@ -68,7 +69,9 @@ class _ResetPasswordBodyState extends State<ResetPasswordBody> {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push('/login');
+                },
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,

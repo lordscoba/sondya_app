@@ -17,6 +17,23 @@ class CircleImage extends StatelessWidget {
   }
 }
 
+class CircleImageRight extends StatelessWidget {
+  const CircleImageRight({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Image(
+          image: AssetImage("assets/shapes/circle_25.png"),
+          height: 100,
+        ),
+      ],
+    );
+  }
+}
+
 class AuthFooterImages extends StatelessWidget {
   const AuthFooterImages({super.key});
 
