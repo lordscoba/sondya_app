@@ -8,11 +8,12 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
-        fit: StackFit.loose,
         children: [
           Image.asset(
             'assets/images/welcome_bg.png', // Replace with your image path
-            fit: BoxFit.cover,
+            fit: BoxFit.fill,
+            height: 700,
+            width: double.infinity,
           ),
           const WelcomeBody()
         ],

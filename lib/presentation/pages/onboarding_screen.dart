@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sondya_app/data/repositories/onboarding_data.dart';
+import 'package:sondya_app/data/onboarding_data.dart';
 import 'package:sondya_app/presentation/features/onboarding/onboarding_body.dart';
 
 class OnboardingScreen extends StatefulWidget {
