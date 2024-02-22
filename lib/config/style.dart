@@ -132,6 +132,16 @@ ThemeData buildAuthTheme(BuildContext context) {
               color: Color(0xFFEDB842),
             ),
           ),
+          errorBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.red.shade400,
+            ),
+          ),
+          focusedErrorBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.red.shade400,
+            ),
+          ),
         ),
   );
 }
