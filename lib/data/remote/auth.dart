@@ -14,8 +14,27 @@ class AuthUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       final dio = Dio();
 
       // Make the POST request
-      final response =
-          await dio.post(EnvironmentAuthConfig.register, data: userData);
+      final response = await dio.post(
+        EnvironmentAuthConfig.register,
+        data: userData,
+        // options: Options(
+        //   followRedirects: false,
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   validateStatus: (status) => true,
+        // )
+        // options: Options(
+        //   followRedirects: true,
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   validateStatus: (status) => true,
+
+        //   //   // will not throw errors
+        //   //   validateStatus: (status) => true,
+        // ),
+      );
       if (response.statusCode == 200 || response.statusCode == 201) {
         state = AsyncValue.data(response.data as Map<String, dynamic>);
       }
