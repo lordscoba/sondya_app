@@ -1,11 +1,11 @@
 //  hosted base url
-const String baseUrl = 'https://sondya-backend.adaptable.app/api/v1';
-const String wsBaseUrl = 'wss://sondya-backend.adaptable.app/api/v1';
+// const String baseUrl = 'https://sondya-backend.adaptable.app/api/v1';
+// const String wsBaseUrl = 'wss://sondya-backend.adaptable.app/api/v1';
 
 // local base url
 
-// static const String baseUrl = 'http://localhost:8989/api/v1';
-// static const String wsBaseUrl = 'ws://localhost:8989/api/v1';
+const String baseUrl = 'http://localhost:8989/api/v1';
+const String wsBaseUrl = 'ws://localhost:8989/api/v1';
 
 class EnvironmentAuthConfig {
   // authentication
