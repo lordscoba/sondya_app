@@ -40,7 +40,7 @@ class _RegisterBodyState extends ConsumerState<RegisterBody> {
     return SingleChildScrollView(
       child: Center(
         child: SizedBox(
-          height: 780,
+          height: 850,
           width: 380,
           child: Form(
             key: _formKey,
