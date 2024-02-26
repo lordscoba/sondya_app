@@ -4,7 +4,8 @@ import 'package:sondya_app/config/style.dart';
 import 'package:sondya_app/presentation/features/auth/resetPassword/reset_password_body.dart';
 
 class ResetPasswordScreen extends StatelessWidget {
-  const ResetPasswordScreen({super.key});
+  final String email;
+  const ResetPasswordScreen({super.key, required this.email});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class ResetPasswordScreen extends StatelessWidget {
           ),
           title: const Text("Reset Password"),
         ),
-        body: const ResetPasswordBody(),
+        body: ResetPasswordBody(email: email),
       ),
     );
   }

@@ -17,23 +17,106 @@ class AuthUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       final response = await dio.post(
         EnvironmentAuthConfig.register,
         data: userData,
-        // options: Options(
-        //   followRedirects: false,
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   validateStatus: (status) => true,
-        // )
-        // options: Options(
-        //   followRedirects: true,
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   validateStatus: (status) => true,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        state = AsyncValue.data(response.data as Map<String, dynamic>);
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        state = AsyncValue.error(e.response?.data['message'], e.stackTrace);
+        // debugPrint(e.response?.data['message'].toString());
+      } else {
+        state = AsyncValue.error(e.message.toString(), e.stackTrace);
+        // debugPrint(e.message.toString());
+      }
+    }
+  }
 
-        //   //   // will not throw errors
-        //   //   validateStatus: (status) => true,
-        // ),
+  Future<void> loginUser(userData) async {
+    try {
+      // Set loading state
+      state = const AsyncValue.loading();
+      final dio = Dio();
+
+      // Make the POST request
+      final response = await dio.post(
+        EnvironmentAuthConfig.login,
+        data: userData,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        state = AsyncValue.data(response.data as Map<String, dynamic>);
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        state = AsyncValue.error(e.response?.data['message'], e.stackTrace);
+        // debugPrint(e.response?.data['message'].toString());
+      } else {
+        state = AsyncValue.error(e.message.toString(), e.stackTrace);
+        // debugPrint(e.message.toString());
+      }
+    }
+  }
+
+  Future<void> forgotPassword(userData) async {
+    try {
+      // Set loading state
+      state = const AsyncValue.loading();
+      final dio = Dio();
+
+      // Make the POST request
+      final response = await dio.post(
+        EnvironmentAuthConfig.forgotPassword,
+        data: userData,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        state = AsyncValue.data(response.data as Map<String, dynamic>);
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        state = AsyncValue.error(e.response?.data['message'], e.stackTrace);
+        // debugPrint(e.response?.data['message'].toString());
+      } else {
+        state = AsyncValue.error(e.message.toString(), e.stackTrace);
+        // debugPrint(e.message.toString());
+      }
+    }
+  }
+
+  Future<void> verifyEmail(userData, String email) async {
+    try {
+      // Set loading state
+      state = const AsyncValue.loading();
+      final dio = Dio();
+
+      // Make the POST request
+      final response = await dio.post(
+        EnvironmentAuthConfig.verifyEmail + email,
+        data: userData,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        state = AsyncValue.data(response.data as Map<String, dynamic>);
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        state = AsyncValue.error(e.response?.data['message'], e.stackTrace);
+        // debugPrint(e.response?.data['message'].toString());
+      } else {
+        state = AsyncValue.error(e.message.toString(), e.stackTrace);
+        // debugPrint(e.message.toString());
+      }
+    }
+  }
+
+  Future<void> resetPassword(userData, String email) async {
+    try {
+      // Set loading state
+      state = const AsyncValue.loading();
+      final dio = Dio();
+
+      // Make the POST request
+      final response = await dio.post(
+        EnvironmentAuthConfig.resetPassword + email,
+        data: userData,
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         state = AsyncValue.data(response.data as Map<String, dynamic>);

@@ -13,7 +13,7 @@ import 'package:sondya_app/presentation/pages/splash_screen.dart';
 import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/register',
+  initialLocation: '/forgotPassword',
   errorBuilder: (context, state) => const ErrorScreen(),
   routes: [
     GoRoute(
@@ -50,13 +50,19 @@ final GoRouter router = GoRouter(
     ),
 
     GoRoute(
-      path: '/resetPassword',
-      builder: (context, state) => const ResetPasswordScreen(),
+      path: '/resetPassword/:email',
+      builder: (context, state) {
+        final email = state.pathParameters['email']!;
+        return ResetPasswordScreen(email: email);
+      },
     ),
 
     GoRoute(
-      path: '/verificationCode',
-      builder: (context, state) => const VerificationCodeScreen(),
+      path: '/verificationCode/:email',
+      builder: (context, state) {
+        final email = state.pathParameters['email']!;
+        return VerificationCodeScreen(email: email);
+      },
     ),
 
     GoRoute(
