@@ -3,7 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:sondya_app/presentation/features/auth/verifyCode/verify_code_body.dart';
 
 class VerificationCodeScreen extends StatelessWidget {
-  const VerificationCodeScreen({super.key});
+  final String email;
+  const VerificationCodeScreen({super.key, required this.email});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,9 @@ class VerificationCodeScreen extends StatelessWidget {
         ),
         title: const Text("Verification Code"),
       ),
-      body: const VerificationCodeBody(),
+      body: VerificationCodeBody(
+        email: email,
+      ),
     );
   }
 }
