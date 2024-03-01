@@ -18,3 +18,14 @@ class EnvironmentAuthConfig {
   static const String resetPassword = '$baseUrl/reset-password/'; // POST :email
   static const String verifyEmail = '$baseUrl/verify-email/'; // POST :email
 }
+
+class EnvironmentHomeConfig {
+  static const String productDetail =
+      '$baseUrl/product/details/'; // GET /:id/:slug(name)
+  static const String serviceDetail =
+      '$baseUrl/service/details/'; // GET /:id/:slug(name)
+  static const String services = '$baseUrl/services'; // GET
+  static const String products = '$baseUrl/products'; // GET
+  static const String servicesCategory = '$baseUrl/services/categories'; // GET
+  static const String productsCategory = '$baseUrl/products/categories'; // GET
+}

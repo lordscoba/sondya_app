@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:sondya_app/presentation/features/home/home_body.dart';
+import 'package:sondya_app/presentation/layout/bottom_navigation.dart';
+import 'package:sondya_app/presentation/layout/top_bar.dart';
+import 'package:sondya_app/presentation/layout/user_drawer.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -8,16 +10,10 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            context.push("/home");
-          },
-          icon: const Icon(Icons.home),
-        ),
-        title: const Text("Home"),
-      ),
+      appBar: const SondyaTopBar(title: "Home", isHome: true),
+      drawer: sonyaUserDrawer,
       body: const HomeBody(),
+      bottomNavigationBar: sondyaBottomNavigationBar(context),
     );
   }
 }

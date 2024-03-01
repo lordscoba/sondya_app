@@ -120,14 +120,15 @@ class _RegisterBodyState extends ConsumerState<RegisterBody> {
                         await loadJsonAsset<dynamic>(filePath);
                     // ignore: use_build_context_synchronously
                     SondyaSelectWidget().showBottomSheet<String>(
-                        options: countries.cast<String>(),
-                        context: context,
-                        onItemSelected: (value) {
-                          setState(() {
-                            _selectedCountry = value;
-                          });
-                          user.country = value.toString();
+                      options: countries.cast<String>(),
+                      context: context,
+                      onItemSelected: (value) {
+                        setState(() {
+                          _selectedCountry = value;
                         });
+                        user.country = value.toString();
+                      },
+                    );
                   },
                   child: Row(
                     mainAxisSize: MainAxisSize.min,

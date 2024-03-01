@@ -13,7 +13,7 @@ import 'package:sondya_app/presentation/pages/splash_screen.dart';
 import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/forgotPassword',
+  initialLocation: '/',
   errorBuilder: (context, state) => const ErrorScreen(),
   routes: [
     GoRoute(
