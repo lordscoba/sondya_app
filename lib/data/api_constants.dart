@@ -28,4 +28,8 @@ class EnvironmentHomeConfig {
   static const String products = '$baseUrl/products'; // GET
   static const String servicesCategory = '$baseUrl/services/categories'; // GET
   static const String productsCategory = '$baseUrl/products/categories'; // GET
+
+  // for the search
+  static const String productsSearch = '$baseUrl/user/products'; // GET
+  static const String servicesSearch = '$baseUrl/user/services'; // GET
 }
