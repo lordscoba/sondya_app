@@ -9,11 +9,13 @@ import 'package:sondya_app/presentation/pages/auth/verification_code_screen.dart
 import 'package:sondya_app/presentation/pages/error_screen.dart';
 import 'package:sondya_app/presentation/pages/home_screen.dart';
 import 'package:sondya_app/presentation/pages/onboarding_screen.dart';
+import 'package:sondya_app/presentation/pages/product_search_screen.dart';
+import 'package:sondya_app/presentation/pages/service_search_screen.dart';
 import 'package:sondya_app/presentation/pages/splash_screen.dart';
 import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/product/search',
   errorBuilder: (context, state) => const ErrorScreen(),
   routes: [
     GoRoute(
@@ -31,6 +33,14 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/onboarding',
       builder: (context, state) => const OnboardingScreen(),
+    ),
+    GoRoute(
+      path: '/product/search',
+      builder: (context, state) => const ProductSearchScreen(),
+    ),
+    GoRoute(
+      path: '/service/search',
+      builder: (context, state) => const ServiceSearchScreen(),
     ),
 
     // Auth routes
