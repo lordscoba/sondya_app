@@ -5,6 +5,7 @@ import 'package:sondya_app/domain/models/home.dart';
 import 'package:sondya_app/domain/providers/home.provider.dart';
 import 'package:sondya_app/presentation/features/product_search/product_search_nav.dart';
 import 'package:sondya_app/presentation/widgets/product_service_container.dart';
+import 'package:sondya_app/presentation/widgets/select_widget.dart';
 import 'package:sondya_app/utils/input_validations.dart';
 import 'package:sondya_app/utils/map_to_searchstring.dart';
 
@@ -18,6 +19,7 @@ class ProductSearchBody extends ConsumerStatefulWidget {
 class _ProductSearchBodyState extends ConsumerState<ProductSearchBody> {
   // final String _queryString = "";
   late ProductSearchModel search;
+  String _selectedSortType = "Sort By";
 
   @override
   void initState() {
@@ -28,7 +30,9 @@ class _ProductSearchBodyState extends ConsumerState<ProductSearchBody> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     search = ref.watch(productSearchprovider);
     // final getProducts = ref.watch(getProductSearchProvider(_queryString));
     final getProducts = ref.watch(getProductSearchProvider(
@@ -63,32 +67,86 @@ class _ProductSearchBodyState extends ConsumerState<ProductSearchBody> {
                 },
               ),
               const SizedBox(
-                height: 20,
+                height: 10,
               ),
-              TextButton(
-                  onPressed: () {
-                    showGeneralDialog(
-                      context: context,
-                      // barrierDismissible:
-                      //     true, // Allow dismissal by tapping outside the dialog
-                      transitionDuration: const Duration(
-                          milliseconds: 100), // Adjust animation duration
-                      transitionBuilder: (context, a1, a2, widget) {
-                        return FadeTransition(
-                          opacity:
-                              CurvedAnimation(parent: a1, curve: Curves.easeIn),
-                          child: widget,
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        List<String> sortByList = [
+                          "Latest",
+                          "Oldest",
+                          "Alphabetical (A-Z)",
+                          "Alphabetical (Z-A)"
+                        ];
+                        SondyaSelectWidget().showBottomSheet<String>(
+                          options: sortByList,
+                          context: context,
+                          onItemSelected: (value) {
+                            setState(() {
+                              _selectedSortType = value;
+                            });
+                            if (value == "Alphabetical (A-Z)") {
+                              search.sortBy = "a-z";
+                            } else if (value == "Alphabetical (Z-A)") {
+                              search.sortBy = "z-a";
+                            } else {
+                              search.sortBy = value.toLowerCase();
+                            }
+                            ref.read(productSearchprovider.notifier).state =
+                                search;
+                          },
                         );
                       },
-                      barrierLabel: MaterialLocalizations.of(context)
-                          .modalBarrierDismissLabel, // Optional accessibility label
-                      pageBuilder: (context, animation1, animation2) {
-                        return const ProductSearchNav();
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(_selectedSortType),
+                          const SizedBox(width: 5),
+                          const Icon(Icons.arrow_drop_down),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        showGeneralDialog(
+                          context: context,
+                          transitionDuration: const Duration(
+                              milliseconds: 100), // Adjust animation duration
+                          transitionBuilder: (context, a1, a2, widget) {
+                            return FadeTransition(
+                              opacity: CurvedAnimation(
+                                  parent: a1, curve: Curves.easeIn),
+                              child: widget,
+                            );
+                          },
+                          barrierLabel: MaterialLocalizations.of(context)
+                              .modalBarrierDismissLabel, // Optional accessibility label
+                          pageBuilder: (context, animation1, animation2) {
+                            return const ProductSearchNav();
+                          },
+                        );
                       },
-                    );
-                  },
-                  child: const Text("Search bar")),
-              Text(ref.watch(productSearchprovider).toJson().toString()),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text("Filter By:"),
+                          SizedBox(width: 5),
+                          Icon(Icons.filter_list_sharp),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(
                 height: 20,
               ),

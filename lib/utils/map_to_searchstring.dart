@@ -5,7 +5,7 @@ String mapToSearchString(Map<String, dynamic> map) {
   // Iterate over the map and add non-empty key-value pairs to the list
   map.forEach((key, value) {
     // Check if the value is not empty (null or empty string)
-    if (value != null && value.toString().isNotEmpty) {
+    if (value != null && value.toString().isNotEmpty && value != "") {
       // Encode key and value to handle special characters
       String encodedKey = Uri.encodeQueryComponent(key);
       String encodedValue = Uri.encodeQueryComponent(value.toString());
