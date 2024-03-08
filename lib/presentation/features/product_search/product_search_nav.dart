@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sondya_app/data/remote/home.dart';
+import 'package:sondya_app/data/search_data.dart';
 import 'package:sondya_app/domain/models/home.dart';
 import 'package:sondya_app/domain/providers/home.provider.dart';
 import 'package:sondya_app/presentation/widgets/collapsible_widget.dart';
@@ -14,17 +17,23 @@ class ProductSearchNav extends ConsumerStatefulWidget {
 }
 
 class _ProductSearchNavState extends ConsumerState<ProductSearchNav> {
-  final String _queryString = "";
   late ProductSearchModel search;
   bool showAll = false;
   int _selectedProductValue = 0; // Initially selected value
   int _selectedPriceValue = 0; // Initially selected value
   RangeValues _currentRangeValues = const RangeValues(40, 80);
+  Timer? _debounce;
+
+  // for the input price selector
+  int minPrice = 0;
+  int maxPrice = 100;
+
+  // for the popular brands
+  List<String> popularBrandsList = [];
 
   @override
   void initState() {
     super.initState();
-    // search = ProductSearchModel();
     search = ref.read(productSearchprovider);
     // Initialize the variable in initState
   }
@@ -44,11 +53,15 @@ class _ProductSearchNavState extends ConsumerState<ProductSearchNav> {
             width: double.infinity,
             child: Column(
               children: [
-                TextButton(
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.95,
+                  child: ElevatedButton(
                     onPressed: () {
                       context.push("/product/search");
                     },
-                    child: const Text("apply filter")),
+                    child: const Text("Apply Filter"),
+                  ),
+                ),
                 CollapsibleWidget(
                   title: "Products",
                   isVisible: true,
@@ -71,14 +84,10 @@ class _ProductSearchNavState extends ConsumerState<ProductSearchNav> {
 
                                       search.subcategory =
                                           data["data"][index]["name"];
-
-                                      ref
-                                          .read(productSearchprovider.notifier)
-                                          .state = search;
-                                      debugPrint(search.toJson().toString());
-                                      // ref.read(getProductSearchProvider(
-                                      //     "?${mapToSearchString(ref.watch(productSearchprovider).toJson())}"));
                                     });
+                                    ref
+                                        .read(productSearchprovider.notifier)
+                                        .state = search;
                                   },
                                 ),
                                 title: Text(
@@ -121,9 +130,18 @@ class _ProductSearchNavState extends ConsumerState<ProductSearchNav> {
                           "\$${_currentRangeValues.start.round()}",
                           "\$${_currentRangeValues.end.round()}",
                         ),
-                        onChanged: (RangeValues values) {
-                          setState(() {
-                            _currentRangeValues = values;
+                        onChanged: (RangeValues values) async {
+                          setState(
+                            () {
+                              _currentRangeValues = values;
+                            },
+                          );
+                          if (_debounce?.isActive ?? false) _debounce!.cancel();
+                          _debounce = Timer(const Duration(seconds: 1), () {
+                            search.priceRange =
+                                "${values.start.toInt()} _ ${values.end.toInt()}";
+                            ref.read(productSearchprovider.notifier).state =
+                                search;
                           });
                         },
                       ),
@@ -135,10 +153,26 @@ class _ProductSearchNavState extends ConsumerState<ProductSearchNav> {
                         children: [
                           SizedBox(
                             width: MediaQuery.of(context).size.width * 0.5 - 40,
-                            child: const TextField(
-                              decoration: InputDecoration(
+                            child: TextField(
+                              decoration: const InputDecoration(
                                 labelText: 'Min Price',
                               ),
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) {
+                                setState(() {
+                                  minPrice = int.parse(value);
+                                });
+                                if (_debounce?.isActive ?? false) {
+                                  _debounce!.cancel();
+                                }
+                                _debounce =
+                                    Timer(const Duration(seconds: 1), () {
+                                  search.priceRange = "${minPrice}_$maxPrice";
+                                  ref
+                                      .read(productSearchprovider.notifier)
+                                      .state = search;
+                                });
+                              },
                             ),
                           ),
                           const SizedBox(
@@ -146,10 +180,26 @@ class _ProductSearchNavState extends ConsumerState<ProductSearchNav> {
                           ),
                           SizedBox(
                             width: MediaQuery.of(context).size.width * 0.5 - 40,
-                            child: const TextField(
-                              decoration: InputDecoration(
+                            child: TextField(
+                              decoration: const InputDecoration(
                                 labelText: 'Max Price',
                               ),
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) {
+                                setState(() {
+                                  maxPrice = int.parse(value);
+                                });
+                                if (_debounce?.isActive ?? false) {
+                                  _debounce!.cancel();
+                                }
+                                _debounce =
+                                    Timer(const Duration(seconds: 1), () {
+                                  search.priceRange = "${minPrice}_$maxPrice";
+                                  ref
+                                      .read(productSearchprovider.notifier)
+                                      .state = search;
+                                });
+                              },
                             ),
                           ),
                         ],
@@ -170,6 +220,10 @@ class _ProductSearchNavState extends ConsumerState<ProductSearchNav> {
                               setState(() {
                                 _selectedPriceValue = value!;
                               });
+                              search.priceRange =
+                                  priceRangeListString[_selectedPriceValue];
+                              ref.read(productSearchprovider.notifier).state =
+                                  search;
                             }, // Call the function on change
                           );
                         }).toList(),
@@ -183,20 +237,27 @@ class _ProductSearchNavState extends ConsumerState<ProductSearchNav> {
                     spacing: 10,
                     runSpacing: 10,
                     children: popularBrandList.asMap().entries.map((entry) {
-                      int index = entry.key;
+                      // int index = entry.key;
                       String option = entry.value;
-                      bool checked = false;
                       return SizedBox(
                         width: MediaQuery.of(context).size.width * 0.5 - 30,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Checkbox(
-                              value: checked,
-                              onChanged: (value) {
+                              value: popularBrandsList.contains(option),
+                              onChanged: (bool? isChecked) {
                                 setState(() {
-                                  checked = value!;
+                                  if (isChecked != null && isChecked) {
+                                    popularBrandsList.add(option);
+                                  } else {
+                                    popularBrandsList.remove(option);
+                                  }
                                 });
+                                search.popularBrands =
+                                    popularBrandsList.join(",");
+                                ref.read(productSearchprovider.notifier).state =
+                                    search;
                               },
                             ),
                             const SizedBox(
@@ -209,6 +270,15 @@ class _ProductSearchNavState extends ConsumerState<ProductSearchNav> {
                     }).toList(),
                   ),
                 ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.95,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.push("/product/search");
+                    },
+                    child: const Text("Apply Filter"),
+                  ),
+                ),
               ],
             ),
           ),
@@ -217,27 +287,3 @@ class _ProductSearchNavState extends ConsumerState<ProductSearchNav> {
     );
   }
 }
-
-final List<String> priceRangeList = [
-  'All Prices',
-  'Under \$20',
-  '\$20 - \$100',
-  '\$100 - \$300',
-  '\$300 to \$500',
-  '\$500 to \$1000',
-  '\$1000 to \$10000'
-];
-
-final List<String> popularBrandList = [
-  "Apple",
-  "Google",
-  "Microsoft",
-  "Samsung",
-  "Dell",
-  "Hp",
-  "Sony",
-  "Xiaomi",
-  "Lenovo",
-  "Amazon",
-  "Vivo",
-];
