@@ -2,9 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sondya_app/data/api_constants.dart';
 
-final getProductSearchProvider =
-    FutureProvider.family<Map<String, dynamic>, String>(
-        (ref, String search) async {
+final getProductSearchProvider = FutureProvider.family
+    .autoDispose<List<dynamic>, String>((ref, String search) async {
   try {
     final dio = Dio();
 
@@ -12,7 +11,7 @@ final getProductSearchProvider =
         await dio.get(EnvironmentHomeConfig.productsSearch + search);
     // debugPrint(response.data.toString());
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return response.data as Map<String, dynamic>;
+      return response.data["data"]["products"] as List<dynamic>;
     } else {
       throw Exception('Failed to fetch map data');
     }
