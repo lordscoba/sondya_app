@@ -87,6 +87,7 @@ class _HomeProductsListState extends ConsumerState<HomeProductsList> {
                       data["data"]["data"].isNotEmpty)
                     for (var item in data["data"]["data"].take(4).toList())
                       ProductContainer(
+                        id: item["_id"],
                         productName: item["name"],
                         productPrice: item["current_price"].toDouble(),
                         productImage: item["image"][0]["url"],
@@ -187,6 +188,7 @@ class _HomeServicesListState extends ConsumerState<HomeServicesList> {
                       data["data"]["data"].isNotEmpty)
                     for (var item in data["data"]["data"].take(4).toList())
                       ServiceContainer(
+                        id: item["_id"],
                         productName: item["name"],
                         productPrice: item["current_price"].toDouble(),
                         productImage: item["image"][0]["url"],

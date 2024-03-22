@@ -9,7 +9,9 @@ import 'package:sondya_app/presentation/pages/auth/verification_code_screen.dart
 import 'package:sondya_app/presentation/pages/error_screen.dart';
 import 'package:sondya_app/presentation/pages/home_screen.dart';
 import 'package:sondya_app/presentation/pages/onboarding_screen.dart';
+import 'package:sondya_app/presentation/pages/product_details_screen.dart';
 import 'package:sondya_app/presentation/pages/product_search_screen.dart';
+import 'package:sondya_app/presentation/pages/service_details_screen.dart';
 import 'package:sondya_app/presentation/pages/service_search_screen.dart';
 import 'package:sondya_app/presentation/pages/splash_screen.dart';
 import 'package:sondya_app/presentation/pages/welcome_screen.dart';
@@ -41,6 +43,28 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/service/search',
       builder: (context, state) => const ServiceSearchScreen(),
+    ),
+    GoRoute(
+      path: '/product/details/:id/:name',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        final name = state.pathParameters['name']!;
+        return ProductDetailsScreen(
+          id: id,
+          name: name,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/service/details/:id/:name',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        final name = state.pathParameters['name']!;
+        return ServiceDetailsScreen(
+          id: id,
+          name: name,
+        );
+      },
     ),
 
     // Auth routes
