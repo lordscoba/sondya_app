@@ -283,6 +283,7 @@ class _ProductSearchBodyState extends ConsumerState<ProductSearchBody> {
                   itemBuilder: (context, index) {
                     if (allItems.isNotEmpty) {
                       return ProductContainer(
+                        id: allItems[index]["_id"],
                         productName: allItems[index]["name"],
                         productPrice:
                             allItems[index]["current_price"].toDouble(),

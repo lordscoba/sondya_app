@@ -4,4 +4,5 @@ import 'package:sondya_app/domain/models/home.dart';
 final productSearchprovider =
     StateProvider<ProductSearchModel>((ref) => ProductSearchModel());
 
-final serviceSearchprovider = StateProvider.autoDispose<String>((ref) => "");
+final serviceSearchprovider =
+    StateProvider<ServiceSearchModel>((ref) => ServiceSearchModel());

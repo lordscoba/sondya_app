@@ -27,14 +27,14 @@ final getProductSearchProvider = FutureProvider.family
 });
 
 final getServiceSearchProvider = FutureProvider.family
-    .autoDispose<Map<String, dynamic>, String>((ref, String search) async {
+    .autoDispose<List<dynamic>, String>((ref, String search) async {
   try {
     final dio = Dio();
 
     final response =
         await dio.get(EnvironmentHomeConfig.servicesSearch + search);
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return response.data as Map<String, dynamic>;
+      return response.data["data"]["services"] as List<dynamic>;
     } else {
       throw Exception('Failed to fetch map data');
     }
