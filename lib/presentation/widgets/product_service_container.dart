@@ -20,6 +20,7 @@ class ProductContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onDoubleTap: () {
+        // debugPrint("/product/details/$id/${sondyaSlugify(productName)}");
         context.push("/product/details/$id/${sondyaSlugify(productName)}");
       },
       child: Container(

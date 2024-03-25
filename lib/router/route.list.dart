@@ -17,7 +17,9 @@ import 'package:sondya_app/presentation/pages/splash_screen.dart';
 import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/product/search',
+  // initialLocation: '/product/search',
+  // initialLocation: '/product/details/65a305d57aedbbb6d5dec067/Calvin-sweater',
+  initialLocation: '/product/details/6571d47afc3e181dd7ede9cf/PS-5',
   errorBuilder: (context, state) => const ErrorScreen(),
   routes: [
     GoRoute(

@@ -5,12 +5,16 @@ class PriceFormatWidget extends StatelessWidget {
   final double price;
   final String currencySymbol;
   final int decimalDigits;
+  final bool oldPrice;
+  final double fontSize;
 
   const PriceFormatWidget({
     super.key,
     required this.price,
     this.currencySymbol = '\$', // Default currency symbol
     this.decimalDigits = 2, // Default decimal digits
+    this.oldPrice = false,
+    this.fontSize = 12.0,
   });
 
   @override
@@ -22,10 +26,12 @@ class PriceFormatWidget extends StatelessWidget {
 
     return Text(
       formattedPrice,
-      style: const TextStyle(
-        fontSize: 12.0, // Adjust as desired
-        fontWeight: FontWeight.bold, // Adjust as desired
-        color: Color(0xFFEDB842),
+      style: TextStyle(
+        decoration: oldPrice ? TextDecoration.lineThrough : TextDecoration.none,
+        fontSize: fontSize, // Adjust as desired
+        fontWeight:
+            oldPrice ? FontWeight.normal : FontWeight.bold, // Adjust as desired
+        color: oldPrice ? const Color(0xFF77878F) : const Color(0xFFEDB842),
       ),
     );
   }

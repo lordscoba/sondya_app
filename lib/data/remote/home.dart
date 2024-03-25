@@ -139,3 +139,51 @@ final getServiceDetailsProvider = FutureProvider.autoDispose
     }
   }
 });
+
+typedef ReviewDataParameters = ({String id, String category});
+
+final getReviewStatsProvider = FutureProvider.autoDispose
+    .family<Map<String, dynamic>, ReviewDataParameters>((ref, arguments) async {
+  try {
+    final dio = Dio();
+
+    final response = await dio.get(
+        "${EnvironmentHomeConfig.getReviewStat}${arguments.category}/${arguments.id}");
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return response.data as Map<String, dynamic>;
+    } else {
+      throw Exception('Failed to fetch map data');
+    }
+  } on DioException catch (e) {
+    if (e.response != null) {
+      // debugPrint(e.response?.data.toString());
+      return e.response?.data;
+    } else {
+      // debugPrint(e.message.toString());
+      return throw Exception("Failed to fetch map data error: ${e.message}");
+    }
+  }
+});
+
+final getReviewListProvider = FutureProvider.autoDispose
+    .family<Map<String, dynamic>, ReviewDataParameters>((ref, arguments) async {
+  try {
+    final dio = Dio();
+
+    final response = await dio.get(
+        "${EnvironmentHomeConfig.listReviews}${arguments.category}/${arguments.id}");
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return response.data as Map<String, dynamic>;
+    } else {
+      throw Exception('Failed to fetch map data');
+    }
+  } on DioException catch (e) {
+    if (e.response != null) {
+      // debugPrint(e.response?.data.toString());
+      return e.response?.data;
+    } else {
+      // debugPrint(e.message.toString());
+      return throw Exception("Failed to fetch map data error: ${e.message}");
+    }
+  }
+});

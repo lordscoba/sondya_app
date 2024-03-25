@@ -32,4 +32,12 @@ class EnvironmentHomeConfig {
   // for the search
   static const String productsSearch = '$baseUrl/user/products'; // GET
   static const String servicesSearch = '$baseUrl/user/services'; // GET
+
+  // for reviews
+
+  static const String createReview = '$baseUrl/user/review'; // POST
+  static const String getReviewStat =
+      '$baseUrl/user/review/stat/'; // GET: :category/:id
+  static const String listReviews =
+      '$baseUrl/user/review/list/'; // GET: :category/:id
 }
