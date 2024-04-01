@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sondya_app/data/remote/home.dart';
+import 'package:sondya_app/presentation/features/product_details/product_details_tab.dart';
 import 'package:sondya_app/presentation/widgets/picture_slider.dart';
 import 'package:sondya_app/presentation/widgets/price_formatter.dart';
 import 'package:sondya_app/presentation/widgets/ratings_widget.dart';
@@ -26,14 +27,10 @@ class _ProductDetailsBodyState extends ConsumerState<ProductDetailsBody> {
     final getProductRatingStat =
         ref.watch(getReviewStatsProvider((category: "product", id: widget.id)));
 
-    getProductRatingStat.whenData((data) {
-      debugPrint(data.toString());
-    });
-
     return SingleChildScrollView(
       child: Center(
         child: Container(
-          height: 1000,
+          height: 1300,
           padding: const EdgeInsets.all(10),
           child: getProductDetails.when(
             data: (data) {
@@ -247,6 +244,80 @@ class _ProductDetailsBodyState extends ConsumerState<ProductDetailsBody> {
                           }
                         })?.toList() ??
                         [],
+                  ),
+                  const SizedBox(
+                    height: 13,
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.42,
+                        height: 55,
+                        child: TextFormField(),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        height: 55,
+                        child: ElevatedButton(
+                            onPressed: () {}, child: const Text("Add to cart")),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {},
+                    child: const Text("Contact Seller"),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      TextButton(
+                        onPressed: () {},
+                        child: const Row(
+                          children: [
+                            Icon(Icons.favorite_border_outlined),
+                            SizedBox(width: 10),
+                            Text("Add to wishlist"),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Share product"),
+                          IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.copy),
+                          ),
+                          IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.share),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  ProductDetailsTab(
+                    description: data["data"]["description"] ?? '',
+                    owner: data["data"]["owner"] ?? {},
+                    address: data["data"]["address"] ?? '',
+                    country: data["data"]["country"] ?? '',
+                    state: data["data"]["state"] ?? '',
+                    city: data["data"]["city"] ?? '',
+                    zipCode: data["data"]["zip_code"] ?? '',
+                    subCategory: data["data"]["sub_category"] ?? '',
+                    model: data["data"]["model"] ?? '',
+                    brand: data["data"]["brand"] ?? '',
+                    name: data["data"]["name"] ?? '',
                   ),
                 ],
               );
