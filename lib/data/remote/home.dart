@@ -165,13 +165,24 @@ final getReviewStatsProvider = FutureProvider.autoDispose
   }
 });
 
+typedef ReviewDataListParameters = ({
+  String id,
+  String category,
+  int limit,
+  int page,
+  String search
+});
 final getReviewListProvider = FutureProvider.autoDispose
-    .family<Map<String, dynamic>, ReviewDataParameters>((ref, arguments) async {
+    .family<Map<String, dynamic>, ReviewDataListParameters>(
+        (ref, arguments) async {
   try {
     final dio = Dio();
 
+    final queryString =
+        "?limit=${arguments.limit}&page=${arguments.page}&search=${arguments.search}";
+
     final response = await dio.get(
-        "${EnvironmentHomeConfig.listReviews}${arguments.category}/${arguments.id}");
+        "${EnvironmentHomeConfig.listReviews}${arguments.category}/${arguments.id}$queryString");
     if (response.statusCode == 200 || response.statusCode == 201) {
       return response.data as Map<String, dynamic>;
     } else {

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sondya_app/data/remote/home.dart';
 import 'package:sondya_app/presentation/features/product_details/product_details_tab.dart';
+import 'package:sondya_app/presentation/features/product_details/review_section.dart';
 import 'package:sondya_app/presentation/widgets/picture_slider.dart';
 import 'package:sondya_app/presentation/widgets/price_formatter.dart';
 import 'package:sondya_app/presentation/widgets/ratings_widget.dart';
@@ -28,9 +29,10 @@ class _ProductDetailsBodyState extends ConsumerState<ProductDetailsBody> {
         ref.watch(getReviewStatsProvider((category: "product", id: widget.id)));
 
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: Center(
         child: Container(
-          height: 1300,
+          height: 2300,
           padding: const EdgeInsets.all(10),
           child: getProductDetails.when(
             data: (data) {
@@ -318,6 +320,11 @@ class _ProductDetailsBodyState extends ConsumerState<ProductDetailsBody> {
                     model: data["data"]["model"] ?? '',
                     brand: data["data"]["brand"] ?? '',
                     name: data["data"]["name"] ?? '',
+                  ),
+                  ReviewSection(
+                    '',
+                    category: data["data"]["category"] ?? 'product',
+                    productId: data["data"]["_id"] ?? '',
                   ),
                 ],
               );
