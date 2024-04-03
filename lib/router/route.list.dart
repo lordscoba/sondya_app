@@ -14,12 +14,19 @@ import 'package:sondya_app/presentation/pages/product_search_screen.dart';
 import 'package:sondya_app/presentation/pages/service_details_screen.dart';
 import 'package:sondya_app/presentation/pages/service_search_screen.dart';
 import 'package:sondya_app/presentation/pages/splash_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/inbox_chat_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/inbox_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/kyc_code_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/kyc_company_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/kyc_document_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/kyc_dp_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/kyc_email_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/kyc_personal_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/referral_sceen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/settings_screen.dart';
 import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 
 final GoRouter router = GoRouter(
-  // initialLocation: '/product/search',
-  // initialLocation: '/product/details/65a305d57aedbbb6d5dec067/Calvin-sweater',
-  // initialLocation: '/product/details/6571d47afc3e181dd7ede9cf/PS-5',
   initialLocation: '/service/details/65a111ccdf8051503766b374/hair-dressing',
   errorBuilder: (context, state) => const ErrorScreen(),
   routes: [
@@ -105,6 +112,50 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/registerSuccess',
       builder: (context, state) => const RegisterSuccessScreen(),
+    ),
+
+    // settings route
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/referral',
+      builder: (context, state) => const ReferralPageScreen(),
+    ),
+    GoRoute(
+      path: '/inbox',
+      builder: (context, state) => const InboxScreen(),
+    ),
+    GoRoute(
+      path: '/inbox/chat',
+      builder: (context, state) => const InboxChatScreen(),
+    ),
+
+    // kyc settings route
+    GoRoute(
+      path: '/kyc/email/verify',
+      builder: (context, state) => const KycEmailVerificationScreen(),
+    ),
+    GoRoute(
+      path: '/kyc/code/verify',
+      builder: (context, state) => const KycCodeScreenVerification(),
+    ),
+    GoRoute(
+      path: '/kyc/personal/information',
+      builder: (context, state) => const KycPersonalInformationScreen(),
+    ),
+    GoRoute(
+      path: '/kyc/document/upload',
+      builder: (context, state) => const KycDocumentUploadScreen(),
+    ),
+    GoRoute(
+      path: '/kyc/profile/pics',
+      builder: (context, state) => const KycProfilePicsScreen(),
+    ),
+    GoRoute(
+      path: '/kyc/company/information',
+      builder: (context, state) => const KycCompanyInformationScreen(),
     ),
   ],
 );
