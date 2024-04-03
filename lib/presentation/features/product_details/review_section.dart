@@ -60,7 +60,8 @@ class _ReviewSectionState extends ConsumerState<ReviewSection> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text("${data["data"]["totalReviews"]} reviews for this product",
+                Text(
+                    "${data["data"]["totalReviews"]} reviews for this ${widget.category}",
                     style: const TextStyle(fontSize: 16)),
                 SondyaStarRating(
                     averageRating:
