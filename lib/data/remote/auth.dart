@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sondya_app/data/api_constants.dart';
+import 'package:sondya_app/data/storage_constants.dart';
+import 'package:sondya_app/utils/auth_utils.dart';
 
 class AuthUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
   AuthUserNotifier() : super(const AsyncValue.data({}));
@@ -45,6 +48,17 @@ class AuthUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         state = AsyncValue.data(response.data as Map<String, dynamic>);
+
+        // store the login data in shared preferences
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+        // await prefs.remove('loginR');
+        await prefs.setString(EnvironmentStorageConfig.authSession,
+            getNecessaryAuthData(response.data["data"]).toString());
+
+        // final String? loginR = prefs.getString('loginR');
+        // debugPrint(prefs.getString('loginR') ?? 'no data');
+        // String detailsstring = jsonEncode(response.data);
       }
     } on DioException catch (e) {
       if (e.response != null) {
