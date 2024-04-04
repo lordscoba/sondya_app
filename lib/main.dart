@@ -4,7 +4,6 @@ import 'package:sondya_app/router/router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   runApp(
     const ProviderScope(
       child: MyRouter(),
