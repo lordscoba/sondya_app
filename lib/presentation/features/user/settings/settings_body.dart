@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sondya_app/presentation/features/user/settings/change_password_body.dart';
+import 'package:sondya_app/presentation/features/user/settings/edit_company_details.dart';
+import 'package:sondya_app/presentation/features/user/settings/edit_socials_body.dart';
+import 'package:sondya_app/presentation/features/user/settings/logout.dart';
 
 class SettingsBody extends StatelessWidget {
   const SettingsBody({super.key});
@@ -49,7 +53,7 @@ class SettingsBody extends StatelessWidget {
               title: "Personal Details",
               iconColor: const Color(0xFFFFC749),
               onTap: () {
-                context.push("/login");
+                // context.push("/login");
               },
             ),
             const SizedBox(
@@ -59,7 +63,24 @@ class SettingsBody extends StatelessWidget {
               icon: Icons.person_add,
               title: "Referral",
               onTap: () {
-                context.push("/login");
+                context.push("/referral");
+                // showGeneralDialog(
+                //   context: context,
+                //   transitionDuration: const Duration(
+                //       milliseconds: 100), // Adjust animation duration
+                //   transitionBuilder: (context, a1, a2, widget) {
+                //     return FadeTransition(
+                //       opacity:
+                //           CurvedAnimation(parent: a1, curve: Curves.easeIn),
+                //       child: widget,
+                //     );
+                //   },
+                //   barrierLabel: MaterialLocalizations.of(context)
+                //       .modalBarrierDismissLabel, // Optional accessibility label
+                //   pageBuilder: (context, animation1, animation2) {
+                //     return const ReferralPageBody();
+                //   },
+                // );
               },
               bottomBorder: true,
             ),
@@ -77,7 +98,24 @@ class SettingsBody extends StatelessWidget {
               title: "Change Password",
               iconColor: const Color(0xFFFFC749),
               onTap: () {
-                context.push("/login");
+                // context.push("/login");
+                showGeneralDialog(
+                  context: context,
+                  transitionDuration: const Duration(
+                      milliseconds: 100), // Adjust animation duration
+                  transitionBuilder: (context, a1, a2, widget) {
+                    return FadeTransition(
+                      opacity:
+                          CurvedAnimation(parent: a1, curve: Curves.easeIn),
+                      child: widget,
+                    );
+                  },
+                  barrierLabel: MaterialLocalizations.of(context)
+                      .modalBarrierDismissLabel, // Optional accessibility label
+                  pageBuilder: (context, animation1, animation2) {
+                    return const ChangePasswordBody();
+                  },
+                );
               },
             ),
             const SizedBox(
@@ -96,7 +134,24 @@ class SettingsBody extends StatelessWidget {
               icon: Icons.archive,
               title: "Edit Socials",
               onTap: () {
-                context.push("/login");
+                // context.push("/login");
+                showGeneralDialog(
+                  context: context,
+                  transitionDuration: const Duration(
+                      milliseconds: 100), // Adjust animation duration
+                  transitionBuilder: (context, a1, a2, widget) {
+                    return FadeTransition(
+                      opacity:
+                          CurvedAnimation(parent: a1, curve: Curves.easeIn),
+                      child: widget,
+                    );
+                  },
+                  barrierLabel: MaterialLocalizations.of(context)
+                      .modalBarrierDismissLabel, // Optional accessibility label
+                  pageBuilder: (context, animation1, animation2) {
+                    return const EditSocialsBody();
+                  },
+                );
               },
               bottomBorder: true,
             ),
@@ -113,7 +168,24 @@ class SettingsBody extends StatelessWidget {
               icon: Icons.cases_outlined,
               title: "Company Details",
               onTap: () {
-                context.push("/login");
+                // context.push("/login");
+                showGeneralDialog(
+                  context: context,
+                  transitionDuration: const Duration(
+                      milliseconds: 100), // Adjust animation duration
+                  transitionBuilder: (context, a1, a2, widget) {
+                    return FadeTransition(
+                      opacity:
+                          CurvedAnimation(parent: a1, curve: Curves.easeIn),
+                      child: widget,
+                    );
+                  },
+                  barrierLabel: MaterialLocalizations.of(context)
+                      .modalBarrierDismissLabel, // Optional accessibility label
+                  pageBuilder: (context, animation1, animation2) {
+                    return const EditCompanyDetailsBody();
+                  },
+                );
               },
               bottomBorder: true,
             ),
@@ -157,7 +229,24 @@ class SettingsBody extends StatelessWidget {
               icon: Icons.logout,
               title: "Logout",
               onTap: () {
-                context.push("/login");
+                // context.push("/login");
+                showGeneralDialog(
+                  context: context,
+                  transitionDuration: const Duration(
+                      milliseconds: 100), // Adjust animation duration
+                  transitionBuilder: (context, a1, a2, widget) {
+                    return FadeTransition(
+                      opacity:
+                          CurvedAnimation(parent: a1, curve: Curves.easeIn),
+                      child: widget,
+                    );
+                  },
+                  barrierLabel: MaterialLocalizations.of(context)
+                      .modalBarrierDismissLabel, // Optional accessibility label
+                  pageBuilder: (context, animation1, animation2) {
+                    return const LogoutBody();
+                  },
+                );
               },
             ),
           ],
