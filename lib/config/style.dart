@@ -93,7 +93,7 @@ final ThemeData lightTheme = ThemeData(
       ),
       padding: MaterialStateProperty.all<EdgeInsets>(
         const EdgeInsets.symmetric(
-          vertical: 20.0,
+          vertical: 10.0,
           horizontal: 32.0,
         ),
       ),
