@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sondya_app/presentation/features/user/settings/change_password_body.dart';
 import 'package:sondya_app/presentation/features/user/settings/edit_company_details.dart';
+import 'package:sondya_app/presentation/features/user/settings/edit_personal_details_body.dart';
 import 'package:sondya_app/presentation/features/user/settings/edit_socials_body.dart';
 import 'package:sondya_app/presentation/features/user/settings/logout.dart';
 
@@ -53,7 +54,23 @@ class SettingsBody extends StatelessWidget {
               title: "Personal Details",
               iconColor: const Color(0xFFFFC749),
               onTap: () {
-                // context.push("/login");
+                showGeneralDialog(
+                  context: context,
+                  transitionDuration: const Duration(
+                      milliseconds: 100), // Adjust animation duration
+                  transitionBuilder: (context, a1, a2, widget) {
+                    return FadeTransition(
+                      opacity:
+                          CurvedAnimation(parent: a1, curve: Curves.easeIn),
+                      child: widget,
+                    );
+                  },
+                  barrierLabel: MaterialLocalizations.of(context)
+                      .modalBarrierDismissLabel, // Optional accessibility label
+                  pageBuilder: (context, animation1, animation2) {
+                    return const EditPersonalDetailsBody();
+                  },
+                );
               },
             ),
             const SizedBox(
@@ -64,23 +81,6 @@ class SettingsBody extends StatelessWidget {
               title: "Referral",
               onTap: () {
                 context.push("/referral");
-                // showGeneralDialog(
-                //   context: context,
-                //   transitionDuration: const Duration(
-                //       milliseconds: 100), // Adjust animation duration
-                //   transitionBuilder: (context, a1, a2, widget) {
-                //     return FadeTransition(
-                //       opacity:
-                //           CurvedAnimation(parent: a1, curve: Curves.easeIn),
-                //       child: widget,
-                //     );
-                //   },
-                //   barrierLabel: MaterialLocalizations.of(context)
-                //       .modalBarrierDismissLabel, // Optional accessibility label
-                //   pageBuilder: (context, animation1, animation2) {
-                //     return const ReferralPageBody();
-                //   },
-                // );
               },
               bottomBorder: true,
             ),

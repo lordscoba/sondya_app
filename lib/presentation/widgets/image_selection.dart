@@ -107,3 +107,73 @@ class _SondyaImageSelectionState extends State<SondyaImageSelection> {
     }
   }
 }
+
+class ProfilePicsSelector extends StatefulWidget {
+  const ProfilePicsSelector({super.key});
+
+  @override
+  State<ProfilePicsSelector> createState() => _ProfilePicsSelectorState();
+}
+
+class _ProfilePicsSelectorState extends State<ProfilePicsSelector> {
+  XFile? _image;
+  dynamic _pickImageError;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the variable in initState
+  }
+
+  Future<void> _getImage() async {
+    if (context.mounted) {
+      try {
+        final ImagePicker picker = ImagePicker();
+        final XFile? image =
+            await picker.pickImage(source: ImageSource.gallery);
+        setState(() {
+          _image = image;
+        });
+      } catch (e) {
+        setState(() {
+          _pickImageError = e;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onDoubleTap: _getImage,
+      child: Container(
+          width: 380,
+          height: 200,
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 7),
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: _image == null
+                  ? const AssetImage("assets/images/placeholder.jpg")
+                  : FileImage(File(_image!.path)) as ImageProvider,
+              fit: BoxFit.cover,
+            ),
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.grey, width: 2),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_pickImageError != null)
+                Text(
+                  _pickImageError.toString(),
+                ),
+              IconButton(
+                onPressed: _getImage,
+                icon: const Icon(Icons.edit, color: Colors.black87, size: 30),
+              )
+            ],
+          )),
+    );
+  }
+}
