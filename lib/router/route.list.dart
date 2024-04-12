@@ -18,6 +18,7 @@ import 'package:sondya_app/presentation/pages/userDashboard/inbox_chat_screen.da
 import 'package:sondya_app/presentation/pages/userDashboard/inbox_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/kyc_code_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/kyc_company_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/kyc_contact_info.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/kyc_document_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/kyc_dp_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/kyc_email_screen.dart';
@@ -27,7 +28,8 @@ import 'package:sondya_app/presentation/pages/userDashboard/settings_screen.dart
 import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/inbox/chat',
+  initialLocation: '/kyc/contact/info',
+  // initialLocation: '/',
   errorBuilder: (context, state) => const ErrorScreen(),
   routes: [
     GoRoute(
@@ -144,6 +146,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/kyc/personal/information',
       builder: (context, state) => const KycPersonalInformationScreen(),
+    ),
+    GoRoute(
+      path: '/kyc/contact/info',
+      builder: (context, state) => const KycContactInfoScreen(),
     ),
     GoRoute(
       path: '/kyc/document/upload',
