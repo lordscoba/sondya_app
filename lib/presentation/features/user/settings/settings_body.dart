@@ -5,6 +5,7 @@ import 'package:sondya_app/presentation/features/user/settings/edit_company_deta
 import 'package:sondya_app/presentation/features/user/settings/edit_personal_details_body.dart';
 import 'package:sondya_app/presentation/features/user/settings/edit_socials_body.dart';
 import 'package:sondya_app/presentation/features/user/settings/logout.dart';
+import 'package:sondya_app/utils/url_launcher.dart';
 
 class SettingsBody extends StatelessWidget {
   const SettingsBody({super.key});
@@ -13,7 +14,7 @@ class SettingsBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Container(
-        height: 1050,
+        height: 930,
         width: double.infinity,
         color: const Color(0xFFF5F5F5),
         child: Column(
@@ -121,15 +122,32 @@ class SettingsBody extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            SettingsTile(
-              icon: Icons.person_pin_circle_outlined,
-              title: "Billing Address",
-              iconColor: const Color(0xFFFFC749),
-              onTap: () {
-                context.push("/login");
-              },
-              bottomBorder: true,
-            ),
+            // SettingsTile(
+            //   icon: Icons.person_pin_circle_outlined,
+            //   title: "Billing Address",
+            //   iconColor: const Color(0xFFFFC749),
+            //   onTap: () {
+            //     // context.push("/login");
+            //     showGeneralDialog(
+            //       context: context,
+            //       transitionDuration: const Duration(
+            //           milliseconds: 100), // Adjust animation duration
+            //       transitionBuilder: (context, a1, a2, widget) {
+            //         return FadeTransition(
+            //           opacity:
+            //               CurvedAnimation(parent: a1, curve: Curves.easeIn),
+            //           child: widget,
+            //         );
+            //       },
+            //       barrierLabel: MaterialLocalizations.of(context)
+            //           .modalBarrierDismissLabel, // Optional accessibility label
+            //       pageBuilder: (context, animation1, animation2) {
+            //         return const EditPersonalDetailsBody();
+            //       },
+            //     );
+            //   },
+            //   bottomBorder: true,
+            // ),
             SettingsTile(
               icon: Icons.archive,
               title: "Edit Socials",
@@ -189,13 +207,13 @@ class SettingsBody extends StatelessWidget {
               },
               bottomBorder: true,
             ),
-            SettingsTile(
-              icon: Icons.verified,
-              title: "Verify Account",
-              onTap: () {
-                context.push("/login");
-              },
-            ),
+            // SettingsTile(
+            //   icon: Icons.verified,
+            //   title: "Verify Account",
+            //   onTap: () {
+            //     context.push("/login");
+            //   },
+            // ),
             const SizedBox(
               height: 20,
             ),
@@ -204,7 +222,9 @@ class SettingsBody extends StatelessWidget {
               title: "Delete Account",
               iconColor: const Color(0xFFFF8038),
               onTap: () {
-                context.push("/login");
+                // context.push("/login");
+                sondyaUrlLauncher(
+                    url: Uri.parse('https://www.sondya.com/delete/account'));
               },
               bottomBorder: true,
             ),

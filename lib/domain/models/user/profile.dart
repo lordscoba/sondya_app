@@ -122,3 +122,21 @@ class ChangePasswordModel {
     return data;
   }
 }
+
+class CompanyDetailsUpdateModel {
+  Map<String, dynamic> companyDetails;
+
+  CompanyDetailsUpdateModel({required this.companyDetails});
+
+  factory CompanyDetailsUpdateModel.fromJson(Map<String, dynamic> json) {
+    return CompanyDetailsUpdateModel(
+      companyDetails: json['company_details'] ?? {},
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'company_details': companyDetails,
+    };
+  }
+}
