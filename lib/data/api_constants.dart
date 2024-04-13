@@ -43,45 +43,42 @@ class EnvironmentHomeConfig {
 }
 
 class EnvironmentKycConfig {
-  static const String kycVerifyEmail =
-      '$baseUrl/api/v1/kyc/verify/email'; // POST
+  static const String kycVerifyEmail = '$baseUrl/kyc/verify/email'; // POST
 
   static const String kycVerifyCode =
-      '$baseUrl/api/v1/kyc/verify/code/'; // PUT :id - user id
+      '$baseUrl/kyc/verify/code/'; // PUT :id - user id
 
   static const String kycPersonalDetails =
-      '$baseUrl/api/v1/kyc/personal/'; // PUT :id - user id
+      '$baseUrl/kyc/personal/'; // PUT :id - user id
 
   static const String kycContactInfo =
-      '$baseUrl/api/v1/kyc/contact/'; // PUT :id - user id
+      '$baseUrl/kyc/contact/'; // PUT :id - user id
 
   static const String kycCompanyDetails =
-      '$baseUrl/api/v1/kyc/company/'; // PUT :id - user id
+      '$baseUrl/kyc/company/'; // PUT :id - user id
 
   static const String kycDocumentUpload =
-      '$baseUrl/api/v1/kyc/document/'; // PUT :id - user id
+      '$baseUrl/kyc/document/'; // PUT :id - user id
 
   static const String kycProfilePicture =
-      '$baseUrl/api/v1/kyc/image/'; // PUT :id - user id
+      '$baseUrl/kyc/image/'; // PUT :id - user id
 }
 
 class EnvironmentProfileConfig {
-  // /api/v1/profile/user/{id}
-
-  static const String getUsers = '$baseUrl/api/v1/profile/users'; // GET
+  static const String getUsers = '$baseUrl/profile/users'; // GET
 
   static const String getUserById =
-      '$baseUrl/api/v1/profile/user/'; // GET :id - user id
+      '$baseUrl/profile/user/'; // GET :id - user id
 
   static const String updateProfileById =
-      '$baseUrl/api/v1/profile/update/'; // PUT :id - user id
+      '$baseUrl/profile/update/'; // PUT :id - user id
 
   static const String updatePassword =
-      '$baseUrl/api/v1/profile/update/password/'; // PUT :id - user id
+      '$baseUrl/profile/update/password/'; // PUT :id - user id
 
   static const String updateSocials =
-      '$baseUrl/api/v1/profile/update/socials/'; // PUT :id - user id
+      '$baseUrl/profile/update/socials/'; // PUT :id - user id
 
   static const String updateCompany =
-      '$baseUrl/api/v1/profile/update/company/'; // PUT :id - user id
+      '$baseUrl/profile/update/company/'; // PUT :id - user id
 }

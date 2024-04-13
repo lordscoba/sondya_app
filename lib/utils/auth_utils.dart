@@ -6,7 +6,7 @@ Map<String, dynamic> getNecessaryAuthData(Map<String, dynamic> response) {
   Map<String, dynamic> decodedToken = JwtDecoder.decode(response["token"]);
 
   response.forEach((key, value) {
-    newMap[key] = value;
+    newMap[key] = value.toString();
   });
   decodedToken.forEach((key, value) {
     if (key != 'iat' && key != 'exp') newMap[key] = value;

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,7 +55,7 @@ class AuthUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
 
         // await prefs.remove('loginR');
         await prefs.setString(EnvironmentStorageConfig.authSession,
-            getNecessaryAuthData(response.data["data"]).toString());
+            jsonEncode(getNecessaryAuthData(response.data["data"])));
 
         // final String? loginR = prefs.getString('loginR');
         // debugPrint(prefs.getString('loginR') ?? 'no data');
