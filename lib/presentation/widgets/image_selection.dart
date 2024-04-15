@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class SondyaImageSelection extends StatefulWidget {
-  const SondyaImageSelection({super.key});
+  final void Function(XFile value)? onSetImage;
+  final String? savedNetworkImage;
+  const SondyaImageSelection(
+      {super.key, this.onSetImage, this.savedNetworkImage});
 
   @override
   State<SondyaImageSelection> createState() => _SondyaImageSelectionState();
@@ -20,23 +23,6 @@ class _SondyaImageSelectionState extends State<SondyaImageSelection> {
   void initState() {
     super.initState();
     // Initialize the variable in initState
-  }
-
-  Future<void> _getImage() async {
-    if (context.mounted) {
-      try {
-        final ImagePicker picker = ImagePicker();
-        final XFile? image =
-            await picker.pickImage(source: ImageSource.gallery);
-        setState(() {
-          _image = image;
-        });
-      } catch (e) {
-        setState(() {
-          _pickImageError = e;
-        });
-      }
-    }
   }
 
   @override
@@ -53,46 +39,75 @@ class _SondyaImageSelectionState extends State<SondyaImageSelection> {
           width: 380,
           height: 200,
           child: _image == null
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const Icon(
-                      Icons.image,
-                      size: 50,
-                      color: Color(0xFFEDB842),
-                    ),
-                    if (_pickImageError != null)
-                      Text(_pickImageError.toString()),
-                    const Text("Drag and drop image here, or click add image"),
-                    GestureDetector(
-                      onTap: _getImage,
-                      child: Container(
-                        width: 250,
-                        height: 44,
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 7, horizontal: 10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEDB842).withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Text(
-                          "Browse",
-                          style:
-                              TextStyle(color: Color(0xFFEDB842), fontSize: 18),
-                        ),
-                      ),
+              ? widget.savedNetworkImage != null &&
+                      widget.savedNetworkImage!.isNotEmpty
+                  ? Image.network(
+                      widget.savedNetworkImage!,
+                      fit: BoxFit.cover,
                     )
-                  ],
-                )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        const Icon(
+                          Icons.image,
+                          size: 50,
+                          color: Color(0xFFEDB842),
+                        ),
+                        if (_pickImageError != null)
+                          Text(_pickImageError.toString()),
+                        const Text(
+                            "Drag and drop image here, or click add image"),
+                        GestureDetector(
+                          onTap: _getImage,
+                          child: Container(
+                            width: 250,
+                            height: 44,
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 7, horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEDB842).withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Text(
+                              "Browse",
+                              style: TextStyle(
+                                  color: Color(0xFFEDB842), fontSize: 18),
+                            ),
+                          ),
+                        )
+                      ],
+                    )
               : _getImageWidget(),
         ),
       ),
     );
   }
 
+  Future<void> _getImage() async {
+    if (context.mounted) {
+      try {
+        final ImagePicker picker = ImagePicker();
+        final XFile? image =
+            await picker.pickImage(source: ImageSource.gallery);
+        setState(() {
+          _image = image;
+        });
+
+        // Invoke onSetImage if provided
+        if (widget.onSetImage != null && image != null) {
+          widget.onSetImage!(image);
+        }
+      } catch (e) {
+        setState(() {
+          _pickImageError = e;
+        });
+      }
+    }
+  }
+
   Widget _getImageWidget() {
-    if (kIsWeb) {
+    if (kIsWeb && widget.savedNetworkImage == null) {
       // Display image for web
       return Image.network(
         _image!.path,

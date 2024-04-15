@@ -37,7 +37,10 @@ class _EditCompanyDetailsBodyState
 
     final profileData = ref.watch(getProfileByIdProvider);
     // Optionally, use a button or gesture to trigger refresh
-    final refresh = ref.refresh(getProfileByIdProvider);
+    Future<void> refresh() async {
+      return await ref.refresh(getProfileByIdProvider);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Company Details"),
@@ -181,9 +184,8 @@ class _EditCompanyDetailsBodyState
                   );
                 },
                 loading: () => const CircularProgressIndicator(),
-                error: (error, stackTrace) => Center(
-                  child: Text(error.toString()),
-                ),
+                error: (error, stackTrace) =>
+                    Center(child: Text(error.toString())),
               ),
             ),
           ),
