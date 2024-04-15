@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class KycEmailModel {
   String? email;
@@ -96,7 +96,7 @@ class KycContactInfoModel {
 
 class KycDisplayPictureType {
   // String id;
-  File? image;
+  XFile? image;
 
   KycDisplayPictureType({
     // this.id,
@@ -122,7 +122,7 @@ class KycDisplayPictureType {
 class KycDocumentFileType {
   // String id;
   // List<ImageType>? image;
-  File? image;
+  XFile? image;
 
   KycDocumentFileType({
     // this.id,

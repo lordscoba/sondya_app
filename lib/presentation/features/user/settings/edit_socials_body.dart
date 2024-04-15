@@ -1,3 +1,4 @@
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sondya_app/data/remote/profile.dart';
@@ -32,7 +33,10 @@ class _EditSocialsBodyState extends ConsumerState<EditSocialsBody> {
 
     final profileData = ref.watch(getProfileByIdProvider);
     // Optionally, use a button or gesture to trigger refresh
-    final refresh = ref.refresh(getProfileByIdProvider);
+    Future<void> refresh() async {
+      return await ref.refresh(getProfileByIdProvider);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Socials"),
@@ -154,6 +158,15 @@ class _EditSocialsBodyState extends ConsumerState<EditSocialsBody> {
 
                           // refreshes the profile provider
                           refresh;
+                        } else {
+                          AnimatedSnackBar.rectangle(
+                            'Error',
+                            "Please fill all the fields",
+                            type: AnimatedSnackBarType.warning,
+                            brightness: Brightness.light,
+                          ).show(
+                            context,
+                          );
                         }
                       },
                       child: checkState.isLoading
