@@ -1,9 +1,10 @@
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sondya_app/data/remote/profile.dart';
 import 'package:sondya_app/domain/models/user/profile.dart';
-import 'package:sondya_app/domain/providers/profile.provider.dart';
+import 'package:sondya_app/domain/providers/kyc.provider.dart';
 import 'package:sondya_app/presentation/widgets/success_error_message.dart';
 import 'package:sondya_app/presentation/widgets/threebounce_loader.dart';
 import 'package:sondya_app/utils/input_validations.dart';
@@ -33,7 +34,7 @@ class _KycCompanyInformationBodyState
   @override
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, dynamic>> checkState =
-        ref.watch(profileProvider);
+        ref.watch(kycUserProvider);
 
     final profileData = ref.watch(getProfileByIdProvider);
     // Optionally, use a button or gesture to trigger refresh
@@ -58,19 +59,22 @@ class _KycCompanyInformationBodyState
                       checkState.when(
                         data: (data) {
                           if (data.isNotEmpty) {
-                            ref.invalidate(profileProvider);
+                            WidgetsBinding.instance.addPostFrameCallback(
+                                (_) => context.push('/settings'));
 
-                            // WidgetsBinding.instance.addPostFrameCallback(
-                            //     (_) => context.push('/settings'));
+                            // Optionally, refresh the kycUserProvider
+                            // ignore: unused_result
+                            ref.refresh(kycUserProvider);
                           }
+
                           return sondyaDisplaySuccessMessage(
                               context, data["message"]);
                         },
                         loading: () => const SizedBox(),
                         error: (error, stackTrace) {
-                          ref.invalidate(profileProvider);
-
-                          debugPrint(error.toString());
+                          // Optionally, refresh the kycUserProvider
+                          // ignore: unused_result
+                          ref.refresh(kycUserProvider);
                           return sondyaDisplayErrorMessage(
                               error.toString(), context);
                         },
@@ -175,15 +179,17 @@ class _KycCompanyInformationBodyState
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               _formKey.currentState!.save();
+
                               // Update the company details
                               user.companyDetails = companyDetails;
 
-                              // print(user.toJson());
+                              // Invalidate the kycUserProvider to clear existing data
+                              ref.invalidate(kycUserProvider);
 
                               // Update the profile
                               await ref
-                                  .read(profileProvider.notifier)
-                                  .editCompanyDetails(
+                                  .read(kycUserProvider.notifier)
+                                  .kycCompanyDetails(
                                     user.toJson(),
                                   );
 

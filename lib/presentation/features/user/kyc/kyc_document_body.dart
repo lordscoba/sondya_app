@@ -1,11 +1,13 @@
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sondya_app/data/remote/profile.dart';
 import 'package:sondya_app/domain/models/user/kyc.dart';
 import 'package:sondya_app/domain/providers/kyc.provider.dart';
 import 'package:sondya_app/presentation/widgets/image_selection.dart';
+import 'package:sondya_app/presentation/widgets/success_error_message.dart';
 import 'package:sondya_app/presentation/widgets/threebounce_loader.dart';
 
 class KycDocumentUploadBody extends ConsumerStatefulWidget {
@@ -35,8 +37,8 @@ class _KycDocumentUploadBodyState extends ConsumerState<KycDocumentUploadBody> {
         ref.watch(kycUserProvider);
 
     final profileData = ref.watch(getProfileByIdProvider);
-    // Optionally, use a button or gesture to trigger refresh
 
+    // Optionally, use a button or gesture to trigger refresh
     Future<void> refresh() async {
       return await ref.refresh(getProfileByIdProvider);
     }
@@ -55,6 +57,29 @@ class _KycDocumentUploadBodyState extends ConsumerState<KycDocumentUploadBody> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
+                    checkState.when(
+                      data: (data) {
+                        if (data.isNotEmpty) {
+                          // Optionally, refresh the kycUserProvider
+                          // ignore: unused_result
+                          ref.refresh(kycUserProvider);
+
+                          WidgetsBinding.instance.addPostFrameCallback(
+                              (_) => context.push('/kyc/profile/pics'));
+                        }
+
+                        return sondyaDisplaySuccessMessage(
+                            context, data["message"]);
+                      },
+                      loading: () => const SizedBox(),
+                      error: (error, stackTrace) {
+                        // Optionally, refresh the kycUserProvider
+                        // ignore: unused_result
+                        ref.refresh(kycUserProvider);
+                        return sondyaDisplayErrorMessage(
+                            error.toString(), context);
+                      },
+                    ),
                     Row(
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -141,6 +166,9 @@ class _KycDocumentUploadBodyState extends ConsumerState<KycDocumentUploadBody> {
                             if (imageValue != null) {
                               user.image = imageValue!;
 
+                              // Invalidate the kycUserProvider to clear existing data
+                              ref.invalidate(kycUserProvider);
+
                               // Update the profile
                               await ref
                                   .read(kycUserProvider.notifier)
@@ -150,6 +178,10 @@ class _KycDocumentUploadBodyState extends ConsumerState<KycDocumentUploadBody> {
 
                               // refreshes the profile provider
                               refresh();
+                            } else {
+                              // Navigate to the next screen
+                              // ignore: use_build_context_synchronously
+                              context.push('/kyc/profile/pics');
                             }
                           } else {
                             AnimatedSnackBar.rectangle(

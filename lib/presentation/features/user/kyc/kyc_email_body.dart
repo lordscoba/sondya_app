@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sondya_app/data/local/storedValue.dart';
 import 'package:sondya_app/data/storage_constants.dart';
 import 'package:sondya_app/domain/models/user/kyc.dart';
@@ -57,18 +58,22 @@ class _KycEmailVerificationBodyState
                       checkState.when(
                         data: (data) {
                           if (data.isNotEmpty) {
-                            ref.invalidate(kycUserProvider);
-                            // WidgetsBinding.instance.addPostFrameCallback(
-                            //     (_) => context.push('/settings'));
+                            WidgetsBinding.instance.addPostFrameCallback(
+                                (_) => context.push('kyc/code/verify'));
+
+                            // Optionally, refresh the kycUserProvider
+                            // ignore: unused_result
+                            ref.refresh(kycUserProvider);
                           }
+
                           return sondyaDisplaySuccessMessage(
                               context, data["message"]);
                         },
                         loading: () => const SizedBox(),
                         error: (error, stackTrace) {
-                          ref.invalidate(kycUserProvider);
-
-                          debugPrint(error.toString());
+                          // Optionally, refresh the kycUserProvider
+                          // ignore: unused_result
+                          ref.refresh(kycUserProvider);
                           return sondyaDisplayErrorMessage(
                               error.toString(), context);
                         },
@@ -124,11 +129,28 @@ class _KycEmailVerificationBodyState
                             if (_formKey.currentState!.validate()) {
                               _formKey.currentState!.save();
 
-                              await ref
-                                  .read(kycUserProvider.notifier)
-                                  .kycVerifyEmail(
-                                    user.toJson(),
-                                  );
+                              if (data["email_verified"] == null ||
+                                  data["email_verified"] == "false" ||
+                                  data["email_verified"] == "") {
+                                // Invalidate the kycUserProvider to clear existing data
+                                ref.invalidate(kycUserProvider);
+
+                                await ref
+                                    .read(kycUserProvider.notifier)
+                                    .kycVerifyEmail(
+                                      user.toJson(),
+                                    );
+                              } else {
+                                AnimatedSnackBar.rectangle(
+                                  'Warning',
+                                  "Email already verified",
+                                  type: AnimatedSnackBarType.success,
+                                  brightness: Brightness.light,
+                                ).show(
+                                  context,
+                                );
+                                context.push("/kyc/personal/information");
+                              }
                             } else {
                               AnimatedSnackBar.rectangle(
                                 'Error',

@@ -1,6 +1,7 @@
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sondya_app/data/remote/profile.dart';
 import 'package:sondya_app/domain/models/user/kyc.dart';
 import 'package:sondya_app/domain/providers/kyc.provider.dart';
@@ -54,19 +55,22 @@ class _KycContactInfoBodyState extends ConsumerState<KycContactInfoBody> {
                     checkState.when(
                       data: (data) {
                         if (data.isNotEmpty) {
-                          ref.invalidate(kycUserProvider);
+                          // Optionally, refresh the kycUserProvider
+                          // ignore: unused_result
+                          ref.refresh(kycUserProvider);
 
-                          // WidgetsBinding.instance.addPostFrameCallback(
-                          //     (_) => context.push('/settings'));
+                          WidgetsBinding.instance.addPostFrameCallback(
+                              (_) => context.push('/kyc/document/upload'));
                         }
+
                         return sondyaDisplaySuccessMessage(
                             context, data["message"]);
                       },
                       loading: () => const SizedBox(),
                       error: (error, stackTrace) {
-                        ref.invalidate(kycUserProvider);
-
-                        // debugPrint(error.toString());
+                        // Optionally, refresh the kycUserProvider
+                        // ignore: unused_result
+                        ref.refresh(kycUserProvider);
                         return sondyaDisplayErrorMessage(
                             error.toString(), context);
                       },
@@ -162,7 +166,10 @@ class _KycContactInfoBodyState extends ConsumerState<KycContactInfoBody> {
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
-                            // debugPrint(user.toJson().toString());
+
+                            // Invalidate the kycUserProvider to clear existing data
+                            ref.invalidate(kycUserProvider);
+
                             // Update the profile
                             await ref
                                 .read(kycUserProvider.notifier)

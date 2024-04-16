@@ -90,7 +90,7 @@ class SettingsBody extends StatelessWidget {
               title: "KYC",
               iconColor: const Color(0xFFFFC749),
               onTap: () {
-                context.push("/login");
+                context.push("/kyc/email/verify");
               },
               bottomBorder: true,
             ),
@@ -178,7 +178,7 @@ class SettingsBody extends StatelessWidget {
               title: "Inbox",
               iconColor: const Color(0xFFFFC749),
               onTap: () {
-                context.push("/login");
+                context.push("/inbox");
               },
               bottomBorder: true,
             ),
@@ -233,7 +233,7 @@ class SettingsBody extends StatelessWidget {
               title: "Dark Mode(System Default)",
               iconColor: const Color(0xFFFFC749),
               onTap: () {
-                context.push("/login");
+                context.push("/home");
               },
               bottomBorder: true,
             ),
@@ -241,7 +241,7 @@ class SettingsBody extends StatelessWidget {
               icon: Icons.rate_review,
               title: "Rate Us",
               onTap: () {
-                context.push("/login");
+                context.push("/home");
               },
               bottomBorder: true,
             ),
