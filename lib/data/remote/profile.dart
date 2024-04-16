@@ -1,9 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'package:sondya_app/data/api_constants.dart';
 import 'package:sondya_app/data/local/get_local_auth.dart';
-import 'package:sondya_app/data/repositories/form_data_interceptors.dart';
 import 'package:sondya_app/data/repositories/token_interceptors.dart';
+import 'package:sondya_app/domain/models/user/profile.dart';
 
 final getProfileByIdProvider =
     FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
@@ -162,7 +165,7 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
     }
   }
 
-  Future<void> editPersonalDetails(details) async {
+  Future<void> editPersonalDetails(ProfileUpdateModel details) async {
     try {
       // Set loading state
       state = const AsyncValue.loading();
@@ -170,14 +173,32 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       // initialize dio and add interceptors
       final dio = Dio();
       dio.interceptors.add(const AuthInterceptor());
-      dio.interceptors.add(const FormDataHeaderInterceptor());
 
       // get auth user id
       Map<String, dynamic>? localAuth = await getLocalAuth();
       String? userId = localAuth["id"];
 
-      // set form data
-      final formData = FormData.fromMap(details);
+      final dynamic formData;
+      // check whether image is empty
+
+      if (details.image != null) {
+        // check file mime type and set form data
+        final mimeTypeData = lookupMimeType(details.image!.path);
+        formData = FormData.fromMap(
+          {
+            ...details.toJson(),
+            'image': await MultipartFile.fromFile(details.image!.path,
+                filename: details.image!.name,
+                contentType: MediaType(
+                    'image', mimeTypeData!.split('/').last.toString())),
+          },
+        );
+      } else {
+        formData = FormData.fromMap(details.toJson());
+        // formData = details.toJson();
+      }
+
+      debugPrint(formData.toString());
 
       // Make the PUT request
       final response = await dio.put(

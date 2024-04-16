@@ -1,6 +1,7 @@
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sondya_app/domain/models/user/kyc.dart';
 import 'package:sondya_app/domain/providers/kyc.provider.dart';
 import 'package:sondya_app/presentation/widgets/success_error_message.dart';
@@ -45,18 +46,22 @@ class _KycCodeVerificationBodyState
                 checkState.when(
                   data: (data) {
                     if (data.isNotEmpty) {
-                      ref.invalidate(kycUserProvider);
-                      // WidgetsBinding.instance.addPostFrameCallback(
-                      //     (_) => context.push('/settings'));
+                      WidgetsBinding.instance.addPostFrameCallback(
+                          (_) => context.push('/kyc/personal/information'));
+
+                      // Optionally, refresh the kycUserProvider
+                      // ignore: unused_result
+                      ref.refresh(kycUserProvider);
                     }
+
                     return sondyaDisplaySuccessMessage(
                         context, data["message"]);
                   },
                   loading: () => const SizedBox(),
                   error: (error, stackTrace) {
-                    ref.invalidate(kycUserProvider);
-
-                    debugPrint(error.toString());
+                    // Optionally, refresh the kycUserProvider
+                    // ignore: unused_result
+                    ref.refresh(kycUserProvider);
                     return sondyaDisplayErrorMessage(error.toString(), context);
                   },
                 ),
@@ -107,6 +112,9 @@ class _KycCodeVerificationBodyState
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
+
+                        // Invalidate the kycUserProvider to clear existing data
+                        ref.invalidate(kycUserProvider);
 
                         await ref.read(kycUserProvider.notifier).kycVerifyCode(
                               user.toJson(),

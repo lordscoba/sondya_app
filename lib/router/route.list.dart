@@ -29,7 +29,7 @@ import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 
 final GoRouter router = GoRouter(
   // initialLocation: '/settings',
-  initialLocation: '/kyc/document/upload',
+  initialLocation: '/kyc/personal/information',
   // initialLocation: '/login',
   errorBuilder: (context, state) => const ErrorScreen(),
   routes: [

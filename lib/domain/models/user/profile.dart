@@ -1,3 +1,5 @@
+import 'package:image_picker/image_picker.dart';
+
 class ProfileUpdateModel {
   String? firstName;
   String? lastName;
@@ -12,6 +14,7 @@ class ProfileUpdateModel {
   String? country;
   String? zipCode;
   String? websiteUrl;
+  XFile? image;
 
   ProfileUpdateModel(
       {this.firstName,
@@ -26,7 +29,8 @@ class ProfileUpdateModel {
       this.language,
       this.country,
       this.zipCode,
-      this.websiteUrl});
+      this.websiteUrl,
+      this.image});
 
   ProfileUpdateModel.fromJson(Map<String, dynamic> json) {
     firstName = json['first_name'];
@@ -42,6 +46,7 @@ class ProfileUpdateModel {
     country = json['country'];
     zipCode = json['zip_code'];
     websiteUrl = json['website_url'];
+    image = json['image'];
   }
 
   Map<String, dynamic> toJson() {
@@ -59,6 +64,7 @@ class ProfileUpdateModel {
     data['country'] = country;
     data['zip_code'] = zipCode;
     data['website_url'] = websiteUrl;
+    data['image'] = image;
     return data;
   }
 }

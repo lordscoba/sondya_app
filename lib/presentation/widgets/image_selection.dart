@@ -124,7 +124,10 @@ class _SondyaImageSelectionState extends State<SondyaImageSelection> {
 }
 
 class ProfilePicsSelector extends StatefulWidget {
-  const ProfilePicsSelector({super.key});
+  final void Function(XFile value)? onSetImage;
+  final String? savedNetworkImage;
+  const ProfilePicsSelector(
+      {super.key, this.onSetImage, this.savedNetworkImage});
 
   @override
   State<ProfilePicsSelector> createState() => _ProfilePicsSelectorState();
@@ -140,23 +143,6 @@ class _ProfilePicsSelectorState extends State<ProfilePicsSelector> {
     // Initialize the variable in initState
   }
 
-  Future<void> _getImage() async {
-    if (context.mounted) {
-      try {
-        final ImagePicker picker = ImagePicker();
-        final XFile? image =
-            await picker.pickImage(source: ImageSource.gallery);
-        setState(() {
-          _image = image;
-        });
-      } catch (e) {
-        setState(() {
-          _pickImageError = e;
-        });
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -169,8 +155,13 @@ class _ProfilePicsSelectorState extends State<ProfilePicsSelector> {
           decoration: BoxDecoration(
             image: DecorationImage(
               image: _image == null
-                  ? const AssetImage("assets/images/placeholder.jpg")
-                  : FileImage(File(_image!.path)) as ImageProvider,
+                  ? widget.savedNetworkImage != null &&
+                          widget.savedNetworkImage!.isNotEmpty
+                      ?
+                      // Image.network(widget.savedNetworkImage!)
+                      NetworkImage(widget.savedNetworkImage!) as ImageProvider
+                      : const AssetImage("assets/images/placeholder.jpg")
+                  : FileImage(File(_image!.path)),
               fit: BoxFit.cover,
             ),
             shape: BoxShape.circle,
@@ -190,5 +181,27 @@ class _ProfilePicsSelectorState extends State<ProfilePicsSelector> {
             ],
           )),
     );
+  }
+
+  Future<void> _getImage() async {
+    if (context.mounted) {
+      try {
+        final ImagePicker picker = ImagePicker();
+        final XFile? image =
+            await picker.pickImage(source: ImageSource.gallery);
+        setState(() {
+          _image = image;
+        });
+
+        // Invoke onSetImage if provided
+        if (widget.onSetImage != null && image != null) {
+          widget.onSetImage!(image);
+        }
+      } catch (e) {
+        setState(() {
+          _pickImageError = e;
+        });
+      }
+    }
   }
 }

@@ -5,7 +5,6 @@ import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import 'package:sondya_app/data/api_constants.dart';
 import 'package:sondya_app/data/local/get_local_auth.dart';
-import 'package:sondya_app/data/repositories/form_data_interceptors.dart';
 import 'package:sondya_app/data/repositories/token_interceptors.dart';
 import 'package:sondya_app/domain/models/user/kyc.dart';
 
@@ -157,6 +156,11 @@ class KycUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
         EnvironmentKycConfig.kycPersonalDetails + userId!,
         data: details,
       );
+      // Make the PUT request
+      // final response = await dio.put(
+      //   "${EnvironmentKycConfig.kycPersonalDetails}/haha/dgsggsgs",
+      //   data: details,
+      // );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         state = AsyncValue.data(response.data as Map<String, dynamic>);
@@ -225,14 +229,22 @@ class KycUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       // initialize dio and add interceptors
       final dio = Dio();
       dio.interceptors.add(const AuthInterceptor());
-      dio.interceptors.add(const FormDataHeaderInterceptor());
 
       // get auth user id
       Map<String, dynamic>? localAuth = await getLocalAuth();
       String? userId = localAuth["id"];
 
-      // set form data
-      final formData = FormData.fromMap(details);
+      // check file mime type and set form data
+      final mimeTypeData = lookupMimeType(details.image!.path);
+      final formData = FormData.fromMap(
+        {
+          ...details.toJson(),
+          'image': await MultipartFile.fromFile(details.image!.path,
+              filename: details.image!.name,
+              contentType:
+                  MediaType('image', mimeTypeData!.split('/').last.toString())),
+        },
+      );
 
       // Make the PUT request
       final response = await dio.put(

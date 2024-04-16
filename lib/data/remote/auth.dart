@@ -146,4 +146,19 @@ class AuthUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       }
     }
   }
+
+  Future<void> logout() async {
+    try {
+      // Set loading state
+      state = const AsyncValue.loading();
+
+      // Obtain shared preferences.
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      // Remove data from shared preferences
+      await prefs.remove(EnvironmentStorageConfig.authSession);
+      state = const AsyncValue.data({});
+    } on Exception catch (e) {
+      state = AsyncValue.error(e, StackTrace.current);
+    }
+  }
 }
