@@ -8,8 +8,8 @@ import 'package:sondya_app/data/local/get_local_auth.dart';
 import 'package:sondya_app/data/repositories/token_interceptors.dart';
 import 'package:sondya_app/domain/models/user/kyc.dart';
 
-class KycUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
-  KycUserNotifier() : super(const AsyncValue.data({}));
+class KycEmailNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
+  KycEmailNotifier() : super(const AsyncValue.data({}));
 
   Future<void> kycVerifyEmail(email) async {
     try {
@@ -39,6 +39,10 @@ class KycUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       }
     }
   }
+}
+
+class KycCodeNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
+  KycCodeNotifier() : super(const AsyncValue.data({}));
 
   Future<void> kycVerifyCode(code) async {
     try {
@@ -71,72 +75,11 @@ class KycUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       }
     }
   }
+}
 
-  Future<void> kycCompanyDetails(details) async {
-    try {
-      // Set loading state
-      state = const AsyncValue.loading();
-
-      // initialize dio and add interceptors
-      final dio = Dio();
-      dio.interceptors.add(const AuthInterceptor());
-
-      // get auth user id
-      Map<String, dynamic>? localAuth = await getLocalAuth();
-      String? userId = localAuth["id"];
-
-      // Make the PUT request
-      final response = await dio.put(
-        EnvironmentKycConfig.kycCompanyDetails + userId!,
-        data: details,
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        state = AsyncValue.data(response.data as Map<String, dynamic>);
-      }
-    } on DioException catch (e) {
-      if (e.response != null) {
-        state = AsyncValue.error(e.response?.data['message'], e.stackTrace);
-        // debugPrint(e.response?.data['message'].toString());
-      } else {
-        state = AsyncValue.error(e.message.toString(), e.stackTrace);
-        // debugPrint(e.message.toString());
-      }
-    }
-  }
-
-  Future<void> kycContactInfo(details) async {
-    try {
-      // Set loading state
-      state = const AsyncValue.loading();
-
-      // initialize dio and add interceptors
-      final dio = Dio();
-      dio.interceptors.add(const AuthInterceptor());
-
-      // get auth user id
-      Map<String, dynamic>? localAuth = await getLocalAuth();
-      String? userId = localAuth["id"];
-
-      // Make the PUT request
-      final response = await dio.put(
-        EnvironmentKycConfig.kycContactInfo + userId!,
-        data: details,
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        state = AsyncValue.data(response.data as Map<String, dynamic>);
-      }
-    } on DioException catch (e) {
-      if (e.response != null) {
-        state = AsyncValue.error(e.response?.data['message'], e.stackTrace);
-        // debugPrint(e.response?.data['message'].toString());
-      } else {
-        state = AsyncValue.error(e.message.toString(), e.stackTrace);
-        // debugPrint(e.message.toString());
-      }
-    }
-  }
+class KycPersonalInformationNotifier
+    extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
+  KycPersonalInformationNotifier() : super(const AsyncValue.data({}));
 
   Future<void> kycPersonalDetails(details) async {
     try {
@@ -175,6 +118,48 @@ class KycUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       }
     }
   }
+}
+
+class KycContactInfoNotifier
+    extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
+  KycContactInfoNotifier() : super(const AsyncValue.data({}));
+  Future<void> kycContactInfo(details) async {
+    try {
+      // Set loading state
+      state = const AsyncValue.loading();
+
+      // initialize dio and add interceptors
+      final dio = Dio();
+      dio.interceptors.add(const AuthInterceptor());
+
+      // get auth user id
+      Map<String, dynamic>? localAuth = await getLocalAuth();
+      String? userId = localAuth["id"];
+
+      // Make the PUT request
+      final response = await dio.put(
+        EnvironmentKycConfig.kycContactInfo + userId!,
+        data: details,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        state = AsyncValue.data(response.data as Map<String, dynamic>);
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        state = AsyncValue.error(e.response?.data['message'], e.stackTrace);
+        // debugPrint(e.response?.data['message'].toString());
+      } else {
+        state = AsyncValue.error(e.message.toString(), e.stackTrace);
+        // debugPrint(e.message.toString());
+      }
+    }
+  }
+}
+
+class KycDocumentUploadNotifier
+    extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
+  KycDocumentUploadNotifier() : super(const AsyncValue.data({}));
 
   Future<void> kycDocumentUpload(KycDocumentFileType details) async {
     try {
@@ -220,6 +205,11 @@ class KycUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       }
     }
   }
+}
+
+class KycProfilePicsNotifier
+    extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
+  KycProfilePicsNotifier() : super(const AsyncValue.data({}));
 
   Future<void> kycProfilePics(details) async {
     try {
@@ -250,6 +240,44 @@ class KycUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       final response = await dio.put(
         EnvironmentKycConfig.kycProfilePicture + userId!,
         data: formData,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        state = AsyncValue.data(response.data as Map<String, dynamic>);
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        state = AsyncValue.error(e.response?.data['message'], e.stackTrace);
+        // debugPrint(e.response?.data['message'].toString());
+      } else {
+        state = AsyncValue.error(e.message.toString(), e.stackTrace);
+        // debugPrint(e.message.toString());
+      }
+    }
+  }
+}
+
+class KycCompanyInfoNotifier
+    extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
+  KycCompanyInfoNotifier() : super(const AsyncValue.data({}));
+
+  Future<void> kycCompanyDetails(details) async {
+    try {
+      // Set loading state
+      state = const AsyncValue.loading();
+
+      // initialize dio and add interceptors
+      final dio = Dio();
+      dio.interceptors.add(const AuthInterceptor());
+
+      // get auth user id
+      Map<String, dynamic>? localAuth = await getLocalAuth();
+      String? userId = localAuth["id"];
+
+      // Make the PUT request
+      final response = await dio.put(
+        EnvironmentKycConfig.kycCompanyDetails + userId!,
+        data: details,
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {

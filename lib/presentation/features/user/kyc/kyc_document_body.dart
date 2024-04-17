@@ -34,7 +34,7 @@ class _KycDocumentUploadBodyState extends ConsumerState<KycDocumentUploadBody> {
   @override
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, dynamic>> checkState =
-        ref.watch(kycUserProvider);
+        ref.watch(kycDocumentUploadProvider);
 
     final profileData = ref.watch(getProfileByIdProvider);
 
@@ -60,9 +60,9 @@ class _KycDocumentUploadBodyState extends ConsumerState<KycDocumentUploadBody> {
                     checkState.when(
                       data: (data) {
                         if (data.isNotEmpty) {
-                          // Optionally, refresh the kycUserProvider
+                          // Optionally, refresh the kycDocumentUploadProvider
                           // ignore: unused_result
-                          ref.refresh(kycUserProvider);
+                          ref.refresh(kycDocumentUploadProvider);
 
                           WidgetsBinding.instance.addPostFrameCallback(
                               (_) => context.push('/kyc/profile/pics'));
@@ -73,9 +73,9 @@ class _KycDocumentUploadBodyState extends ConsumerState<KycDocumentUploadBody> {
                       },
                       loading: () => const SizedBox(),
                       error: (error, stackTrace) {
-                        // Optionally, refresh the kycUserProvider
+                        // Optionally, refresh the kycDocumentUploadProvider
                         // ignore: unused_result
-                        ref.refresh(kycUserProvider);
+                        ref.refresh(kycDocumentUploadProvider);
                         return sondyaDisplayErrorMessage(
                             error.toString(), context);
                       },
@@ -166,12 +166,12 @@ class _KycDocumentUploadBodyState extends ConsumerState<KycDocumentUploadBody> {
                             if (imageValue != null) {
                               user.image = imageValue!;
 
-                              // Invalidate the kycUserProvider to clear existing data
-                              ref.invalidate(kycUserProvider);
+                              // Invalidate the kycDocumentUploadProvider to clear existing data
+                              ref.invalidate(kycDocumentUploadProvider);
 
                               // Update the profile
                               await ref
-                                  .read(kycUserProvider.notifier)
+                                  .read(kycDocumentUploadProvider.notifier)
                                   .kycDocumentUpload(
                                     user,
                                   );

@@ -6,11 +6,14 @@ import 'package:sondya_app/presentation/pages/auth/register_screen.dart';
 import 'package:sondya_app/presentation/pages/auth/register_success_screen.dart';
 import 'package:sondya_app/presentation/pages/auth/reset_password_screen.dart';
 import 'package:sondya_app/presentation/pages/auth/verification_code_screen.dart';
+import 'package:sondya_app/presentation/pages/cart_screen.dart';
 import 'package:sondya_app/presentation/pages/error_screen.dart';
 import 'package:sondya_app/presentation/pages/home_screen.dart';
 import 'package:sondya_app/presentation/pages/onboarding_screen.dart';
+import 'package:sondya_app/presentation/pages/product_checkout_screen.dart';
 import 'package:sondya_app/presentation/pages/product_details_screen.dart';
 import 'package:sondya_app/presentation/pages/product_search_screen.dart';
+import 'package:sondya_app/presentation/pages/service_checkout_screen.dart';
 import 'package:sondya_app/presentation/pages/service_details_screen.dart';
 import 'package:sondya_app/presentation/pages/service_search_screen.dart';
 import 'package:sondya_app/presentation/pages/splash_screen.dart';
@@ -26,10 +29,11 @@ import 'package:sondya_app/presentation/pages/userDashboard/kyc_personal_screen.
 import 'package:sondya_app/presentation/pages/userDashboard/referral_sceen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/settings_screen.dart';
 import 'package:sondya_app/presentation/pages/welcome_screen.dart';
+import 'package:sondya_app/presentation/pages/wishlist_screen.dart';
 
 final GoRouter router = GoRouter(
   // initialLocation: '/settings',
-  initialLocation: '/kyc/personal/information',
+  initialLocation: '/cart',
   // initialLocation: '/login',
   errorBuilder: (context, state) => const ErrorScreen(),
   routes: [
@@ -163,6 +167,30 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/kyc/company/information',
       builder: (context, state) => const KycCompanyInformationScreen(),
+    ),
+
+    // cart route
+    GoRoute(
+      path: '/cart',
+      builder: (context, state) => const CartScreen(),
+    ),
+
+    // product checkout route
+    GoRoute(
+      path: '/product/checkout',
+      builder: (context, state) => const ProductCheckoutScreen(),
+    ),
+
+    // service checkout route
+    GoRoute(
+      path: '/service/checkout',
+      builder: (context, state) => const ServiceCheckoutScreen(),
+    ),
+
+    // wishlist route
+    GoRoute(
+      path: '/wishlist',
+      builder: (context, state) => const WishlistScreen(),
     ),
   ],
 );

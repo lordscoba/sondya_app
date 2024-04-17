@@ -33,7 +33,7 @@ class _KycProfilePicsBodyState extends ConsumerState<KycProfilePicsBody> {
   @override
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, dynamic>> checkState =
-        ref.watch(kycUserProvider);
+        ref.watch(kycProfilePicsProvider);
 
     final profileData = ref.watch(getProfileByIdProvider);
 
@@ -62,9 +62,9 @@ class _KycProfilePicsBodyState extends ConsumerState<KycProfilePicsBody> {
                             WidgetsBinding.instance.addPostFrameCallback((_) =>
                                 context.push('/kyc/company/information'));
 
-                            // Optionally, refresh the kycUserProvider
+                            // Optionally, refresh the kycProfilePicsProvider
                             // ignore: unused_result
-                            ref.refresh(kycUserProvider);
+                            ref.refresh(kycProfilePicsProvider);
                           }
 
                           return sondyaDisplaySuccessMessage(
@@ -72,9 +72,9 @@ class _KycProfilePicsBodyState extends ConsumerState<KycProfilePicsBody> {
                         },
                         loading: () => const SizedBox(),
                         error: (error, stackTrace) {
-                          // Optionally, refresh the kycUserProvider
+                          // Optionally, refresh the kycProfilePicsProvider
                           // ignore: unused_result
-                          ref.refresh(kycUserProvider);
+                          ref.refresh(kycProfilePicsProvider);
                           return sondyaDisplayErrorMessage(
                               error.toString(), context);
                         },
@@ -142,12 +142,12 @@ class _KycProfilePicsBodyState extends ConsumerState<KycProfilePicsBody> {
                               if (imageValue != null) {
                                 user.image = imageValue!;
 
-                                // Invalidate the kycUserProvider to clear existing data
-                                ref.invalidate(kycUserProvider);
+                                // Invalidate the kycProfilePicsProvider to clear existing data
+                                ref.invalidate(kycProfilePicsProvider);
 
                                 // Update the profile
                                 await ref
-                                    .read(kycUserProvider.notifier)
+                                    .read(kycProfilePicsProvider.notifier)
                                     .kycProfilePics(
                                       user,
                                     );

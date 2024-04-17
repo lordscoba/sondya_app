@@ -35,7 +35,7 @@ class _KycEmailVerificationBodyState
   @override
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, dynamic>> checkState =
-        ref.watch(kycUserProvider);
+        ref.watch(kycEmailProvider);
     final storedAuthValue =
         ref.watch(storedValueProvider(EnvironmentStorageConfig.authSession));
     return SingleChildScrollView(
@@ -61,9 +61,9 @@ class _KycEmailVerificationBodyState
                             WidgetsBinding.instance.addPostFrameCallback(
                                 (_) => context.push('kyc/code/verify'));
 
-                            // Optionally, refresh the kycUserProvider
+                            // Optionally, refresh the kycEmailProvider
                             // ignore: unused_result
-                            ref.refresh(kycUserProvider);
+                            ref.refresh(kycEmailProvider);
                           }
 
                           return sondyaDisplaySuccessMessage(
@@ -71,9 +71,9 @@ class _KycEmailVerificationBodyState
                         },
                         loading: () => const SizedBox(),
                         error: (error, stackTrace) {
-                          // Optionally, refresh the kycUserProvider
+                          // Optionally, refresh the kycEmailProvider
                           // ignore: unused_result
-                          ref.refresh(kycUserProvider);
+                          ref.refresh(kycEmailProvider);
                           return sondyaDisplayErrorMessage(
                               error.toString(), context);
                         },
@@ -132,11 +132,11 @@ class _KycEmailVerificationBodyState
                               if (data["email_verified"] == null ||
                                   data["email_verified"] == "false" ||
                                   data["email_verified"] == "") {
-                                // Invalidate the kycUserProvider to clear existing data
-                                ref.invalidate(kycUserProvider);
+                                // Invalidate the kycEmailProvider to clear existing data
+                                ref.invalidate(kycEmailProvider);
 
                                 await ref
-                                    .read(kycUserProvider.notifier)
+                                    .read(kycEmailProvider.notifier)
                                     .kycVerifyEmail(
                                       user.toJson(),
                                     );
