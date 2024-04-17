@@ -31,7 +31,7 @@ class _KycCodeVerificationBodyState
   @override
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, dynamic>> checkState =
-        ref.watch(kycUserProvider);
+        ref.watch(kycCodeProvider);
     return SingleChildScrollView(
       child: Center(
         child: Container(
@@ -49,9 +49,9 @@ class _KycCodeVerificationBodyState
                       WidgetsBinding.instance.addPostFrameCallback(
                           (_) => context.push('/kyc/personal/information'));
 
-                      // Optionally, refresh the kycUserProvider
+                      // Optionally, refresh the kycCodeProvider
                       // ignore: unused_result
-                      ref.refresh(kycUserProvider);
+                      ref.refresh(kycCodeProvider);
                     }
 
                     return sondyaDisplaySuccessMessage(
@@ -59,9 +59,9 @@ class _KycCodeVerificationBodyState
                   },
                   loading: () => const SizedBox(),
                   error: (error, stackTrace) {
-                    // Optionally, refresh the kycUserProvider
+                    // Optionally, refresh the kycCodeProvider
                     // ignore: unused_result
-                    ref.refresh(kycUserProvider);
+                    ref.refresh(kycCodeProvider);
                     return sondyaDisplayErrorMessage(error.toString(), context);
                   },
                 ),
@@ -113,10 +113,10 @@ class _KycCodeVerificationBodyState
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
 
-                        // Invalidate the kycUserProvider to clear existing data
-                        ref.invalidate(kycUserProvider);
+                        // Invalidate the kycCodeProvider to clear existing data
+                        ref.invalidate(kycCodeProvider);
 
-                        await ref.read(kycUserProvider.notifier).kycVerifyCode(
+                        await ref.read(kycCodeProvider.notifier).kycVerifyCode(
                               user.toJson(),
                             );
                       } else {

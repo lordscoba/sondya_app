@@ -32,7 +32,11 @@ class _CollapsibleWidgetState extends State<CollapsibleWidget> {
         ListTile(
           title: Row(
             children: [
-              Text(widget.title),
+              Text(
+                widget.title,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
               const Spacer(),
               Icon(
                 isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,

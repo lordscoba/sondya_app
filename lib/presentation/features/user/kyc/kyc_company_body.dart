@@ -34,7 +34,7 @@ class _KycCompanyInformationBodyState
   @override
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, dynamic>> checkState =
-        ref.watch(kycUserProvider);
+        ref.watch(kycCompanyInfoProvider);
 
     final profileData = ref.watch(getProfileByIdProvider);
     // Optionally, use a button or gesture to trigger refresh
@@ -62,9 +62,9 @@ class _KycCompanyInformationBodyState
                             WidgetsBinding.instance.addPostFrameCallback(
                                 (_) => context.push('/settings'));
 
-                            // Optionally, refresh the kycUserProvider
+                            // Optionally, refresh the kycCompanyInfoProvider
                             // ignore: unused_result
-                            ref.refresh(kycUserProvider);
+                            ref.refresh(kycCompanyInfoProvider);
                           }
 
                           return sondyaDisplaySuccessMessage(
@@ -72,9 +72,9 @@ class _KycCompanyInformationBodyState
                         },
                         loading: () => const SizedBox(),
                         error: (error, stackTrace) {
-                          // Optionally, refresh the kycUserProvider
+                          // Optionally, refresh the kycCompanyInfoProvider
                           // ignore: unused_result
-                          ref.refresh(kycUserProvider);
+                          ref.refresh(kycCompanyInfoProvider);
                           return sondyaDisplayErrorMessage(
                               error.toString(), context);
                         },
@@ -183,12 +183,12 @@ class _KycCompanyInformationBodyState
                               // Update the company details
                               user.companyDetails = companyDetails;
 
-                              // Invalidate the kycUserProvider to clear existing data
-                              ref.invalidate(kycUserProvider);
+                              // Invalidate the kycCompanyInfoProvider to clear existing data
+                              ref.invalidate(kycCompanyInfoProvider);
 
                               // Update the profile
                               await ref
-                                  .read(kycUserProvider.notifier)
+                                  .read(kycCompanyInfoProvider.notifier)
                                   .kycCompanyDetails(
                                     user.toJson(),
                                   );

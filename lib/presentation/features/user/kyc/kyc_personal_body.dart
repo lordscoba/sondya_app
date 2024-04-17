@@ -58,7 +58,7 @@ class _KycPersonalInformationBodyState
   @override
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, dynamic>> checkState =
-        ref.watch(kycUserProvider);
+        ref.watch(kycPersonalInformationProvider);
 
     final profileData = ref.watch(getProfileByIdProvider);
     // Optionally, use a button or gesture to trigger refresh
@@ -99,9 +99,9 @@ class _KycPersonalInformationBodyState
                     checkState.when(
                       data: (data) {
                         if (data.isNotEmpty) {
-                          // Optionally, refresh the kycUserProvider
+                          // Optionally, refresh the kycPersonalInformationProvider
                           // ignore: unused_result
-                          ref.refresh(kycUserProvider);
+                          ref.refresh(kycPersonalInformationProvider);
 
                           WidgetsBinding.instance.addPostFrameCallback(
                               (_) => context.push('/kyc/contact/info'));
@@ -112,9 +112,9 @@ class _KycPersonalInformationBodyState
                       },
                       loading: () => const SizedBox(),
                       error: (error, stackTrace) {
-                        // Optionally, refresh the kycUserProvider
+                        // Optionally, refresh the kycPersonalInformationProvider
                         // ignore: unused_result
-                        ref.refresh(kycUserProvider);
+                        ref.refresh(kycPersonalInformationProvider);
                         return sondyaDisplayErrorMessage(
                             error.toString(), context);
                       },
@@ -281,12 +281,12 @@ class _KycPersonalInformationBodyState
 
                             // debugPrint(user.toJson().toString());
 
-                            // Invalidate the kycUserProvider to clear existing data
-                            ref.invalidate(kycUserProvider);
+                            // Invalidate the kycPersonalInformationProvider to clear existing data
+                            ref.invalidate(kycPersonalInformationProvider);
 
                             // Update the profile
                             await ref
-                                .read(kycUserProvider.notifier)
+                                .read(kycPersonalInformationProvider.notifier)
                                 .kycPersonalDetails(
                                   user.toJson(),
                                 );
