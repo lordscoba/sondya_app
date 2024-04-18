@@ -109,35 +109,30 @@ class _CartBodyState extends ConsumerState<CartBody> {
                         shrinkWrap: true,
                         children: [
                           ListTile(
-                            titleTextStyle: textStyleConCluding,
                             leadingAndTrailingTextStyle: textStyleConCluding,
-                            title: const Text("Sub Total"),
+                            leading: const Text("Sub Total"),
                             trailing: const Text("\$ 4,000"),
                           ),
                           ListTile(
-                            titleTextStyle: textStyleConCluding,
                             leadingAndTrailingTextStyle: textStyleConCluding,
-                            title: const Text("Total Shipping Fees"),
+                            leading: const Text("Total Shipping Fees"),
                             trailing: const Text("\$ 21"),
                             subtitle: const Text(
                                 "(Standard Rate - Price may vary depending on the item/destination. TECS Staff will contact you.)"),
                           ),
                           ListTile(
-                            titleTextStyle: textStyleConCluding,
                             leadingAndTrailingTextStyle: textStyleConCluding,
-                            title: const Text("Total Tax"),
+                            leading: const Text("Total Tax"),
                             trailing: const Text("\$ 1"),
                           ),
                           ListTile(
-                            titleTextStyle: textStyleConCluding,
                             leadingAndTrailingTextStyle: textStyleConCluding,
-                            title: const Text("Total Discount"),
+                            leading: const Text("Total Discount"),
                             trailing: const Text("\$ 3"),
                           ),
                           ListTile(
-                            titleTextStyle: textStyleConCluding,
                             leadingAndTrailingTextStyle: textStyleConCluding,
-                            title: const Text("Order Total"),
+                            leading: const Text("Order Total"),
                             trailing: const Text("\$ 4,000"),
                           )
                         ],
