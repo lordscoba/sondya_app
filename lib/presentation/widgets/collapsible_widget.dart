@@ -4,11 +4,13 @@ class CollapsibleWidget extends StatefulWidget {
   final String title;
   final Widget child;
   final bool isVisible;
+  final double padding;
   const CollapsibleWidget(
       {super.key,
       required this.title,
       required this.child,
-      this.isVisible = false});
+      this.isVisible = false,
+      this.padding = 16});
 
   @override
   State<CollapsibleWidget> createState() => _CollapsibleWidgetState();
@@ -55,7 +57,7 @@ class _CollapsibleWidgetState extends State<CollapsibleWidget> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: widget.padding),
             child: widget.child,
           ),
         ),
