@@ -54,7 +54,8 @@ class KycCodeNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth = await getLocalAuth();
+      Map<String, dynamic>? localAuth =
+          await getLocalAuth() as Map<String, dynamic>;
       String? userId = localAuth["id"];
 
       final response = await dio.put(
@@ -91,7 +92,9 @@ class KycPersonalInformationNotifier
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth = await getLocalAuth();
+
+      Map<String, dynamic>? localAuth =
+          await getLocalAuth() as Map<String, dynamic>;
       String? userId = localAuth["id"];
 
       // Make the PUT request
@@ -133,7 +136,8 @@ class KycContactInfoNotifier
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth = await getLocalAuth();
+      Map<String, dynamic>? localAuth =
+          await getLocalAuth() as Map<String, dynamic>;
       String? userId = localAuth["id"];
 
       // Make the PUT request
@@ -171,7 +175,8 @@ class KycDocumentUploadNotifier
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth = await getLocalAuth();
+      Map<String, dynamic>? localAuth =
+          await getLocalAuth() as Map<String, dynamic>;
       String? userId = localAuth["id"];
 
       // check file mime type and set form data
@@ -221,7 +226,8 @@ class KycProfilePicsNotifier
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth = await getLocalAuth();
+      Map<String, dynamic>? localAuth =
+          await getLocalAuth() as Map<String, dynamic>;
       String? userId = localAuth["id"];
 
       // check file mime type and set form data
@@ -271,7 +277,8 @@ class KycCompanyInfoNotifier
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth = await getLocalAuth();
+      Map<String, dynamic>? localAuth =
+          await getLocalAuth() as Map<String, dynamic>;
       String? userId = localAuth["id"];
 
       // Make the PUT request

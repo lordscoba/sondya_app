@@ -15,7 +15,8 @@ final getProfileByIdProvider =
     dio.interceptors.add(const AuthInterceptor());
 
     // get auth user id
-    Map<String, dynamic>? localAuth = await getLocalAuth();
+    Map<String, dynamic>? localAuth =
+        await getLocalAuth() as Map<String, dynamic>;
     String? userId = localAuth["id"];
 
     final response =
@@ -76,7 +77,8 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth = await getLocalAuth();
+      Map<String, dynamic>? localAuth =
+          await getLocalAuth() as Map<String, dynamic>;
       String? userId = localAuth["id"];
 
       // Make the GET request
@@ -107,7 +109,8 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth = await getLocalAuth();
+      Map<String, dynamic>? localAuth =
+          await getLocalAuth() as Map<String, dynamic>;
       String? userId = localAuth["id"];
 
       // Make the PUT request
@@ -140,7 +143,8 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth = await getLocalAuth();
+      Map<String, dynamic>? localAuth =
+          await getLocalAuth() as Map<String, dynamic>;
       String? userId = localAuth["id"];
 
       // debugPrint(details.toString());
@@ -175,7 +179,8 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth = await getLocalAuth();
+      Map<String, dynamic>? localAuth =
+          await getLocalAuth() as Map<String, dynamic>;
       String? userId = localAuth["id"];
 
       final dynamic formData;
@@ -230,7 +235,8 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth = await getLocalAuth();
+      Map<String, dynamic>? localAuth =
+          await getLocalAuth() as Map<String, dynamic>;
       String? userId = localAuth["id"];
 
       // Make the PUT request

@@ -10,8 +10,43 @@ import 'package:sondya_app/utils/url_launcher.dart';
 class SettingsBody extends StatelessWidget {
   const SettingsBody({super.key});
 
+  // Future<Map<String, dynamic>> getLocalAuth() async {
+  //   Box<Map<String, dynamic>> authSessionBox = Hive.box(authBox);
+  //   if (authSessionBox.isEmpty) {
+  //     return {};
+  //   } else {
+  //     return authSessionBox.get(EnvironmentStorageConfig.authSession) ?? {};
+  //   }
+  // }
+
+  // Future<Map<String, dynamic>> getLocalAuth() async {
+  //   Box<Map<String, dynamic>> authSessionBox = Hive.box(authBox);
+  //   if (authSessionBox.isEmpty) {
+  //     return {};
+  //   } else {
+  //     Map<String, dynamic>? authData =
+  //         authSessionBox.get(EnvironmentStorageConfig.authSession);
+  //     return authData ?? {};
+  //   }
+  // }
+
+  // Future<Map<String, dynamic>> getLocalAuth() async {
+  //   Box<Map<String, dynamic>> authSessionBox = Hive.box(authBox);
+  //   final authData = authSessionBox.get(EnvironmentStorageConfig.authSession);
+  //   return authData?.cast<String, dynamic>() ??
+  //       {}; // Cast and return empty map if null
+  // }
+
   @override
   Widget build(BuildContext context) {
+    // final Box<Map<String, dynamic>> authSessionBox = Hive.box(authBox);
+    // final Map<String, dynamic> authData =
+    //     authSessionBox.get(EnvironmentStorageConfig.authSession) ?? {};
+    // debugPrint(authSessionBox.toString());
+    // get the login data from hive authBox
+    // final Map<String, dynamic> authData = authSessionBox
+    //     .get(EnvironmentStorageConfig.authSession) as Map<String, dynamic>;
+    // print(getLocalAuth());
     return SingleChildScrollView(
       child: Container(
         height: 930,

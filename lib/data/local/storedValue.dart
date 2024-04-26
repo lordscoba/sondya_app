@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sondya_app/data/hive_boxes.dart';
+import 'package:sondya_app/data/storage_constants.dart';
+import 'package:sondya_app/domain/hive_models/auth.dart';
 
-final storedValueProvider =
-    FutureProvider.family.autoDispose<String, String>((ref, key) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-
-  return prefs.getString(key) ?? '';
+final storedAuthValueProvider =
+    FutureProvider.autoDispose<AuthInfo>((ref) async {
+  return boxAuth.get(EnvironmentStorageConfig.authSession);
 });
