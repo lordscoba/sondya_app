@@ -32,9 +32,9 @@ import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 import 'package:sondya_app/presentation/pages/wishlist_screen.dart';
 
 final GoRouter router = GoRouter(
-  // initialLocation: '/settings',
+  // initialLocation: '/product/details/6584298f6daa536f3412484d/VendingMachine',
+  initialLocation: '/settings',
   // initialLocation: '/product/checkout',
-  initialLocation: '/wishlist',
   errorBuilder: (context, state) => const ErrorScreen(),
   routes: [
     GoRoute(

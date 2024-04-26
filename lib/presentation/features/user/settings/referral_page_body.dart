@@ -1,9 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sondya_app/data/local/storedValue.dart';
-import 'package:sondya_app/data/storage_constants.dart';
 import 'package:sondya_app/utils/copy.dart';
 
 class ReferralPageBody extends ConsumerWidget {
@@ -11,8 +8,7 @@ class ReferralPageBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final storedAuthValue =
-        ref.watch(storedValueProvider(EnvironmentStorageConfig.authSession));
+    final storedAuthValue = ref.watch(storedAuthValueProvider);
     return SingleChildScrollView(
       child: Center(
         child: Container(
@@ -101,14 +97,14 @@ class ReferralPageBody extends ConsumerWidget {
               const Text("Or copy your personal link"),
               const SizedBox(height: 10.0),
               storedAuthValue.when(
-                data: (dataR) {
-                  Map<String, dynamic> data = {};
-                  if (dataR.isNotEmpty) {
-                    data = jsonDecode(dataR);
-                  }
+                data: (data) {
+                  // Map<String, dynamic> data = {};
+                  // if (dataR.isNotEmpty) {
+                  //   data = jsonDecode(dataR);
+                  // }
                   TextEditingController controller = TextEditingController(
                     text:
-                        'https://www.sondya.com/register?referrer=${data["email"] ?? ""}',
+                        'https://www.sondya.com/register?referrer=${data.email}',
                   );
                   return TextField(
                     controller: controller,

@@ -1,11 +1,8 @@
-import 'dart:convert';
-
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sondya_app/data/local/storedValue.dart';
-import 'package:sondya_app/data/storage_constants.dart';
 import 'package:sondya_app/domain/models/user/kyc.dart';
 import 'package:sondya_app/domain/providers/kyc.provider.dart';
 import 'package:sondya_app/presentation/widgets/success_error_message.dart';
@@ -36,8 +33,7 @@ class _KycEmailVerificationBodyState
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, dynamic>> checkState =
         ref.watch(kycEmailProvider);
-    final storedAuthValue =
-        ref.watch(storedValueProvider(EnvironmentStorageConfig.authSession));
+    final storedAuthValue = ref.watch(storedAuthValueProvider);
     return SingleChildScrollView(
       child: Center(
         child: Container(
@@ -47,11 +43,7 @@ class _KycEmailVerificationBodyState
           child: Form(
             key: _formKey,
             child: storedAuthValue.when(
-                data: (dataR) {
-                  Map<String, dynamic> data = {};
-                  if (dataR.isNotEmpty) {
-                    data = jsonDecode(dataR);
-                  }
+                data: (data) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
@@ -109,7 +101,7 @@ class _KycEmailVerificationBodyState
                           labelText: 'Email',
                         ),
                         readOnly: true,
-                        initialValue: data['email'],
+                        initialValue: data.email,
                         validator: isInputEmail,
                         onSaved: (value) {
                           user.email = value!;
@@ -129,9 +121,8 @@ class _KycEmailVerificationBodyState
                             if (_formKey.currentState!.validate()) {
                               _formKey.currentState!.save();
 
-                              if (data["email_verified"] == null ||
-                                  data["email_verified"] == "false" ||
-                                  data["email_verified"] == "") {
+                              if (data.emailVerified == "false" ||
+                                  data.emailVerified == "") {
                                 // Invalidate the kycEmailProvider to clear existing data
                                 ref.invalidate(kycEmailProvider);
 

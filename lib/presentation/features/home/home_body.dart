@@ -9,20 +9,16 @@ class HomeBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return const SingleChildScrollView(
       child: Center(
-        child: SizedBox(
-          height: 1200,
-          width: double.infinity,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              HomeProductsList(),
-              HomeToGroupChat(),
-              HomeServicesList(),
-            ],
-            // Your scrollable content here
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            HomeProductsList(),
+            HomeToGroupChat(),
+            HomeServicesList(),
+          ],
+          // Your scrollable content here
         ),
       ),
     );

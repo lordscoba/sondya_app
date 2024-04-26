@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sondya_app/data/api_constants.dart';
+import 'package:sondya_app/data/hive_boxes.dart';
 import 'package:sondya_app/data/storage_constants.dart';
+import 'package:sondya_app/domain/hive_models/auth.dart';
 import 'package:sondya_app/utils/auth_utils.dart';
 
 class AuthUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
@@ -50,16 +50,16 @@ class AuthUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         state = AsyncValue.data(response.data as Map<String, dynamic>);
 
-        // store the login data in shared preferences
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        // store the login data in hive authBox
+        boxAuth.clear();
+        AuthInfo userInfo =
+            AuthInfo.fromJson(getNecessaryAuthData(response.data["data"]));
+        boxAuth.put(EnvironmentStorageConfig.authSession, userInfo);
 
-        // await prefs.remove('loginR');
-        await prefs.setString(EnvironmentStorageConfig.authSession,
-            jsonEncode(getNecessaryAuthData(response.data["data"])));
-
-        // final String? loginR = prefs.getString('loginR');
-        // debugPrint(prefs.getString('loginR') ?? 'no data');
-        // String detailsstring = jsonEncode(response.data);
+        // get the login data from hive authBox
+        // final AuthInfo authData =
+        //     boxAuth.get(EnvironmentStorageConfig.authSession) as AuthInfo;
+        // debugPrint(authData.toJson().toString());
       }
     } on DioException catch (e) {
       if (e.response != null) {
@@ -152,10 +152,8 @@ class AuthUserNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       // Set loading state
       state = const AsyncValue.loading();
 
-      // Obtain shared preferences.
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      // Remove data from shared preferences
-      await prefs.remove(EnvironmentStorageConfig.authSession);
+      // get box auth data and clear it
+      boxAuth.clear();
       state = const AsyncValue.data({});
     } on Exception catch (e) {
       state = AsyncValue.error(e, StackTrace.current);

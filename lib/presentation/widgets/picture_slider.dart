@@ -33,15 +33,17 @@ class _SondyaPictureSliderState extends State<SondyaPictureSlider> {
               ),
               borderRadius: BorderRadius.circular(5)),
           padding: const EdgeInsets.all(2),
-          child: FadeInImage(
-            placeholder: const AssetImage(
-              'assets/images/placeholder.jpg',
-            ),
-            image: NetworkImage(currentImage["url"]),
-            fit: BoxFit.cover,
-            height: 300,
-            width: double.infinity,
-          ),
+          child: currentImage.isNotEmpty
+              ? FadeInImage(
+                  placeholder: const AssetImage(
+                    'assets/images/placeholder.jpg',
+                  ),
+                  image: NetworkImage(currentImage["url"]),
+                  fit: BoxFit.cover,
+                  height: 300,
+                  width: double.infinity,
+                )
+              : const Text("No Image"),
         ),
         const SizedBox(
           height: 5,

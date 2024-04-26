@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sondya_app/domain/providers/cart.provider.dart';
 import 'package:sondya_app/presentation/widgets/price_formatter.dart';
 import 'package:sondya_app/utils/slugify.dart';
 
-class ProductContainer extends StatelessWidget {
+class ProductContainer extends ConsumerStatefulWidget {
   final String id;
   final String productName;
   final double productPrice;
@@ -17,43 +19,81 @@ class ProductContainer extends StatelessWidget {
       required this.id});
 
   @override
+  ConsumerState<ProductContainer> createState() => _ProductContainerState();
+}
+
+class _ProductContainerState extends ConsumerState<ProductContainer> {
+  void _detailsPage() {
+    // debugPrint("/product/details/$id/${sondyaSlugify(productName)}");
+    context.push(
+        "/product/details/${widget.id}/${sondyaSlugify(widget.productName)}");
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onDoubleTap: () {
-        // debugPrint("/product/details/$id/${sondyaSlugify(productName)}");
-        context.push("/product/details/$id/${sondyaSlugify(productName)}");
-      },
+      onDoubleTap: _detailsPage,
       child: Container(
-        padding: const EdgeInsets.all(5),
         width: 190,
-        height: 190,
+        height: 250,
+        padding: const EdgeInsets.all(5),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (productImage == "")
+            if (widget.productImage == "")
               Image(
-                image: AssetImage(productImage),
+                image: AssetImage(widget.productImage),
                 fit: BoxFit.contain,
                 height: 120,
                 width: double.infinity,
               )
             else
               Image(
-                image: NetworkImage(productImage),
+                image: NetworkImage(widget.productImage),
                 fit: BoxFit.contain,
                 height: 120,
                 width: double.infinity,
               ),
             Text(
-              productName,
+              widget.productName,
               style: GoogleFonts.playfairDisplay(
                   fontSize: 15, fontWeight: FontWeight.w500),
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
             ),
-            PriceFormatWidget(price: productPrice)
+            Container(
+              height: 15,
+              padding: EdgeInsets.zero,
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  PriceFormatWidget(price: widget.productPrice),
+                  IconButton(
+                    onPressed: _detailsPage,
+                    icon: const Icon(
+                      Icons.favorite_border_outlined,
+                      size: 15,
+                      color: Color(0xFFEDB842),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 40,
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await ref
+                      .read(addToCartProvider.notifier)
+                      .addToCart({"_id": widget.id, "order_quantity": 1});
+                },
+                child: const Text("Add to Cart"),
+              ),
+            )
           ],
         ),
       ),

@@ -1,28 +1,18 @@
-import 'dart:convert';
-
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sondya_app/data/hive_boxes.dart';
 import 'package:sondya_app/data/storage_constants.dart';
+import 'package:sondya_app/domain/hive_models/auth.dart';
 
-Future<Map<String, dynamic>> getLocalAuth() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String data =
-      prefs.getString(EnvironmentStorageConfig.authSession) ?? '';
-  final dataJson = jsonDecode(_correctJsonString(data)) as Map<String, dynamic>;
-  if (data == '') {
-    return {};
+Future<AuthInfo> getLocalAuth() async {
+  if (boxAuth.isEmpty) {
+    return AuthInfo(
+        type: '',
+        token: '',
+        emailVerified: '',
+        kycCompleted: '',
+        id: '',
+        email: '',
+        username: '');
   } else {
-    return dataJson;
+    return boxAuth.get(EnvironmentStorageConfig.authSession) ?? {};
   }
-}
-
-String _correctJsonString(String jsonString) {
-  // Add double quotes around keys and string values
-  return jsonString.replaceAllMapped(
-    RegExp(r'"?(\b\w+\b)"?: ("?.*?"?)(,|\s*(?=}))'),
-    (match) {
-      final key = match.group(1);
-      final value = match.group(2);
-      return '"$key": "$value"${match.group(3) ?? ''}';
-    },
-  );
 }

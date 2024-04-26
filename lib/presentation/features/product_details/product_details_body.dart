@@ -36,6 +36,7 @@ class _ProductDetailsBodyState extends ConsumerState<ProductDetailsBody> {
           padding: const EdgeInsets.all(10),
           child: getProductDetails.when(
             data: (data) {
+              // debugPrint(data["data"].toString());
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -51,9 +52,12 @@ class _ProductDetailsBodyState extends ConsumerState<ProductDetailsBody> {
                           icon: const Icon(Icons.arrow_back))
                     ],
                   ),
-                  SondyaPictureSlider(
-                    pictureList: data["data"]["image"],
-                  ),
+                  data["data"]?["image"]?.isNotEmpty &&
+                          data["data"]?["image"] != null
+                      ? SondyaPictureSlider(
+                          pictureList: data["data"]["image"],
+                        )
+                      : Container(),
                   const SizedBox(
                     height: 8,
                   ),
@@ -212,40 +216,40 @@ class _ProductDetailsBodyState extends ConsumerState<ProductDetailsBody> {
                   Wrap(
                     spacing: 5.0, // horizontal spacing between items
                     runSpacing: 5.0, // vertical spacing between lines
-                    children: data["data"]["variants"]
-                            ?.entries
-                            ?.map<Widget>((entry) {
-                          final key = entry.key;
-                          final value = entry.value;
-                          if (data["data"]["variants"].isNotEmpty) {
-                            return SizedBox(
-                              width: 200,
-                              child: OutlinedButton(
-                                onPressed: () async {
-                                  SondyaSelectWidget().showBottomSheet<String>(
-                                    options: value.whereType<String>().toList(),
-                                    context: context,
-                                    onItemSelected: (value) {},
-                                  );
-                                },
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      key.toString(),
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                    const Icon(Icons.arrow_drop_down),
-                                  ],
+                    children: data["data"]["variants"].isNotEmpty
+                        ? data["data"]["variants"]
+                                ?.entries
+                                ?.map<Widget>((entry) {
+                              final key = entry.key;
+                              final value = entry.value;
+                              return SizedBox(
+                                width: 200,
+                                child: OutlinedButton(
+                                  onPressed: () async {
+                                    SondyaSelectWidget()
+                                        .showBottomSheet<String>(
+                                      options:
+                                          value.whereType<String>().toList(),
+                                      context: context,
+                                      onItemSelected: (value) {},
+                                    );
+                                  },
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        key.toString(),
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                      const Icon(Icons.arrow_drop_down),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            );
-                          } else {
-                            return const Text("No variants");
-                          }
-                        })?.toList() ??
-                        [],
+                              );
+                            })?.toList() ??
+                            []
+                        : [const Text("No variants")],
                   ),
                   const SizedBox(
                     height: 13,
