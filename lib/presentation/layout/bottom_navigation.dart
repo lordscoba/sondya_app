@@ -16,7 +16,7 @@ Widget sondyaBottomNavigationBar(BuildContext context) {
         icon: IconButton(
             icon: const Icon(Icons.home),
             onPressed: () {
-              context.go('/home');
+              context.go('/');
             }),
         label: 'Home',
       ),

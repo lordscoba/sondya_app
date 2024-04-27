@@ -11,7 +11,7 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Cart", isHome: true),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const CartBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

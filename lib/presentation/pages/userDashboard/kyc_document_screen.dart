@@ -11,7 +11,7 @@ class KycDocumentUploadScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Document Upload", isHome: false),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const KycDocumentUploadBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

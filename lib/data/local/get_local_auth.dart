@@ -1,6 +1,6 @@
 import 'package:sondya_app/data/hive_boxes.dart';
 import 'package:sondya_app/data/storage_constants.dart';
-import 'package:sondya_app/domain/hive_models/auth.dart';
+import 'package:sondya_app/domain/hive_models/auth/auth.dart';
 
 Future<AuthInfo> getLocalAuth() async {
   if (boxAuth.isEmpty) {

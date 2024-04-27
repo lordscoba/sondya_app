@@ -11,7 +11,7 @@ class InboxChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Inbox Chat", isHome: false),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const InboxChatBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

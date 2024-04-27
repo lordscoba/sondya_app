@@ -11,7 +11,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Settings", isHome: false),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const SettingsBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sondya_app/data/hive_boxes.dart';
-import 'package:sondya_app/domain/hive_models/auth.dart';
+import 'package:sondya_app/domain/hive_models/auth/auth.dart';
+import 'package:sondya_app/domain/hive_models/cart/cart.dart';
+import 'package:sondya_app/domain/hive_models/shipment_info/shipment.dart';
+import 'package:sondya_app/domain/hive_models/wishlist/wishlist.dart';
 import 'package:sondya_app/router/router.dart';
 
 void main() async {
@@ -13,9 +16,16 @@ void main() async {
 
   // Register adapters
   Hive.registerAdapter(AuthInfoAdapter());
+  Hive.registerAdapter(ProductOrderTypeAdapter());
+  Hive.registerAdapter(WishListTypeAdapter());
+  Hive.registerAdapter(ShippingDestinationTypeAdapter());
 
   // Open local boxes
   boxAuth = await Hive.openBox<AuthInfo>(authBoxString);
+  boxForCart = await Hive.openBox<ProductOrderType>(cartBoxString);
+  boxForWishList = await Hive.openBox<WishListType>(wishlistBoxString);
+  boxForShipment =
+      await Hive.openBox<ShippingDestinationType>(shipmentBoxString);
 
   runApp(
     const ProviderScope(
@@ -23,6 +33,7 @@ void main() async {
     ),
   );
 }
+
 
 // I am leaving this here
 // You are suprised this small code made this app right

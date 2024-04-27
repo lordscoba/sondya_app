@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sondya_app/domain/providers/cart.provider.dart';
+import 'package:sondya_app/domain/providers/wishlist.provider.dart';
 import 'package:sondya_app/presentation/widgets/price_formatter.dart';
 import 'package:sondya_app/utils/slugify.dart';
 
@@ -23,6 +24,7 @@ class ProductContainer extends ConsumerStatefulWidget {
 }
 
 class _ProductContainerState extends ConsumerState<ProductContainer> {
+  var isFavorite = false;
   void _detailsPage() {
     // debugPrint("/product/details/$id/${sondyaSlugify(productName)}");
     context.push(
@@ -64,7 +66,7 @@ class _ProductContainerState extends ConsumerState<ProductContainer> {
               maxLines: 2,
             ),
             Container(
-              height: 15,
+              height: 18,
               padding: EdgeInsets.zero,
               child: Row(
                 mainAxisSize: MainAxisSize.max,
@@ -72,11 +74,25 @@ class _ProductContainerState extends ConsumerState<ProductContainer> {
                 children: [
                   PriceFormatWidget(price: widget.productPrice),
                   IconButton(
-                    onPressed: _detailsPage,
-                    icon: const Icon(
-                      Icons.favorite_border_outlined,
+                    onPressed: () {
+                      setState(() {
+                        isFavorite = !isFavorite;
+                        if (isFavorite) {
+                          ref
+                              .read(addToWishlistProvider.notifier)
+                              .addToWishlist(
+                                  widget.id, "product", widget.productName);
+                        } else {
+                          ref
+                              .read(removeFromWishlistProvider.notifier)
+                              .removeFromWishlist(widget.id, "product");
+                        }
+                      });
+                    },
+                    icon: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_outline,
                       size: 15,
-                      color: Color(0xFFEDB842),
+                      color: const Color(0xFFEDB842),
                     ),
                   ),
                 ],

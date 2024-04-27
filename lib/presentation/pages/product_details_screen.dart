@@ -13,7 +13,7 @@ class ProductDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Product Details", isHome: false),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: ProductDetailsBody(
         id: id,
         name: name,

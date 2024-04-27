@@ -11,7 +11,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Home", isHome: true),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const HomeBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

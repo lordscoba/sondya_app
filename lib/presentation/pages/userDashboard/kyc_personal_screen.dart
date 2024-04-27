@@ -11,7 +11,7 @@ class KycPersonalInformationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Personal Information", isHome: false),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const KycPersonalInformationBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );
