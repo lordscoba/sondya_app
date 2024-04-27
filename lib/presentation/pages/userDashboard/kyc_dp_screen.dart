@@ -11,7 +11,7 @@ class KycProfilePicsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Profile Pics", isHome: false),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const KycProfilePicsBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

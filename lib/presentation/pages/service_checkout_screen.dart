@@ -11,7 +11,7 @@ class ServiceCheckoutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Service Checkout", isHome: true),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const ServiceCheckoutBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

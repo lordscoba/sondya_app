@@ -11,7 +11,7 @@ class KycCodeScreenVerification extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Code Verification", isHome: false),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const KycCodeVerificationBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

@@ -11,7 +11,7 @@ class KycCompanyInformationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Company Information", isHome: false),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const KycCompanyInformationBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

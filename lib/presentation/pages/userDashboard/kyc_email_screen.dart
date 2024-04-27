@@ -11,7 +11,7 @@ class KycEmailVerificationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Email Verification", isHome: false),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const KycEmailVerificationBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

@@ -11,7 +11,7 @@ class WishlistScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Wishlist", isHome: true),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const WishlistBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

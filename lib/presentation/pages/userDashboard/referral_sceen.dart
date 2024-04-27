@@ -11,7 +11,7 @@ class ReferralPageScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Referral", isHome: false),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const ReferralPageBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

@@ -11,7 +11,7 @@ class KycContactInfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Contact Information", isHome: false),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const KycContactInfoBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

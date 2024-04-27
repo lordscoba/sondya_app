@@ -11,7 +11,7 @@ class ProductSearchScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Product Search", isHome: false),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const ProductSearchBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

@@ -11,7 +11,7 @@ class ProductCheckoutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Product Checkout", isHome: true),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const ProductCheckoutBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

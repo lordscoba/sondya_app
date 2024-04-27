@@ -11,7 +11,7 @@ class ServiceSearchScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Service Search", isHome: false),
-      drawer: sonyaUserDrawer,
+      drawer: sonyaUserDrawer(context),
       body: const ServiceSearchBody(),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );
