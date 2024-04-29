@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:sondya_app/data/local/cart.dart';
+import 'package:sondya_app/domain/providers/cart.provider.dart';
 import 'package:sondya_app/presentation/features/cart/apply_discount_code.dart';
 import 'package:sondya_app/presentation/features/cart/cart_item_body.dart';
 import 'package:sondya_app/presentation/features/cart/estimated_shipping_tax.dart';
+import 'package:sondya_app/presentation/widgets/price_formatter.dart';
 
 class CartBody extends ConsumerStatefulWidget {
   const CartBody({super.key});
@@ -17,8 +22,12 @@ class _CartBodyState extends ConsumerState<CartBody> {
     fontWeight: FontWeight.w400,
     color: Colors.black,
   );
+
   @override
   Widget build(BuildContext context) {
+    final getCartList = ref.watch(getCartDataProvider);
+    final getCartTotaling = ref.watch(totalingProvider);
+
     return SingleChildScrollView(
       child: Center(
         child: Container(
@@ -34,7 +43,8 @@ class _CartBodyState extends ConsumerState<CartBody> {
                 children: [
                   IconButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      // Navigator.pop(context);
+                      context.pop();
                     },
                     icon: const Icon(Icons.arrow_back),
                   ),
@@ -48,13 +58,22 @@ class _CartBodyState extends ConsumerState<CartBody> {
               const Divider(
                 color: Color(0xFFEDB842),
               ),
-              ListView(
-                shrinkWrap: true,
-                children: const [
-                  CartItem(),
-                  CartItem(),
-                  CartItem(),
-                ],
+              getCartList.when(
+                data: (data) {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: data.length,
+                    itemBuilder: (context, index) {
+                      return CartItem(
+                        id: data[index].id,
+                        quantity: data[index].orderQuantity,
+                        name: data[index].name,
+                      );
+                    },
+                  );
+                },
+                error: (error, stackTrace) => Text(error.toString()),
+                loading: () => const CircularProgressIndicator(),
               ),
               const SizedBox(height: 20.0),
               Row(
@@ -74,8 +93,16 @@ class _CartBodyState extends ConsumerState<CartBody> {
                     width: 160,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
+                      onPressed: () async {
+                        ref
+                            .read(removeAllCartProvider.notifier)
+                            .removeAllCart();
+                        // ignore: unused_result
+                        ref.refresh(totalingProvider);
+                        // ignore: unused_result
+                        ref.refresh(getCartDataProvider);
+                        // ignore: unused_result
+                        ref.refresh(getTotalCartProvider);
                       },
                       child: const Text("Clear Cart"),
                     ),
@@ -105,37 +132,73 @@ class _CartBodyState extends ConsumerState<CartBody> {
                     SizedBox(
                       height: 280,
                       width: double.infinity,
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          ListTile(
-                            leadingAndTrailingTextStyle: textStyleConCluding,
-                            leading: const Text("Sub Total"),
-                            trailing: const Text("\$ 4,000"),
-                          ),
-                          ListTile(
-                            leadingAndTrailingTextStyle: textStyleConCluding,
-                            leading: const Text("Total Shipping Fees"),
-                            trailing: const Text("\$ 21"),
-                            subtitle: const Text(
-                                "(Standard Rate - Price may vary depending on the item/destination. TECS Staff will contact you.)"),
-                          ),
-                          ListTile(
-                            leadingAndTrailingTextStyle: textStyleConCluding,
-                            leading: const Text("Total Tax"),
-                            trailing: const Text("\$ 1"),
-                          ),
-                          ListTile(
-                            leadingAndTrailingTextStyle: textStyleConCluding,
-                            leading: const Text("Total Discount"),
-                            trailing: const Text("\$ 3"),
-                          ),
-                          ListTile(
-                            leadingAndTrailingTextStyle: textStyleConCluding,
-                            leading: const Text("Order Total"),
-                            trailing: const Text("\$ 4,000"),
-                          )
-                        ],
+                      child: getCartTotaling.when(
+                        data: (dataP) {
+                          return ListView(
+                            shrinkWrap: true,
+                            children: [
+                              ListTile(
+                                leadingAndTrailingTextStyle:
+                                    textStyleConCluding,
+                                leading: const Text("Sub Total"),
+                                trailing: PriceFormatWidget(
+                                  price: dataP.subTotal!,
+                                  fontFamily: GoogleFonts.openSans().fontFamily,
+                                  color: Colors.black87,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              ListTile(
+                                leadingAndTrailingTextStyle:
+                                    textStyleConCluding,
+                                leading: const Text("Total Shipping Fees"),
+                                trailing: PriceFormatWidget(
+                                  price: dataP.totalShippingFee!,
+                                  fontFamily: GoogleFonts.openSans().fontFamily,
+                                  color: Colors.black87,
+                                  fontSize: 14,
+                                ),
+                                subtitle: const Text(
+                                    "(Standard Rate - Price may vary depending on the item/destination. TECS Staff will contact you.)"),
+                              ),
+                              ListTile(
+                                leadingAndTrailingTextStyle:
+                                    textStyleConCluding,
+                                leading: const Text("Total Tax"),
+                                trailing: PriceFormatWidget(
+                                  price: dataP.totalTax!,
+                                  fontFamily: GoogleFonts.openSans().fontFamily,
+                                  color: Colors.black87,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              ListTile(
+                                leadingAndTrailingTextStyle:
+                                    textStyleConCluding,
+                                leading: const Text("Total Discount"),
+                                trailing: PriceFormatWidget(
+                                  price: dataP.totalDiscount!,
+                                  fontFamily: GoogleFonts.openSans().fontFamily,
+                                  color: Colors.black87,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              ListTile(
+                                leadingAndTrailingTextStyle:
+                                    textStyleConCluding,
+                                leading: const Text("Order Total"),
+                                trailing: PriceFormatWidget(
+                                  price: dataP.total!,
+                                  fontFamily: GoogleFonts.openSans().fontFamily,
+                                  color: Colors.black87,
+                                  fontSize: 14,
+                                ),
+                              )
+                            ],
+                          );
+                        },
+                        error: (error, stackTrace) => Text(error.toString()),
+                        loading: () => const CircularProgressIndicator(),
                       ),
                     ),
                     const SizedBox(height: 20.0),

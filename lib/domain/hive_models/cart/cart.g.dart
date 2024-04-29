@@ -24,13 +24,16 @@ class ProductOrderTypeAdapter extends TypeAdapter<ProductOrderType> {
       orderQuantity: fields[2] as int,
       trackDistanceTime: fields[3] as TrackDistanceTimeType?,
       name: fields[4] as String?,
+      tax: fields[5] as double?,
+      shippingCost: fields[6] as double?,
+      discount: fields[7] as double?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProductOrderType obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -40,7 +43,13 @@ class ProductOrderTypeAdapter extends TypeAdapter<ProductOrderType> {
       ..writeByte(3)
       ..write(obj.trackDistanceTime)
       ..writeByte(4)
-      ..write(obj.name);
+      ..write(obj.name)
+      ..writeByte(5)
+      ..write(obj.tax)
+      ..writeByte(6)
+      ..write(obj.shippingCost)
+      ..writeByte(7)
+      ..write(obj.discount);
   }
 
   @override

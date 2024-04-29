@@ -6,7 +6,25 @@ final addToCartProvider = StateNotifierProvider.autoDispose<AddToCartNotifier,
   return AddToCartNotifier();
 });
 
-final updateCartProvider = StateNotifierProvider.autoDispose<AddToCartNotifier,
+final updateCartProvider = StateNotifierProvider.autoDispose<UpdateCartNotifier,
     AsyncValue<Map<String, dynamic>>>((ref) {
-  return AddToCartNotifier();
+  return UpdateCartNotifier();
+});
+
+final removeFromCartProvider = StateNotifierProvider.autoDispose<
+    RemoveFromCartNotifier, AsyncValue<Map<String, dynamic>>>((ref) {
+  return RemoveFromCartNotifier();
+});
+
+final removeAllCartProvider = StateNotifierProvider.autoDispose<
+    RemoveAllCartNotifier, AsyncValue<Map<String, dynamic>>>((ref) {
+  return RemoveAllCartNotifier();
+});
+
+final updateShippingDestinationProvider = StateNotifierProvider.autoDispose<
+    UpdateLocalShippingDestinationNotifier,
+    AsyncValue<Map<String, dynamic>>>((ref) {
+  // ignore: unused_result
+  ref.refresh(getShipmentDestinationdDataProvider);
+  return UpdateLocalShippingDestinationNotifier();
 });

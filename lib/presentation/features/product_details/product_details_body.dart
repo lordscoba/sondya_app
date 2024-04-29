@@ -3,13 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sondya_app/data/app_constants.dart';
+import 'package:sondya_app/data/local/cart.dart';
 import 'package:sondya_app/data/remote/home.dart';
+import 'package:sondya_app/domain/providers/cart.provider.dart';
+import 'package:sondya_app/domain/providers/wishlist.provider.dart';
 import 'package:sondya_app/presentation/features/product_details/product_details_tab.dart';
 import 'package:sondya_app/presentation/features/product_details/review_section.dart';
 import 'package:sondya_app/presentation/widgets/picture_slider.dart';
 import 'package:sondya_app/presentation/widgets/price_formatter.dart';
 import 'package:sondya_app/presentation/widgets/ratings_widget.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
+import 'package:sondya_app/utils/copy.dart';
+import 'package:sondya_app/utils/slugify.dart';
 
 class ProductDetailsBody extends ConsumerStatefulWidget {
   final String id;
@@ -21,8 +27,25 @@ class ProductDetailsBody extends ConsumerStatefulWidget {
 }
 
 class _ProductDetailsBodyState extends ConsumerState<ProductDetailsBody> {
+  int _quantity = 0;
+  var isFavorite = false;
+
+  final TextStyle textStyleTax = const TextStyle(
+    color: Colors.grey,
+    fontSize: 13,
+    fontWeight: FontWeight.w300,
+  );
+
   @override
   Widget build(BuildContext context) {
+    final getCartDataById = ref.watch(getCartDataByIdProvider(widget.id));
+    getCartDataById.whenData((data) {
+      _quantity = data.orderQuantity;
+    });
+
+    final TextEditingController quantityController =
+        TextEditingController(text: _quantity.toString());
+
     final getProductDetails = ref
         .watch(getProductDetailsProvider((id: widget.id, name: widget.name)));
     final getProductRatingStat =
@@ -261,13 +284,139 @@ class _ProductDetailsBodyState extends ConsumerState<ProductDetailsBody> {
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.42,
                         height: 55,
-                        child: TextFormField(),
+                        child: TextField(
+                          controller: quantityController,
+                          textAlign: TextAlign.center,
+                          textAlignVertical: TextAlignVertical.center,
+                          onChanged: (value) {
+                            setState(() {
+                              _quantity = value.isEmpty ? 0 : int.parse(value);
+                              quantityController.text = _quantity.toString();
+                            });
+
+                            ref.read(updateCartProvider.notifier).updateCart({
+                              "_id": widget.id,
+                              "order_quantity": _quantity,
+                              "name": data['data']['name']
+                            });
+
+                            // ignore: unused_result
+                            ref.refresh(totalingProvider);
+                            // ignore: unused_result
+                            ref.refresh(getCartDataProvider);
+                            // ignore: unused_result
+                            ref.refresh(getTotalCartProvider);
+                          },
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "Quantity",
+                            prefixIcon: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(
+                                    0xFFEDB842), // Set the background color here
+                                borderRadius: BorderRadius.circular(
+                                    8), // Optional: add border radius for rounded corners
+                              ),
+                              child: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    // quantity cant be less than 0
+                                    _quantity =
+                                        _quantity <= 0 ? 0 : _quantity - 1;
+
+                                    quantityController.text =
+                                        _quantity.toString();
+                                  });
+
+                                  if (_quantity <= 0) {
+                                    ref
+                                        .read(removeFromCartProvider.notifier)
+                                        .removeFromCart(widget.id);
+
+                                    // ignore: unused_result
+                                    ref.refresh(totalingProvider);
+                                    // ignore: unused_result
+                                    ref.refresh(getCartDataProvider);
+                                    // ignore: unused_result
+                                    ref.refresh(getTotalCartProvider);
+                                  } else {
+                                    ref
+                                        .read(addToCartProvider.notifier)
+                                        .addToCart({
+                                      "_id": widget.id,
+                                      "order_quantity": -1,
+                                      "name": data['data']['name']
+                                    });
+
+                                    // ignore: unused_result
+                                    ref.refresh(totalingProvider);
+                                    // ignore: unused_result
+                                    ref.refresh(getCartDataProvider);
+                                    // ignore: unused_result
+                                    ref.refresh(getTotalCartProvider);
+                                  }
+                                },
+                                icon: const Icon(Icons.remove,
+                                    color: Colors.white),
+                              ),
+                            ),
+                            suffixIcon: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(
+                                    0xFFEDB842), // Set the background color here
+                                borderRadius: BorderRadius.circular(
+                                    8), // Optional: add border radius for rounded corners
+                              ),
+                              child: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _quantity++;
+                                    quantityController.text =
+                                        _quantity.toString();
+                                  });
+
+                                  ref
+                                      .read(addToCartProvider.notifier)
+                                      .addToCart({
+                                    "_id": widget.id,
+                                    "order_quantity": 1,
+                                    "name": data['data']['name']
+                                  });
+
+                                  // ignore: unused_result
+                                  ref.refresh(totalingProvider);
+                                  // ignore: unused_result
+                                  ref.refresh(getCartDataProvider);
+                                  // ignore: unused_result
+                                  ref.refresh(getTotalCartProvider);
+                                },
+                                icon:
+                                    const Icon(Icons.add, color: Colors.white),
+                              ),
+                            ),
+                            // suffix: ,
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
                       ),
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.5,
                         height: 55,
                         child: ElevatedButton(
-                            onPressed: () {}, child: const Text("Add to cart")),
+                            onPressed: () async {
+                              await ref
+                                  .read(addToCartProvider.notifier)
+                                  .addToCart({
+                                "_id": widget.id,
+                                "order_quantity": 1,
+                                "name": widget.name
+                              });
+                              // ignore: unused_result
+                              ref.refresh(getCartDataProvider);
+                              // ignore: unused_result
+                              ref.refresh(getTotalCartProvider);
+                            },
+                            child: const Text("Add to cart")),
                       ),
                     ],
                   ),
@@ -286,12 +435,32 @@ class _ProductDetailsBodyState extends ConsumerState<ProductDetailsBody> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       TextButton(
-                        onPressed: () {},
-                        child: const Row(
+                        onPressed: () {
+                          setState(() {
+                            isFavorite = !isFavorite;
+                            if (isFavorite) {
+                              ref
+                                  .read(addToWishlistProvider.notifier)
+                                  .addToWishlist(
+                                      widget.id, "product", widget.name);
+                            } else {
+                              ref
+                                  .read(removeFromWishlistProvider.notifier)
+                                  .removeFromWishlist(widget.id, "product");
+                            }
+                          });
+                        },
+                        child: Row(
                           children: [
-                            Icon(Icons.favorite_border_outlined),
-                            SizedBox(width: 10),
-                            Text("Add to wishlist"),
+                            Icon(
+                              isFavorite
+                                  ? Icons.favorite
+                                  : Icons.favorite_outline,
+                              size: 20,
+                              color: const Color(0xFFEDB842),
+                            ),
+                            const SizedBox(width: 10),
+                            const Text("Add to wishlist"),
                           ],
                         ),
                       ),
@@ -301,7 +470,10 @@ class _ProductDetailsBodyState extends ConsumerState<ProductDetailsBody> {
                         children: [
                           const Text("Share product"),
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              copyToClipboard(
+                                  "$appBaseAddress${widget.id}/${sondyaSlugify(widget.name)}");
+                            },
                             icon: const Icon(Icons.copy),
                           ),
                           IconButton(
