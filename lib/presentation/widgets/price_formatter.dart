@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 class PriceFormatWidget extends StatelessWidget {
@@ -7,6 +8,10 @@ class PriceFormatWidget extends StatelessWidget {
   final int decimalDigits;
   final bool oldPrice;
   final double fontSize;
+  final int priceMultiple;
+  final String prefix;
+  final String? fontFamily;
+  final Color? color;
 
   const PriceFormatWidget({
     super.key,
@@ -15,6 +20,10 @@ class PriceFormatWidget extends StatelessWidget {
     this.decimalDigits = 2, // Default decimal digits
     this.oldPrice = false,
     this.fontSize = 12.0,
+    this.priceMultiple = 1,
+    this.prefix = '',
+    this.fontFamily,
+    this.color,
   });
 
   @override
@@ -22,16 +31,19 @@ class PriceFormatWidget extends StatelessWidget {
     final formattedPrice = NumberFormat.currency(
       decimalDigits: decimalDigits,
       symbol: currencySymbol,
-    ).format(price);
+    ).format(price * priceMultiple);
 
     return Text(
-      formattedPrice,
+      prefix + formattedPrice,
       style: TextStyle(
         decoration: oldPrice ? TextDecoration.lineThrough : TextDecoration.none,
         fontSize: fontSize, // Adjust as desired
         fontWeight:
             oldPrice ? FontWeight.normal : FontWeight.bold, // Adjust as desired
-        color: oldPrice ? const Color(0xFF77878F) : const Color(0xFFEDB842),
+        color: oldPrice
+            ? const Color(0xFF77878F)
+            : color ?? const Color(0xFFEDB842),
+        fontFamily: fontFamily ?? GoogleFonts.playfairDisplay().fontFamily,
       ),
     );
   }

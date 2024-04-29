@@ -19,12 +19,24 @@ class ProductOrderType {
   @HiveField(4)
   String? name;
 
+  @HiveField(5)
+  double? tax;
+
+  @HiveField(6)
+  double? shippingCost;
+
+  @HiveField(7)
+  double? discount;
+
   ProductOrderType({
     required this.id,
     this.selectedVariants,
     required this.orderQuantity,
     this.trackDistanceTime,
     this.name,
+    this.tax,
+    this.shippingCost,
+    this.discount,
   });
 
   factory ProductOrderType.fromJson(Map<String, dynamic> json) {
@@ -38,6 +50,9 @@ class ProductOrderType {
           ? TrackDistanceTimeType.fromJson(json['track_distance_time'])
           : null,
       name: json['name'],
+      tax: json['tax'],
+      shippingCost: json['shipping_cost'],
+      discount: json['discount'],
     );
   }
 
@@ -49,6 +64,9 @@ class ProductOrderType {
       'track_distance_time':
           trackDistanceTime != null ? trackDistanceTime!.toJson() : null,
       'name': name,
+      'tax': tax,
+      'shipping_cost': shippingCost,
+      'discount': discount,
     };
   }
 }

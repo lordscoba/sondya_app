@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sondya_app/data/local/cart.dart';
 import 'package:sondya_app/domain/providers/cart.provider.dart';
 import 'package:sondya_app/domain/providers/wishlist.provider.dart';
 import 'package:sondya_app/presentation/widgets/price_formatter.dart';
@@ -103,9 +104,15 @@ class _ProductContainerState extends ConsumerState<ProductContainer> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
-                  await ref
-                      .read(addToCartProvider.notifier)
-                      .addToCart({"_id": widget.id, "order_quantity": 1});
+                  await ref.read(addToCartProvider.notifier).addToCart({
+                    "_id": widget.id,
+                    "order_quantity": 1,
+                    "name": widget.productName
+                  });
+                  // ignore: unused_result
+                  ref.refresh(getCartDataProvider);
+                  // ignore: unused_result
+                  ref.refresh(getTotalCartProvider);
                 },
                 child: const Text("Add to Cart"),
               ),

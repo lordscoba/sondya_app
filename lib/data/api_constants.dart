@@ -22,6 +22,9 @@ class EnvironmentAuthConfig {
 class EnvironmentHomeConfig {
   static const String productDetail =
       '$baseUrl/product/details/'; // GET /:id/:slug(name)
+
+  static const String productPrice = '$baseUrl/product/price/'; // GET /:id/
+
   static const String serviceDetail =
       '$baseUrl/service/details/'; // GET /:id/:slug(name)
   static const String services = '$baseUrl/services'; // GET
