@@ -18,9 +18,7 @@ class ProductOrderTypeAdapter extends TypeAdapter<ProductOrderType> {
     };
     return ProductOrderType(
       id: fields[0] as String,
-      selectedVariants: (fields[1] as List?)
-          ?.map((dynamic e) => (e as List).cast<String>())
-          .toList(),
+      selectedVariants: (fields[1] as Map?)?.cast<String, dynamic>(),
       orderQuantity: fields[2] as int,
       trackDistanceTime: fields[3] as TrackDistanceTimeType?,
       name: fields[4] as String?,

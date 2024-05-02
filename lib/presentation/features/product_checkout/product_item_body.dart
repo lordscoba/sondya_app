@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sondya_app/data/remote/home.dart';
+import 'package:sondya_app/presentation/widgets/price_formatter.dart';
+import 'package:sondya_app/utils/slugify.dart';
 
 class ProductCheckoutItem extends ConsumerStatefulWidget {
+  final String? id;
   final int? quantity;
   final String? name;
-  final double? price;
-  final String? imageString;
 
   const ProductCheckoutItem({
     super.key,
+    this.id,
     this.quantity,
     this.name,
-    this.price,
-    this.imageString,
   });
 
   @override
@@ -23,13 +24,10 @@ class ProductCheckoutItem extends ConsumerStatefulWidget {
 
 class _ProductCheckoutItemState extends ConsumerState<ProductCheckoutItem> {
   @override
-  void initState() {
-    super.initState();
-    // Initialize the variable in initState
-  }
-
   @override
   Widget build(BuildContext context) {
+    final getProductDetails = ref.watch(getProductDetailsProvider(
+        (id: widget.id!, name: sondyaSlugify(widget.name!))));
     return Container(
       padding: const EdgeInsets.all(10.0),
       width: double.infinity,
@@ -39,45 +37,56 @@ class _ProductCheckoutItemState extends ConsumerState<ProductCheckoutItem> {
           bottom: BorderSide(color: Colors.grey),
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Image(
-                  image: AssetImage("assets/shapes/circle_25.png"),
-                  height: 100),
-            ],
-          ),
-          Column(
+      child: getProductDetails.when(
+        data: (data) {
+          return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(
-                width: 250,
-                child: Text(
-                  "Gaming Keyboard and Mouse 3 Years Warranty",
-                  style: TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
-                ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Image(
+                    image: NetworkImage(
+                      data['data']["image"][0]["url"] == ""
+                          ? "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                          : data['data']["image"][0]["url"],
+                    ),
+                    width: 100,
+                    fit: BoxFit.cover,
+                  ),
+                ],
               ),
-              Text(
-                "\$ 4,000",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  fontFamily: GoogleFonts.openSans().fontFamily,
-                ),
-              ),
-              Text(
-                "Quantity: 3",
-                style: TextStyle(
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 250,
+                    child: Text(
+                      data['data']['name'],
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w400, fontSize: 16),
+                    ),
+                  ),
+                  PriceFormatWidget(
+                    price: data['data']['current_price'].toDouble(),
+                    fontSize: 20,
                     fontFamily: GoogleFonts.openSans().fontFamily,
-                    fontSize: 16),
+                    color: Colors.black87,
+                  ),
+                  Text(
+                    "Quantity: ${widget.quantity}",
+                    style: TextStyle(
+                        fontFamily: GoogleFonts.openSans().fontFamily,
+                        fontSize: 16),
+                  ),
+                ],
               ),
             ],
-          ),
-        ],
+          );
+        },
+        error: (error, stackTrace) => Text(error.toString()),
+        loading: () => const CircularProgressIndicator(),
       ),
     );
   }

@@ -11,6 +11,11 @@ final updateCartProvider = StateNotifierProvider.autoDispose<UpdateCartNotifier,
   return UpdateCartNotifier();
 });
 
+final updateCartVariantProvider = StateNotifierProvider.autoDispose<
+    UpdateCartVariantNotifier, AsyncValue<Map<String, dynamic>>>((ref) {
+  return UpdateCartVariantNotifier();
+});
+
 final removeFromCartProvider = StateNotifierProvider.autoDispose<
     RemoveFromCartNotifier, AsyncValue<Map<String, dynamic>>>((ref) {
   return RemoveFromCartNotifier();

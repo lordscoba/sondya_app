@@ -209,7 +209,10 @@ class _CartBodyState extends ConsumerState<CartBody> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF0156FF),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/checkout');
+                          // check whether the person is logged in
+                        },
                         child: const Text("Checkout"),
                       ),
                     ),

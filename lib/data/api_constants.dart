@@ -85,3 +85,18 @@ class EnvironmentProfileConfig {
   static const String updateCompany =
       '$baseUrl/profile/update/company/'; // PUT :id - user id
 }
+
+class EnvironmentProductCheckoutConfig {
+  // payment verification
+  static const String verifyPayment =
+      '$baseUrl/user/payments/verify/'; // GET :tx_ref
+
+  static const String productOrder =
+      '$baseUrl/user/order/products/create'; // POST
+
+  static const String getproductOrders =
+      '$baseUrl/user/order/products/'; // GET :userId - user id
+
+  static const String getproductOrdersById =
+      '$baseUrl/user/order/products/details/'; // GET :id - order id
+}

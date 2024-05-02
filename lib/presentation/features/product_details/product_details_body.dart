@@ -15,6 +15,7 @@ import 'package:sondya_app/presentation/widgets/price_formatter.dart';
 import 'package:sondya_app/presentation/widgets/ratings_widget.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
 import 'package:sondya_app/utils/copy.dart';
+import 'package:sondya_app/utils/share.dart';
 import 'package:sondya_app/utils/slugify.dart';
 
 class ProductDetailsBody extends ConsumerStatefulWidget {
@@ -245,6 +246,7 @@ class _ProductDetailsBodyState extends ConsumerState<ProductDetailsBody> {
                                 ?.map<Widget>((entry) {
                               final key = entry.key;
                               final value = entry.value;
+                              // debugPrint(data["data"]["variants"].toString());
                               return SizedBox(
                                 width: 200,
                                 child: OutlinedButton(
@@ -254,7 +256,24 @@ class _ProductDetailsBodyState extends ConsumerState<ProductDetailsBody> {
                                       options:
                                           value.whereType<String>().toList(),
                                       context: context,
-                                      onItemSelected: (value) {},
+                                      onItemSelected: (value) {
+                                        setState(() {
+                                          ref
+                                              .read(updateCartVariantProvider
+                                                  .notifier)
+                                              .updateCartVariant(
+                                                  data["data"]["_id"],
+                                                  data["data"]["name"],
+                                                  {key.toString(): value});
+
+                                          // ignore: unused_result
+                                          ref.refresh(totalingProvider);
+                                          // ignore: unused_result
+                                          ref.refresh(getCartDataProvider);
+                                          // ignore: unused_result
+                                          ref.refresh(getTotalCartProvider);
+                                        });
+                                      },
                                     );
                                   },
                                   child: Row(
@@ -477,7 +496,11 @@ class _ProductDetailsBodyState extends ConsumerState<ProductDetailsBody> {
                             icon: const Icon(Icons.copy),
                           ),
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              sondyaShare(
+                                  "look at this product \n $appBaseAddress${widget.id}/${sondyaSlugify(widget.name)}",
+                                  subject: widget.name);
+                            },
                             icon: const Icon(Icons.share),
                           ),
                         ],

@@ -25,6 +25,9 @@ class AuthInfo {
   @HiveField(6)
   String username;
 
+  @HiveField(7)
+  String? phoneNumber;
+
   AuthInfo({
     required this.type,
     required this.token,
@@ -33,6 +36,7 @@ class AuthInfo {
     required this.id,
     required this.email,
     required this.username,
+    this.phoneNumber,
   });
 
   factory AuthInfo.fromJson(Map<String, dynamic> json) {
@@ -44,6 +48,7 @@ class AuthInfo {
       id: json['id'],
       email: json['email'],
       username: json['username'],
+      phoneNumber: json['phone_number'],
     );
   }
 
@@ -56,6 +61,7 @@ class AuthInfo {
       'id': id,
       'email': email,
       'username': username,
+      'phone_number': phoneNumber,
     };
   }
 }

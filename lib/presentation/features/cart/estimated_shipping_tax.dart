@@ -46,129 +46,130 @@ class _EstimatedShippingAndTaxBodyState
       child: getShipDataList.when(
         data: (dataW) {
           return Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  checkState.when(
-                    data: (data) {
-                      return const SizedBox();
-                      // return sondyaDisplaySuccessMessage(context, "Success");
-                    },
-                    loading: () => const SizedBox(),
-                    error: (error, stackTrace) =>
-                        sondyaDisplayErrorMessage(error.toString(), context),
+            key: _formKey,
+            child: Column(
+              children: [
+                checkState.when(
+                  data: (data) {
+                    return const SizedBox();
+                    // return sondyaDisplaySuccessMessage(context, "Success");
+                  },
+                  loading: () => const SizedBox(),
+                  error: (error, stackTrace) =>
+                      sondyaDisplayErrorMessage(error.toString(), context),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                    "Enter your destination to get a shipping estimate."),
+                const SizedBox(height: 20),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    hintText: " Enter your Country",
+                    labelText: 'Country',
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
-                      "Enter your destination to get a shipping estimate."),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: " Enter your Country",
-                      labelText: 'Country',
-                    ),
-                    initialValue: dataW.country,
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      ship.country = value!;
-                    },
+                  initialValue: dataW.country,
+                  validator: isInputEmpty,
+                  onSaved: (value) {
+                    ship.country = value!;
+                  },
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    hintText: " Enter your State/Province",
+                    labelText: 'State/Province',
                   ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: " Enter your State/Province",
-                      labelText: 'State/Province',
-                    ),
-                    initialValue: dataW.state,
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      ship.state = value!;
-                    },
+                  initialValue: dataW.state,
+                  validator: isInputEmpty,
+                  onSaved: (value) {
+                    ship.state = value!;
+                  },
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    hintText: " Enter your City/Town",
+                    labelText: 'City/Town',
                   ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: " Enter your City/Town",
-                      labelText: 'City/Town',
-                    ),
-                    initialValue: dataW.city,
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      ship.city = value!;
-                    },
+                  initialValue: dataW.city,
+                  validator: isInputEmpty,
+                  onSaved: (value) {
+                    ship.city = value!;
+                  },
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    hintText: " Enter your Address",
+                    labelText: 'Address',
                   ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: " Enter your Address",
-                      labelText: 'Address',
-                    ),
-                    initialValue: dataW.address,
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      ship.address = value!;
-                    },
+                  initialValue: dataW.address,
+                  validator: isInputEmpty,
+                  onSaved: (value) {
+                    ship.address = value!;
+                  },
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    hintText: " Enter your Phone Number",
+                    labelText: 'Phone Number',
                   ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: " Enter your Phone Number",
-                      labelText: 'Phone Number',
-                    ),
-                    initialValue: dataW.phoneNumber,
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      ship.phoneNumber = value!;
-                    },
+                  initialValue: dataW.phoneNumber,
+                  validator: isInputEmpty,
+                  onSaved: (value) {
+                    ship.phoneNumber = value!;
+                  },
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    hintText: " Enter your Zip Code",
+                    labelText: 'Phone Zip Code',
                   ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: " Enter your Zip Code",
-                      labelText: 'Phone Zip Code',
-                    ),
-                    initialValue: dataW.zipcode,
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      ship.zipcode = value!;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  checkState.hasValue &&
-                          !checkState.hasError &&
-                          !checkState.isLoading
-                      ? const Text("saved successfully")
-                      : const SizedBox(),
-                  SizedBox(
-                    height: 50,
-                    width: 400,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState?.save();
+                  initialValue: dataW.zipcode,
+                  validator: isInputEmpty,
+                  onSaved: (value) {
+                    ship.zipcode = value!;
+                  },
+                ),
+                const SizedBox(height: 20),
+                checkState.hasValue &&
+                        !checkState.hasError &&
+                        !checkState.isLoading
+                    ? const Text("saved successfully")
+                    : const SizedBox(),
+                SizedBox(
+                  height: 50,
+                  width: 400,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState?.save();
 
-                          // debugPrint(ship.toJson().toString());
+                        // debugPrint(ship.toJson().toString());
 
-                          await ref
-                              .read(updateShippingDestinationProvider.notifier)
-                              .updateDestination(ship.toJson());
-                        } else {
-                          AnimatedSnackBar.rectangle(
-                            'Error',
-                            "Please fill all the fields",
-                            type: AnimatedSnackBarType.warning,
-                            brightness: Brightness.light,
-                          ).show(
-                            context,
-                          );
-                        }
-                      },
-                      child: const Text("Save"),
-                    ),
+                        await ref
+                            .read(updateShippingDestinationProvider.notifier)
+                            .updateDestination(ship.toJson());
+                      } else {
+                        AnimatedSnackBar.rectangle(
+                          'Error',
+                          "Please fill all the fields",
+                          type: AnimatedSnackBarType.warning,
+                          brightness: Brightness.light,
+                        ).show(
+                          context,
+                        );
+                      }
+                    },
+                    child: const Text("Save"),
                   ),
-                  const SizedBox(height: 20),
-                ],
-              ));
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          );
         },
         error: (error, stackTrace) => Text(error.toString()),
         loading: () => const CircularProgressIndicator(),
