@@ -1,6 +1,8 @@
-// import 'package:share_plus/share_plus.dart';
+import 'package:share_plus/share_plus.dart';
 
-
-// void sondyaShare(String text) {
-//   Share.share('check out my website https://example.com', subject: 'Look what I made!');
-// }
+void sondyaShare(String text, {String? subject}) {
+  Share.share(
+    text,
+    subject: subject,
+  );
+}

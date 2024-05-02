@@ -11,6 +11,7 @@ import 'package:sondya_app/presentation/pages/error_screen.dart';
 import 'package:sondya_app/presentation/pages/home_screen.dart';
 import 'package:sondya_app/presentation/pages/onboarding_screen.dart';
 import 'package:sondya_app/presentation/pages/product_checkout_screen.dart';
+import 'package:sondya_app/presentation/pages/product_checkout_status_screen.dart';
 import 'package:sondya_app/presentation/pages/product_details_screen.dart';
 import 'package:sondya_app/presentation/pages/product_search_screen.dart';
 import 'package:sondya_app/presentation/pages/service_checkout_screen.dart';
@@ -32,9 +33,10 @@ import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 import 'package:sondya_app/presentation/pages/wishlist_screen.dart';
 
 final GoRouter router = GoRouter(
-  initialLocation: '/product/details/6584298f6daa536f3412484d/VendingMachine',
+  // initialLocation: '/product/details/6584298f6daa536f3412484d/VendingMachine',
   // initialLocation: '/cart',
   // initialLocation: '/product/checkout',
+  initialLocation: '/product/checkout/status',
   errorBuilder: (context, state) => const ErrorScreen(),
   routes: [
     GoRoute(
@@ -185,6 +187,12 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/service/checkout',
       builder: (context, state) => const ServiceCheckoutScreen(),
+    ),
+
+    // service checkout route
+    GoRoute(
+      path: '/product/checkout/status',
+      builder: (context, state) => const ProductCheckoutStatusScreen(),
     ),
 
     // wishlist route

@@ -24,13 +24,14 @@ class AuthInfoAdapter extends TypeAdapter<AuthInfo> {
       id: fields[4] as String,
       email: fields[5] as String,
       username: fields[6] as String,
+      phoneNumber: fields[7] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, AuthInfo obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.type)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class AuthInfoAdapter extends TypeAdapter<AuthInfo> {
       ..writeByte(5)
       ..write(obj.email)
       ..writeByte(6)
-      ..write(obj.username);
+      ..write(obj.username)
+      ..writeByte(7)
+      ..write(obj.phoneNumber);
   }
 
   @override

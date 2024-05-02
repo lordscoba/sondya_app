@@ -86,6 +86,54 @@ class UpdateCartNotifier
   }
 }
 
+class UpdateCartVariantNotifier
+    extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
+  UpdateCartVariantNotifier() : super(const AsyncValue.data({}));
+
+  Future<void> updateCartVariant(String id, String name, data) async {
+    try {
+      // Set loading state
+      state = const AsyncValue.loading();
+
+      // update quantity in cart
+      final Map<dynamic, dynamic> dataMap = boxForCart.toMap();
+      dynamic desiredKey;
+      dataMap.forEach((key, value) {
+        if (value.id == id) {
+          desiredKey = key;
+        }
+      });
+
+      // check if product is already in wishlist
+      if (desiredKey != null) {
+        // get data for desired key
+        final ProductOrderType dataForDesiredKey = boxForCart.get(desiredKey);
+        if (dataForDesiredKey.selectedVariants != null) {
+          dataForDesiredKey.selectedVariants!.addAll(data);
+        } else {
+          dataForDesiredKey.selectedVariants = data;
+        }
+      } else {
+        // add product to cart
+        var person = ProductOrderType(
+          id: id,
+          selectedVariants: data,
+          orderQuantity: 1,
+          name: name,
+          tax: 1, // TODO : add tax
+          shippingCost: 3, // TODO : add shipping cost
+          discount: 1, // TODO : add discount
+        );
+        boxForCart.add(person);
+      }
+
+      state = const AsyncValue.data({});
+    } on Error catch (e) {
+      state = AsyncValue.error(e.toString(), StackTrace.current);
+    }
+  }
+}
+
 class RemoveFromCartNotifier
     extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
   RemoveFromCartNotifier() : super(const AsyncValue.data({}));

@@ -6,6 +6,7 @@ import 'package:mime/mime.dart';
 import 'package:sondya_app/data/api_constants.dart';
 import 'package:sondya_app/data/local/get_local_auth.dart';
 import 'package:sondya_app/data/repositories/token_interceptors.dart';
+import 'package:sondya_app/domain/hive_models/auth/auth.dart';
 import 'package:sondya_app/domain/models/user/profile.dart';
 
 final getProfileByIdProvider =
@@ -15,12 +16,11 @@ final getProfileByIdProvider =
     dio.interceptors.add(const AuthInterceptor());
 
     // get auth user id
-    Map<String, dynamic>? localAuth =
-        await getLocalAuth() as Map<String, dynamic>;
-    String? userId = localAuth["id"];
+    AuthInfo localAuth = await getLocalAuth();
+    String userId = localAuth.id;
 
     final response =
-        await dio.get(EnvironmentProfileConfig.getUserById + userId!);
+        await dio.get(EnvironmentProfileConfig.getUserById + userId);
     // debugPrint(response.data.toString());
     if (response.statusCode == 200 || response.statusCode == 201) {
       return response.data["data"] as Map<String, dynamic>;
@@ -77,13 +77,12 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth =
-          await getLocalAuth() as Map<String, dynamic>;
-      String? userId = localAuth["id"];
+      AuthInfo localAuth = await getLocalAuth();
+      String userId = localAuth.id;
 
       // Make the GET request
       final response =
-          await dio.get(EnvironmentProfileConfig.getUserById + userId!);
+          await dio.get(EnvironmentProfileConfig.getUserById + userId);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         state = AsyncValue.data(response.data as Map<String, dynamic>);
@@ -109,13 +108,12 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth =
-          await getLocalAuth() as Map<String, dynamic>;
-      String? userId = localAuth["id"];
+      AuthInfo localAuth = await getLocalAuth();
+      String userId = localAuth.id;
 
       // Make the PUT request
       final response = await dio.put(
-        EnvironmentProfileConfig.updatePassword + userId!,
+        EnvironmentProfileConfig.updatePassword + userId,
         data: details,
       );
 
@@ -143,15 +141,14 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth =
-          await getLocalAuth() as Map<String, dynamic>;
-      String? userId = localAuth["id"];
+      AuthInfo localAuth = await getLocalAuth();
+      String userId = localAuth.id;
 
       // debugPrint(details.toString());
 
       // Make the PUT request
       final response = await dio.put(
-        EnvironmentProfileConfig.updateCompany + userId!,
+        EnvironmentProfileConfig.updateCompany + userId,
         data: details,
       );
 
@@ -179,9 +176,8 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth =
-          await getLocalAuth() as Map<String, dynamic>;
-      String? userId = localAuth["id"];
+      AuthInfo localAuth = await getLocalAuth();
+      String userId = localAuth.id;
 
       final dynamic formData;
       // check whether image is empty
@@ -207,7 +203,7 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
 
       // Make the PUT request
       final response = await dio.put(
-        EnvironmentProfileConfig.updateProfileById + userId!,
+        EnvironmentProfileConfig.updateProfileById + userId,
         data: formData,
       );
 
@@ -235,13 +231,12 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth =
-          await getLocalAuth() as Map<String, dynamic>;
-      String? userId = localAuth["id"];
+      AuthInfo localAuth = await getLocalAuth();
+      String userId = localAuth.id;
 
       // Make the PUT request
       final response = await dio.put(
-        EnvironmentProfileConfig.updateSocials + userId!,
+        EnvironmentProfileConfig.updateSocials + userId,
         data: details,
       );
 

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:sondya_app/data/local/cart.dart';
+import 'package:sondya_app/domain/providers/checkout.provider.dart';
 import 'package:sondya_app/presentation/features/product_checkout/delivery_option_body.dart';
 import 'package:sondya_app/presentation/features/product_checkout/payment_method_body.dart';
 import 'package:sondya_app/presentation/features/product_checkout/product_item_body.dart';
 import 'package:sondya_app/presentation/features/product_checkout/shipping_address_body.dart';
+import 'package:sondya_app/presentation/widgets/price_formatter.dart';
+import 'package:sondya_app/presentation/widgets/threebounce_loader.dart';
 
 class ProductCheckoutBody extends ConsumerStatefulWidget {
   const ProductCheckoutBody({super.key});
@@ -21,6 +26,11 @@ class _ProductCheckoutBodyState extends ConsumerState<ProductCheckoutBody> {
   );
   @override
   Widget build(BuildContext context) {
+    final getCartList = ref.watch(getCartDataProvider);
+    final getCartTotaling = ref.watch(totalingProvider);
+
+    final AsyncValue<Map<String, dynamic>> checkState =
+        ref.watch(initializeFlutterwaveProvider);
     return SingleChildScrollView(
       child: Center(
         child: Container(
@@ -47,14 +57,22 @@ class _ProductCheckoutBodyState extends ConsumerState<ProductCheckoutBody> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const Divider(),
-              ListView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: const [
-                  ProductCheckoutItem(),
-                  ProductCheckoutItem(),
-                  // ProductCheckoutItem(),
-                ],
+              getCartList.when(
+                data: (data) {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: data.length,
+                    itemBuilder: (context, index) {
+                      return ProductCheckoutItem(
+                        id: data[index].id,
+                        quantity: data[index].orderQuantity,
+                        name: data[index].name,
+                      );
+                    },
+                  );
+                },
+                error: (error, stackTrace) => Text(error.toString()),
+                loading: () => const CircularProgressIndicator(),
               ),
               const SizedBox(height: 20),
               const Text(
@@ -71,36 +89,77 @@ class _ProductCheckoutBodyState extends ConsumerState<ProductCheckoutBody> {
                   ],
                 ),
               ),
-              ListView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                    leadingAndTrailingTextStyle: textStyleConCluding,
-                    leading: const Text("Sub Total"),
-                    trailing: const Text("\$ 4,000"),
-                  ),
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                    leadingAndTrailingTextStyle: textStyleConCluding,
-                    leading: const Text("Shipping Cost"),
-                    trailing: const Text("\$ 4"),
-                  ),
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                    leadingAndTrailingTextStyle: textStyleConCluding,
-                    leading: const Text("Discount"),
-                    trailing: const Text("\$ 4"),
-                  ),
-                  const Divider(),
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                    leadingAndTrailingTextStyle: textStyleConCluding,
-                    leading: const Text("Total"),
-                    trailing: const Text("\$ 4,000"),
-                  )
-                ],
+              getCartTotaling.when(
+                data: (dataP) {
+                  // ref.watch(paymentRequestprovider.notifier).state.amount =
+                  //     dataP.total!;
+                  ref.watch(paymentRequestprovider.notifier).state.amount =
+                      20.0;
+                  return ListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      ListTile(
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                        leadingAndTrailingTextStyle: textStyleConCluding,
+                        leading: const Text("Sub Total"),
+                        trailing: PriceFormatWidget(
+                          price: dataP.subTotal!,
+                          fontFamily: GoogleFonts.openSans().fontFamily,
+                          color: Colors.black87,
+                          fontSize: 14,
+                        ),
+                      ),
+                      ListTile(
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                        leadingAndTrailingTextStyle: textStyleConCluding,
+                        leading: const Text("Total Tax"),
+                        trailing: PriceFormatWidget(
+                          price: dataP.totalTax!,
+                          fontFamily: GoogleFonts.openSans().fontFamily,
+                          color: Colors.black87,
+                          fontSize: 14,
+                        ),
+                      ),
+                      ListTile(
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                        leadingAndTrailingTextStyle: textStyleConCluding,
+                        leading: const Text("Shipping Cost"),
+                        trailing: PriceFormatWidget(
+                          price: dataP.totalShippingFee!,
+                          fontFamily: GoogleFonts.openSans().fontFamily,
+                          color: Colors.black87,
+                          fontSize: 14,
+                        ),
+                      ),
+                      ListTile(
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                        leadingAndTrailingTextStyle: textStyleConCluding,
+                        leading: const Text("Discount"),
+                        trailing: PriceFormatWidget(
+                          price: dataP.totalDiscount!,
+                          fontFamily: GoogleFonts.openSans().fontFamily,
+                          color: Colors.black87,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const Divider(),
+                      ListTile(
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                        leadingAndTrailingTextStyle: textStyleConCluding,
+                        leading: const Text("Total"),
+                        trailing: PriceFormatWidget(
+                          price: dataP.total!,
+                          fontFamily: GoogleFonts.openSans().fontFamily,
+                          color: Colors.black87,
+                          fontSize: 14,
+                        ),
+                      )
+                    ],
+                  );
+                },
+                error: (error, stackTrace) => Text(error.toString()),
+                loading: () => const CircularProgressIndicator(),
               ),
               const CheckoutShippingAddressBody(),
               const CheckoutPaymentMethodBody(),
@@ -110,8 +169,21 @@ class _ProductCheckoutBodyState extends ConsumerState<ProductCheckoutBody> {
                 height: 50,
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
-                  child: const Text("Pay \$188.00"),
+                  onPressed: () {
+                    // print(ref.read(paymentRequestprovider).toJson());
+                    ref
+                        .read(initializeFlutterwaveProvider.notifier)
+                        .initPayment(ref.read(paymentRequestprovider), context);
+                  },
+                  child: checkState.isLoading
+                      ? sondyaThreeBounceLoader(color: Colors.white)
+                      : PriceFormatWidget(
+                          price: ref.watch(paymentRequestprovider).amount,
+                          fontFamily: GoogleFonts.openSans().fontFamily,
+                          color: Colors.white,
+                          fontSize: 14,
+                          prefix: "Pay: ",
+                        ),
                 ),
               )
             ],

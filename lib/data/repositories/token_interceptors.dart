@@ -22,7 +22,7 @@ class AuthInterceptor extends Interceptor {
     options.headers = {
       ...options.headers,
       "Authorization":
-          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1YTEwYTY2ZGY4MDUxNTAzNzY2YjIyNyIsImVtYWlsIjoiZTJzY29iYTJ0bUBnbWFpbC5jb20iLCJ0eXBlIjoidXNlciIsInVzZXJuYW1lIjoiZTJzY29iYSIsImlhdCI6MTcxMzI2NjA5NSwiZXhwIjoxNzEzMzUyNDk1fQ.aZd5wWFTNuTOECAqu4Ki6cbIosxlEjHibyhiCdkfscA",
+          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1YTEwYTY2ZGY4MDUxNTAzNzY2YjIyNyIsImVtYWlsIjoiZTJzY29iYTJ0bUBnbWFpbC5jb20iLCJ0eXBlIjoidXNlciIsInVzZXJuYW1lIjoiZTJzY29iYSIsInBob25lX251bWJlciI6IjA5MDI3MzczNjMiLCJpYXQiOjE3MTQ2Njg0MzcsImV4cCI6MTcxNDc1NDgzN30.HIhLnlBh8EXzMpviQYgTWpKK6y1VW1JyRRpUXvuduA0",
     };
     super.onRequest(options, handler);
   }

@@ -8,7 +8,7 @@ class ProductOrderType {
   String id;
 
   @HiveField(1)
-  List<List<String>>? selectedVariants;
+  Map<String, dynamic>? selectedVariants;
 
   @HiveField(2)
   int orderQuantity;
@@ -42,9 +42,16 @@ class ProductOrderType {
   factory ProductOrderType.fromJson(Map<String, dynamic> json) {
     return ProductOrderType(
       id: json['_id'],
-      selectedVariants: (json['selected_variants'] as List<dynamic>?)
-          ?.map((variant) => List<String>.from(variant))
-          .toList(),
+      selectedVariants: (json['selected_variants'] as Map<String, dynamic>?)
+          ?.map((key, value) {
+        if (value is List<dynamic>) {
+          return MapEntry(
+              key, List<String>.from(value.map((e) => e.toString())));
+        } else if (value is String) {
+          return MapEntry(key, [value]);
+        }
+        return MapEntry(key, null);
+      }),
       orderQuantity: json['order_quantity'],
       trackDistanceTime: json['track_distance_time'] != null
           ? TrackDistanceTimeType.fromJson(json['track_distance_time'])

@@ -6,6 +6,7 @@ import 'package:mime/mime.dart';
 import 'package:sondya_app/data/api_constants.dart';
 import 'package:sondya_app/data/local/get_local_auth.dart';
 import 'package:sondya_app/data/repositories/token_interceptors.dart';
+import 'package:sondya_app/domain/hive_models/auth/auth.dart';
 import 'package:sondya_app/domain/models/user/kyc.dart';
 
 class KycEmailNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
@@ -54,12 +55,11 @@ class KycCodeNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth =
-          await getLocalAuth() as Map<String, dynamic>;
-      String? userId = localAuth["id"];
+      AuthInfo localAuth = await getLocalAuth();
+      String userId = localAuth.id;
 
       final response = await dio.put(
-        EnvironmentKycConfig.kycVerifyCode + userId!,
+        EnvironmentKycConfig.kycVerifyCode + userId,
         data: code,
       );
 
@@ -92,14 +92,12 @@ class KycPersonalInformationNotifier
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-
-      Map<String, dynamic>? localAuth =
-          await getLocalAuth() as Map<String, dynamic>;
-      String? userId = localAuth["id"];
+      AuthInfo localAuth = await getLocalAuth();
+      String userId = localAuth.id;
 
       // Make the PUT request
       final response = await dio.put(
-        EnvironmentKycConfig.kycPersonalDetails + userId!,
+        EnvironmentKycConfig.kycPersonalDetails + userId,
         data: details,
       );
       // Make the PUT request
@@ -136,13 +134,12 @@ class KycContactInfoNotifier
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth =
-          await getLocalAuth() as Map<String, dynamic>;
-      String? userId = localAuth["id"];
+      AuthInfo localAuth = await getLocalAuth();
+      String userId = localAuth.id;
 
       // Make the PUT request
       final response = await dio.put(
-        EnvironmentKycConfig.kycContactInfo + userId!,
+        EnvironmentKycConfig.kycContactInfo + userId,
         data: details,
       );
 
@@ -175,9 +172,8 @@ class KycDocumentUploadNotifier
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth =
-          await getLocalAuth() as Map<String, dynamic>;
-      String? userId = localAuth["id"];
+      AuthInfo localAuth = await getLocalAuth();
+      String userId = localAuth.id;
 
       // check file mime type and set form data
       final mimeTypeData = lookupMimeType(details.image!.path);
@@ -193,7 +189,7 @@ class KycDocumentUploadNotifier
 
       // Make the PUT request
       final response = await dio.put(
-        EnvironmentKycConfig.kycDocumentUpload + userId!,
+        EnvironmentKycConfig.kycDocumentUpload + userId,
         data: formData,
       );
 
@@ -226,9 +222,8 @@ class KycProfilePicsNotifier
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth =
-          await getLocalAuth() as Map<String, dynamic>;
-      String? userId = localAuth["id"];
+      AuthInfo localAuth = await getLocalAuth();
+      String userId = localAuth.id;
 
       // check file mime type and set form data
       final mimeTypeData = lookupMimeType(details.image!.path);
@@ -244,7 +239,7 @@ class KycProfilePicsNotifier
 
       // Make the PUT request
       final response = await dio.put(
-        EnvironmentKycConfig.kycProfilePicture + userId!,
+        EnvironmentKycConfig.kycProfilePicture + userId,
         data: formData,
       );
 
@@ -277,13 +272,12 @@ class KycCompanyInfoNotifier
       dio.interceptors.add(const AuthInterceptor());
 
       // get auth user id
-      Map<String, dynamic>? localAuth =
-          await getLocalAuth() as Map<String, dynamic>;
-      String? userId = localAuth["id"];
+      AuthInfo localAuth = await getLocalAuth();
+      String userId = localAuth.id;
 
       // Make the PUT request
       final response = await dio.put(
-        EnvironmentKycConfig.kycCompanyDetails + userId!,
+        EnvironmentKycConfig.kycCompanyDetails + userId,
         data: details,
       );
 
