@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sondya_app/data/local/cart.dart';
 import 'package:sondya_app/domain/providers/checkout.provider.dart';
@@ -91,10 +92,27 @@ class _ProductCheckoutBodyState extends ConsumerState<ProductCheckoutBody> {
               ),
               getCartTotaling.when(
                 data: (dataP) {
-                  // ref.watch(paymentRequestprovider.notifier).state.amount =
-                  //     dataP.total!;
+                  // update payment request state
                   ref.watch(paymentRequestprovider.notifier).state.amount =
                       20.0;
+
+                  // update product order state
+                  ref
+                      .watch(productOrderDataprovider.notifier)
+                      .state
+                      .totalAmount = dataP.total!;
+
+                  ref
+                      .watch(productOrderDataprovider.notifier)
+                      .state
+                      .totalDiscount = dataP.totalDiscount!;
+                  ref.watch(productOrderDataprovider.notifier).state.totalTax =
+                      dataP.totalTax!;
+                  ref
+                      .watch(productOrderDataprovider.notifier)
+                      .state
+                      .totalShippingFee = dataP.totalShippingFee!;
+
                   return ListView(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -171,9 +189,15 @@ class _ProductCheckoutBodyState extends ConsumerState<ProductCheckoutBody> {
                 child: ElevatedButton(
                   onPressed: () {
                     // print(ref.read(paymentRequestprovider).toJson());
-                    ref
-                        .read(initializeFlutterwaveProvider.notifier)
-                        .initPayment(ref.read(paymentRequestprovider), context);
+
+                    if (ref.watch(ispaymentDone.notifier).state == true) {
+                      context.go('/product/checkout/status');
+                    } else {
+                      ref
+                          .read(initializeFlutterwaveProvider.notifier)
+                          .initPayment(
+                              ref.read(paymentRequestprovider), context);
+                    }
                   },
                   child: checkState.isLoading
                       ? sondyaThreeBounceLoader(color: Colors.white)

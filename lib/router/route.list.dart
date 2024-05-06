@@ -1,5 +1,10 @@
 // GoRouter configuration
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sondya_app/domain/providers/checkout.provider.dart';
 import 'package:sondya_app/presentation/pages/auth/forgot_password_screen.dart';
 import 'package:sondya_app/presentation/pages/auth/login_screen.dart';
 import 'package:sondya_app/presentation/pages/auth/register_screen.dart';
@@ -31,174 +36,211 @@ import 'package:sondya_app/presentation/pages/userDashboard/referral_sceen.dart'
 import 'package:sondya_app/presentation/pages/userDashboard/settings_screen.dart';
 import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 import 'package:sondya_app/presentation/pages/wishlist_screen.dart';
+import 'package:sondya_app/utils/auth_utils.dart';
 
-final GoRouter router = GoRouter(
-  // initialLocation: '/product/details/6584298f6daa536f3412484d/VendingMachine',
-  // initialLocation: '/cart',
-  // initialLocation: '/product/checkout',
-  initialLocation: '/product/checkout/status',
-  errorBuilder: (context, state) => const ErrorScreen(),
-  routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const HomeScreen(),
-    ),
-    GoRoute(
-      path: '/splash',
-      builder: (context, state) => const SplashScreen(),
-    ),
-    GoRoute(
-      path: '/welcome',
-      builder: (context, state) => const WelcomeScreen(),
-    ),
-    GoRoute(
-      path: '/onboarding',
-      builder: (context, state) => const OnboardingScreen(),
-    ),
-    GoRoute(
-      path: '/product/search',
-      builder: (context, state) => const ProductSearchScreen(),
-    ),
-    GoRoute(
-      path: '/service/search',
-      builder: (context, state) => const ServiceSearchScreen(),
-    ),
-    GoRoute(
-      path: '/product/details/:id/:name',
-      builder: (context, state) {
-        final id = state.pathParameters['id']!;
-        final name = state.pathParameters['name']!;
-        return ProductDetailsScreen(
-          id: id,
-          name: name,
-        );
-      },
-    ),
-    GoRoute(
-      path: '/service/details/:id/:name',
-      builder: (context, state) {
-        final id = state.pathParameters['id']!;
-        final name = state.pathParameters['name']!;
-        return ServiceDetailsScreen(
-          id: id,
-          name: name,
-        );
-      },
-    ),
+// final GoRouter router = GoRouter1();
 
-    // Auth routes
-    GoRoute(
-      path: '/register',
-      builder: (context, state) => const RegisterScreen(),
-    ),
+GoRouter goRouterFunc(WidgetRef ref) {
+  FutureOr<String?> paymentDoneRedirectStrict(
+      BuildContext context, GoRouterState state) async {
+    if (!isAuthenticated()) {
+      return '/login';
+    }
+    if (ref.watch(ispaymentDone.notifier).state == true) {
+      return '/product/checkout/status';
+    }
+    return null;
+  }
 
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => const LoginScreen(),
-    ),
+  FutureOr<String?> authRedirectStrict(
+      BuildContext context, GoRouterState state) async {
+    if (!isAuthenticated()) {
+      return '/login';
+    } else {
+      return null;
+    }
+  }
 
-    GoRoute(
-      path: '/forgotPassword',
-      builder: (context, state) => const ForgotPasswordScreen(),
-    ),
+  return GoRouter(
+    initialLocation: '/',
+    errorBuilder: (context, state) => const ErrorScreen(),
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: '/welcome',
+        builder: (context, state) => const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
+        path: '/product/search',
+        builder: (context, state) => const ProductSearchScreen(),
+      ),
+      GoRoute(
+        path: '/service/search',
+        builder: (context, state) => const ServiceSearchScreen(),
+      ),
+      GoRoute(
+        path: '/product/details/:id/:name',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          final name = state.pathParameters['name']!;
+          return ProductDetailsScreen(
+            id: id,
+            name: name,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/service/details/:id/:name',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          final name = state.pathParameters['name']!;
+          return ServiceDetailsScreen(
+            id: id,
+            name: name,
+          );
+        },
+      ),
 
-    GoRoute(
-      path: '/resetPassword/:email',
-      builder: (context, state) {
-        final email = state.pathParameters['email']!;
-        return ResetPasswordScreen(email: email);
-      },
-    ),
+      // Auth routes
+      GoRoute(
+        path: '/register',
+        builder: (context, state) => const RegisterScreen(),
+      ),
 
-    GoRoute(
-      path: '/verificationCode/:email',
-      builder: (context, state) {
-        final email = state.pathParameters['email']!;
-        return VerificationCodeScreen(email: email);
-      },
-    ),
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const LoginScreen(),
+      ),
 
-    GoRoute(
-      path: '/registerSuccess',
-      builder: (context, state) => const RegisterSuccessScreen(),
-    ),
+      GoRoute(
+        path: '/forgotPassword',
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
 
-    // settings route
-    GoRoute(
-      path: '/settings',
-      builder: (context, state) => const SettingsScreen(),
-    ),
-    GoRoute(
-      path: '/referral',
-      builder: (context, state) => const ReferralPageScreen(),
-    ),
-    GoRoute(
-      path: '/inbox',
-      builder: (context, state) => const InboxScreen(),
-    ),
-    GoRoute(
-      path: '/inbox/chat',
-      builder: (context, state) => const InboxChatScreen(),
-    ),
+      GoRoute(
+        path: '/resetPassword/:email',
+        builder: (context, state) {
+          final email = state.pathParameters['email']!;
+          return ResetPasswordScreen(email: email);
+        },
+      ),
 
-    // kyc settings route
-    GoRoute(
-      path: '/kyc/email/verify',
-      builder: (context, state) => const KycEmailVerificationScreen(),
-    ),
-    GoRoute(
-      path: '/kyc/code/verify',
-      builder: (context, state) => const KycCodeScreenVerification(),
-    ),
-    GoRoute(
-      path: '/kyc/personal/information',
-      builder: (context, state) => const KycPersonalInformationScreen(),
-    ),
-    GoRoute(
-      path: '/kyc/contact/info',
-      builder: (context, state) => const KycContactInfoScreen(),
-    ),
-    GoRoute(
-      path: '/kyc/document/upload',
-      builder: (context, state) => const KycDocumentUploadScreen(),
-    ),
-    GoRoute(
-      path: '/kyc/profile/pics',
-      builder: (context, state) => const KycProfilePicsScreen(),
-    ),
-    GoRoute(
-      path: '/kyc/company/information',
-      builder: (context, state) => const KycCompanyInformationScreen(),
-    ),
+      GoRoute(
+        path: '/verificationCode/:email',
+        builder: (context, state) {
+          final email = state.pathParameters['email']!;
+          return VerificationCodeScreen(email: email);
+        },
+      ),
 
-    // cart route
-    GoRoute(
-      path: '/cart',
-      builder: (context, state) => const CartScreen(),
-    ),
+      GoRoute(
+        path: '/registerSuccess',
+        builder: (context, state) => const RegisterSuccessScreen(),
+      ),
 
-    // product checkout route
-    GoRoute(
-      path: '/product/checkout',
-      builder: (context, state) => const ProductCheckoutScreen(),
-    ),
+      // settings route
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/referral',
+        builder: (context, state) => const ReferralPageScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/inbox',
+        builder: (context, state) => const InboxScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/inbox/chat',
+        builder: (context, state) => const InboxChatScreen(),
+        redirect: authRedirectStrict,
+      ),
 
-    // service checkout route
-    GoRoute(
-      path: '/service/checkout',
-      builder: (context, state) => const ServiceCheckoutScreen(),
-    ),
+      // kyc settings route
+      GoRoute(
+        path: '/kyc/email/verify',
+        builder: (context, state) => const KycEmailVerificationScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/kyc/code/verify',
+        builder: (context, state) => const KycCodeScreenVerification(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/kyc/personal/information',
+        builder: (context, state) => const KycPersonalInformationScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/kyc/contact/info',
+        builder: (context, state) => const KycContactInfoScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/kyc/document/upload',
+        builder: (context, state) => const KycDocumentUploadScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/kyc/profile/pics',
+        builder: (context, state) => const KycProfilePicsScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/kyc/company/information',
+        builder: (context, state) => const KycCompanyInformationScreen(),
+        redirect: authRedirectStrict,
+      ),
 
-    // service checkout route
-    GoRoute(
-      path: '/product/checkout/status',
-      builder: (context, state) => const ProductCheckoutStatusScreen(),
-    ),
+      // cart route
+      GoRoute(
+        path: '/cart',
+        builder: (context, state) => const CartScreen(),
+      ),
 
-    // wishlist route
-    GoRoute(
-      path: '/wishlist',
-      builder: (context, state) => const WishlistScreen(),
-    ),
-  ],
-);
+      // product checkout route
+      GoRoute(
+        path: '/product/checkout',
+        builder: (context, state) => const ProductCheckoutScreen(),
+        redirect: paymentDoneRedirectStrict,
+      ),
+
+      // service checkout route
+      GoRoute(
+        path: '/service/checkout',
+        builder: (context, state) => const ServiceCheckoutScreen(),
+        redirect: authRedirectStrict,
+      ),
+
+      // service checkout route
+      GoRoute(
+        path: '/product/checkout/status',
+        builder: (context, state) => const ProductCheckoutStatusScreen(),
+        redirect: authRedirectStrict,
+      ),
+
+      // wishlist route
+      GoRoute(
+        path: '/wishlist',
+        builder: (context, state) => const WishlistScreen(),
+        redirect: authRedirectStrict,
+      ),
+    ],
+  );
+}

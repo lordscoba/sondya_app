@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sondya_app/data/remote/home.dart';
+import 'package:sondya_app/data/remote/checkout.dart';
 import 'package:sondya_app/presentation/widgets/price_formatter.dart';
 import 'package:sondya_app/utils/slugify.dart';
 
@@ -26,7 +26,7 @@ class _ProductCheckoutItemState extends ConsumerState<ProductCheckoutItem> {
   @override
   @override
   Widget build(BuildContext context) {
-    final getProductDetails = ref.watch(getProductDetailsProvider(
+    final getProductDetails = ref.watch(getCheckoutProductDetailsProvider(
         (id: widget.id!, name: sondyaSlugify(widget.name!))));
     return Container(
       padding: const EdgeInsets.all(10.0),

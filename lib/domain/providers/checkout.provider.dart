@@ -7,7 +7,7 @@ final paymentRequestprovider = StateProvider<PaymentRequestType>(
     buyer: Owner(id: '', username: '', email: '', phoneNumber: ''),
     amount: 0.0,
     currency: 'USD',
-    redirectUrl: "/checkout/status",
+    redirectUrl: "/product/checkout/status",
   ),
 );
 
@@ -17,11 +17,20 @@ final initializeFlutterwaveProvider = StateNotifierProvider.autoDispose<
 });
 
 final checkoutDataprovider = StateProvider<Map<String, dynamic>>(
-  // (ref) => {},
-  (ref) => {
-    "status": "successful",
-    "success": true,
-    "transaction_id": 5060256,
-    "tx_ref": "sondya-4fc69a15-587f-44df-baf3-7791c983632f"
-  },
+  (ref) => {},
+  // (ref) => {
+  //   "status": "successful",
+  //   "success": true,
+  //   "transaction_id": 5060256,
+  //   "tx_ref": "sondya-4fc69a15-587f-44df-baf3-7791c983632f"
+  // },
 );
+
+final productOrderDataprovider = StateProvider<CreateProductOrderType>(
+  (ref) => CreateProductOrderType(
+    redirectUrl: "/products/checkout/success",
+    currency: "USD",
+  ),
+);
+
+final ispaymentDone = StateProvider<bool>((ref) => false);

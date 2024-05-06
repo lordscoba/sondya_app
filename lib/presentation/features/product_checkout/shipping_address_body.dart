@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sondya_app/data/local/checkout.dart';
 import 'package:sondya_app/data/remote/checkout.dart';
+import 'package:sondya_app/domain/providers/checkout.provider.dart';
 import 'package:sondya_app/presentation/widgets/collapsible_widget.dart';
 
 class CheckoutShippingAddressBody extends ConsumerStatefulWidget {
@@ -55,6 +56,10 @@ class _CheckoutShippingAddressBodyState
       title: "Shipping Address Summary",
       child: getShipDataList.when(
         data: (dataW) {
+          ref
+              .watch(productOrderDataprovider.notifier)
+              .state
+              .shippingDestination = dataW;
           return Column(
             children: [
               Container(

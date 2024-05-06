@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sondya_app/config/style.dart';
 import 'package:sondya_app/router/route.list.dart';
 
-class MyRouter extends StatelessWidget {
+class MyRouter extends ConsumerWidget {
   const MyRouter({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
       title: 'Sondya',
       theme: lightTheme,
@@ -22,7 +23,7 @@ class MyRouter extends StatelessWidget {
         );
       },
       debugShowCheckedModeBanner: false,
-      routerConfig: router,
+      routerConfig: goRouterFunc(ref),
     );
   }
 }

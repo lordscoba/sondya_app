@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -21,10 +22,18 @@ class ProductCheckoutStatusBody extends ConsumerWidget {
           child: getVerificationStatus.when(
             data: (data) {
               print(data);
-              return const CheckoutSucessFFF();
+              if (data["data"]["data"]["status"] == "successful") {
+                return const CheckoutSucessFFF();
+              } else {
+                return CheckoutFailureFFF(
+                  message: data["data"]["message"],
+                );
+              }
             },
             error: (error, stackTrace) => Text(error.toString()),
-            loading: () => const CircularProgressIndicator(),
+            loading: () => const CupertinoActivityIndicator(
+              radius: 50,
+            ),
           ),
         ),
       ),
@@ -73,8 +82,10 @@ class CheckoutSucessFFF extends StatelessWidget {
 }
 
 class CheckoutFailureFFF extends StatelessWidget {
+  final String message;
   const CheckoutFailureFFF({
     super.key,
+    required this.message,
   });
 
   @override
@@ -93,6 +104,14 @@ class CheckoutFailureFFF extends StatelessWidget {
               fontFamily: GoogleFonts.playfairDisplay().fontFamily),
         ),
         const SizedBox(height: 20),
+        Text(
+          message,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Color(0xFF807D7E),
+          ),
+          textAlign: TextAlign.center,
+        ),
         const Text(
           "Click on the link to try again",
           style: TextStyle(
@@ -106,7 +125,7 @@ class CheckoutFailureFFF extends StatelessWidget {
             onPressed: () {
               context.push("/product/checkout");
             },
-            child: const Text("Continue Shopping")),
+            child: const Text("Continue")),
       ],
     );
   }
