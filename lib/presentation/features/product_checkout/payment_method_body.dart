@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sondya_app/domain/providers/checkout.provider.dart';
 import 'package:sondya_app/presentation/widgets/collapsible_widget.dart';
 
 class CheckoutPaymentMethodBody extends ConsumerStatefulWidget {
@@ -32,7 +33,9 @@ class _CheckoutPaymentMethodBodyState
 
   @override
   Widget build(BuildContext context) {
-    print(_selectedString);
+    // print(_selectedString);
+    ref.watch(productOrderDataprovider.notifier).state.paymentMethod =
+        _selectedString;
     return CollapsibleWidget(
       isVisible: true,
       title: "Payment Method",

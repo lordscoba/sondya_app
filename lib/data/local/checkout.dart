@@ -24,7 +24,9 @@ final getCheckoutAuthProvider =
 
     // update payment request state
     ref.watch(paymentRequestprovider.notifier).state.buyer = user;
-    // print(ref.watch(paymentRequestprovider).toJson());
+
+    // update product order state
+    ref.watch(productOrderDataprovider.notifier).state.buyer = user;
 
     return obj;
   } on Error catch (e) {
@@ -65,6 +67,8 @@ class InitializeFlutterwaveNotifier
       final ChargeResponse response = await flutterwave.charge();
 
       ref.watch(checkoutDataprovider.notifier).state = response.toJson();
+
+      ref.watch(ispaymentDone.notifier).state = true;
 
       state = AsyncValue.data(response.toJson());
     } on Error catch (e) {

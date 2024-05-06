@@ -210,7 +210,7 @@ class _CartBodyState extends ConsumerState<CartBody> {
                           backgroundColor: const Color(0xFF0156FF),
                         ),
                         onPressed: () {
-                          Navigator.pushNamed(context, '/checkout');
+                          context.go('/product/checkout');
                           // check whether the person is logged in
                         },
                         child: const Text("Checkout"),
