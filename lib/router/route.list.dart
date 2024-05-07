@@ -32,8 +32,14 @@ import 'package:sondya_app/presentation/pages/userDashboard/kyc_document_screen.
 import 'package:sondya_app/presentation/pages/userDashboard/kyc_dp_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/kyc_email_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/kyc_personal_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/product_order_details_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/product_order_history_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/referral_sceen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/settings_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/track_order_details_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/track_order_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/user_payments_details_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/user_payments_screen.dart';
 import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 import 'package:sondya_app/presentation/pages/wishlist_screen.dart';
 import 'package:sondya_app/utils/auth_utils.dart';
@@ -62,7 +68,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/track/details',
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(
@@ -239,6 +245,52 @@ GoRouter goRouterFunc(WidgetRef ref) {
       GoRoute(
         path: '/wishlist',
         builder: (context, state) => const WishlistScreen(),
+        redirect: authRedirectStrict,
+      ),
+
+      // user payments route
+      GoRoute(
+        path: '/user/payments',
+        builder: (context, state) => const UserPaymentsScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/user/payment/details',
+        builder: (context, state) => const UserPaymentDetailsScreen(),
+        redirect: authRedirectStrict,
+      ),
+
+      // order route
+      GoRoute(
+        path: '/product/order/history',
+        builder: (context, state) => const ProductOrderHistoryScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/product/order/details',
+        builder: (context, state) => const ProductOrderDetailsScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/service/order/history',
+        builder: (context, state) => const ProductOrderHistoryScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/service/order/details',
+        builder: (context, state) => const ProductOrderDetailsScreen(),
+        redirect: authRedirectStrict,
+      ),
+
+      // track route
+      GoRoute(
+        path: '/track/order',
+        builder: (context, state) => const TrackOrderScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/track/details',
+        builder: (context, state) => const TrackOrderDetailsScreen(),
         redirect: authRedirectStrict,
       ),
     ],
