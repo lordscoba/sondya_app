@@ -19,6 +19,23 @@ import 'package:sondya_app/presentation/pages/product_checkout_screen.dart';
 import 'package:sondya_app/presentation/pages/product_checkout_status_screen.dart';
 import 'package:sondya_app/presentation/pages/product_details_screen.dart';
 import 'package:sondya_app/presentation/pages/product_search_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_add_account_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_products_add_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_products_details_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_products_edit_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_products_orders_details_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_products_orders_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_products_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_products_status_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_services_add_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_services_details_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_services_edit_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_services_orders_details_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_services_orders_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_services_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_services_status_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_withdraw_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_withdrawals_screen.dart';
 import 'package:sondya_app/presentation/pages/service_checkout_screen.dart';
 import 'package:sondya_app/presentation/pages/service_details_screen.dart';
 import 'package:sondya_app/presentation/pages/service_search_screen.dart';
@@ -292,6 +309,101 @@ GoRouter goRouterFunc(WidgetRef ref) {
       GoRoute(
         path: '/track/details',
         builder: (context, state) => const TrackOrderDetailsScreen(),
+        redirect: authRedirectStrict,
+      ),
+
+      // seller product route
+      GoRoute(
+        path: '/seller/products',
+        builder: (context, state) => const SellerProductsScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/products/details',
+        builder: (context, state) => const SellerProductsDetailsScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/products/edit',
+        builder: (context, state) => const SellerProductsEditScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/products/add',
+        builder: (context, state) => const SellerProductsAddScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/products/status',
+        builder: (context, state) => const SellerProductsStatusScreen(),
+        redirect: authRedirectStrict,
+      ),
+
+      // seller services route
+      GoRoute(
+        path: '/seller/services',
+        builder: (context, state) => const SellerServicesScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/services/details',
+        builder: (context, state) => const SellerServicesDetailsScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/services/edit',
+        builder: (context, state) => const SellerServicesEditScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/services/add',
+        builder: (context, state) => const SellerServicesAddScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/services/status',
+        builder: (context, state) => const SellerServicesStatusScreen(),
+        redirect: authRedirectStrict,
+      ),
+
+      // seller product  order route
+      GoRoute(
+        path: '/seller/products/orders',
+        builder: (context, state) => const SellerProductsOrdersScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/products/orders/details',
+        builder: (context, state) => const SellerProductsOrdersDetailsScreen(),
+        redirect: authRedirectStrict,
+      ),
+
+      // seller services  order route
+      GoRoute(
+        path: '/seller/services/orders',
+        builder: (context, state) => const SellerServicesOrdersScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/services/orders/details',
+        builder: (context, state) => const SellerServicesOrdersDetailsScreen(),
+        redirect: authRedirectStrict,
+      ),
+
+      // seller withdrawal route
+      GoRoute(
+        path: '/seller/withdrawals',
+        builder: (context, state) => const SellerWithdrawalsScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/add/account',
+        builder: (context, state) => const SellerAddAccountScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/withdrawal',
+        builder: (context, state) => const SellerWithdrawScreen(),
         redirect: authRedirectStrict,
       ),
     ],
