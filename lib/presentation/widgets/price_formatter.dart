@@ -10,6 +10,7 @@ class PriceFormatWidget extends StatelessWidget {
   final double fontSize;
   final int priceMultiple;
   final String prefix;
+  final String suffix;
   final String? fontFamily;
   final Color? color;
 
@@ -22,6 +23,7 @@ class PriceFormatWidget extends StatelessWidget {
     this.fontSize = 12.0,
     this.priceMultiple = 1,
     this.prefix = '',
+    this.suffix = '',
     this.fontFamily,
     this.color,
   });
@@ -34,7 +36,7 @@ class PriceFormatWidget extends StatelessWidget {
     ).format(price * priceMultiple);
 
     return Text(
-      prefix + formattedPrice,
+      prefix + formattedPrice + suffix,
       style: TextStyle(
         decoration: oldPrice ? TextDecoration.lineThrough : TextDecoration.none,
         fontSize: fontSize, // Adjust as desired
