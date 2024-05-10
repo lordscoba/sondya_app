@@ -42,9 +42,10 @@ class _SellerProductsEditBodyState
                   ],
                 ),
                 const SizedBox(height: 20),
-                const Text("Category",
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text(
+                  "Category",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 20),
                 const Text("Product Name",
                     style: TextStyle(color: Colors.grey)),

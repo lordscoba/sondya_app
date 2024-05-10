@@ -205,3 +205,124 @@ class _ProfilePicsSelectorState extends State<ProfilePicsSelector> {
     }
   }
 }
+
+// for multiple images
+class SondyaMultipleImageSelection extends StatefulWidget {
+  final void Function(XFile value)? onSetImage;
+  final String? savedNetworkImage;
+  const SondyaMultipleImageSelection(
+      {super.key, this.onSetImage, this.savedNetworkImage});
+
+  @override
+  State<SondyaMultipleImageSelection> createState() =>
+      _SondyaMultipleImageSelectionState();
+}
+
+class _SondyaMultipleImageSelectionState
+    extends State<SondyaMultipleImageSelection> {
+  XFile? _image;
+  dynamic _pickImageError;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the variable in initState
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onDoubleTap: _getImage,
+      child: DottedBorder(
+        borderType: BorderType.RRect,
+        radius: const Radius.circular(10),
+        color: Colors.grey,
+        dashPattern: const [8, 4], // Adjust dash and space lengths
+        strokeWidth: 2, // Adjust border width
+        child: SizedBox(
+          width: 380,
+          height: 200,
+          child: _image == null
+              ? widget.savedNetworkImage != null &&
+                      widget.savedNetworkImage!.isNotEmpty
+                  ? Image.network(
+                      widget.savedNetworkImage!,
+                      fit: BoxFit.cover,
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        const Icon(
+                          Icons.image,
+                          size: 50,
+                          color: Color(0xFFEDB842),
+                        ),
+                        if (_pickImageError != null)
+                          Text(_pickImageError.toString()),
+                        const Text(
+                            "Drag and drop image here, or click add image"),
+                        GestureDetector(
+                          onTap: _getImage,
+                          child: Container(
+                            width: 250,
+                            height: 44,
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 7, horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEDB842).withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Text(
+                              "Browse",
+                              style: TextStyle(
+                                  color: Color(0xFFEDB842), fontSize: 18),
+                            ),
+                          ),
+                        )
+                      ],
+                    )
+              : _getImageWidget(),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _getImage() async {
+    if (context.mounted) {
+      try {
+        final ImagePicker picker = ImagePicker();
+        final XFile? image =
+            await picker.pickImage(source: ImageSource.gallery);
+        setState(() {
+          _image = image;
+        });
+
+        // Invoke onSetImage if provided
+        if (widget.onSetImage != null && image != null) {
+          widget.onSetImage!(image);
+        }
+      } catch (e) {
+        setState(() {
+          _pickImageError = e;
+        });
+      }
+    }
+  }
+
+  Widget _getImageWidget() {
+    if (kIsWeb && widget.savedNetworkImage == null) {
+      // Display image for web
+      return Image.network(
+        _image!.path,
+        fit: BoxFit.cover,
+      );
+    } else {
+      // Display image for mobile
+      return Image.file(
+        File(_image!.path),
+        fit: BoxFit.cover,
+      );
+    }
+  }
+}
