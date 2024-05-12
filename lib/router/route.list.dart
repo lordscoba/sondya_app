@@ -86,7 +86,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
-    initialLocation: '/seller/products/add',
+    initialLocation: '/seller/services/add',
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(
