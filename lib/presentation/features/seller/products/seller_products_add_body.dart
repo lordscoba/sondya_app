@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sondya_app/domain/models/home.dart';
 import 'package:sondya_app/presentation/widgets/image_selection.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
 import 'package:sondya_app/presentation/widgets/variants_widget.dart';
@@ -586,7 +587,13 @@ class AddModalBody2 extends StatelessWidget {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
 
         const SizedBox(height: 10),
-        const SondyaMultipleImageSelection(),
+        SondyaMultipleImageSelection(
+          savedNetworkImage:
+              ims.map((image) => ImageType.fromJson(image)).toList(),
+          onSetImage: (value) {
+            print(value);
+          },
+        ),
         const SizedBox(height: 10),
         const Divider(),
         const SizedBox(height: 10),
@@ -622,6 +629,44 @@ class AddModalBody2 extends StatelessWidget {
     );
   }
 }
+
+var ims = [
+  {
+    "url":
+        "https://res.cloudinary.com/dyeyatchg/image/upload/v1700469639/sondya/tqrpvccrrbgz4gzkecyz.png",
+    "public_id": "sondya/tqrpvccrrbgz4gzkecyz",
+    "folder": "sondya",
+    "_id": "655b1b87e9e25909e4909314"
+  },
+  {
+    "url":
+        "https://res.cloudinary.com/dyeyatchg/image/upload/v1700393981/sondya/kpknp9au7cyempw2jz8s.jpg",
+    "public_id": "sondya/kpknp9au7cyempw2jz8s",
+    "folder": "sondya",
+    "_id": "6559f3ff1cc17a69f9747361"
+  },
+  {
+    "url":
+        "https://res.cloudinary.com/dyeyatchg/image/upload/v1700393981/sondya/kpknp9au7cyempw2jz8s.jpg",
+    "public_id": "sondya/kpknp9au7cyempw2jz8s",
+    "folder": "sondya",
+    "_id": "6559f3ff1cc17a69f9747361"
+  },
+  {
+    "url":
+        "https://res.cloudinary.com/dyeyatchg/image/upload/v1700393981/sondya/kpknp9au7cyempw2jz8s.jpg",
+    "public_id": "sondya/kpknp9au7cyempw2jz8s",
+    "folder": "sondya",
+    "_id": "6559f3ff1cc17a69f9747361"
+  },
+  {
+    "url":
+        "https://res.cloudinary.com/dyeyatchg/image/upload/v1700393981/sondya/kpknp9au7cyempw2jz8s.jpg",
+    "public_id": "sondya/kpknp9au7cyempw2jz8s",
+    "folder": "sondya",
+    "_id": "6559f3ff1cc17a69f9747361"
+  },
+];
 
 class AddModalBody3 extends StatelessWidget {
   final void Function()? onPressed;

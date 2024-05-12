@@ -31,7 +31,12 @@ class SellerProductsBody extends StatelessWidget {
               children: [
                 const SizedBox(
                   width: 200,
-                  child: TextField(),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Search",
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                  ),
                 ),
                 SizedBox(
                   width: 200,
@@ -51,7 +56,7 @@ class SellerProductsBody extends StatelessWidget {
               shrinkWrap: true,
               children: const [
                 SellerProductCard(
-                  name: "Plantain",
+                  name: "Plait hair",
                   status: "Available",
                   price: 600.0,
                   image: "assets/shapes/circle_25.png",
@@ -59,7 +64,7 @@ class SellerProductsBody extends StatelessWidget {
                   quantity: "33 qty",
                 ),
                 SellerProductCard(
-                  name: "beans",
+                  name: "Plait hair",
                   status: "Status",
                   price: 1000.0,
                   image: "assets/shapes/circle_25.png",
@@ -67,7 +72,7 @@ class SellerProductsBody extends StatelessWidget {
                   quantity: "33 qty",
                 ),
                 SellerProductCard(
-                  name: "Coke",
+                  name: "Plait hair",
                   status: "Sold",
                   price: 200.0,
                   image: "assets/shapes/circle_25.png",
