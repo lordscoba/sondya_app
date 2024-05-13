@@ -20,6 +20,10 @@ import 'package:sondya_app/presentation/pages/product_checkout_status_screen.dar
 import 'package:sondya_app/presentation/pages/product_details_screen.dart';
 import 'package:sondya_app/presentation/pages/product_search_screen.dart';
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_add_account_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_order_deliver_work_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_order_review_terms_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_order_update_location_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_order_update_status_screen.dart';
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_products_add_screen.dart';
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_products_details_screen.dart';
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_products_edit_screen.dart';
@@ -35,6 +39,7 @@ import 'package:sondya_app/presentation/pages/sellerDashboard/seller_services_or
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_services_screen.dart';
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_services_status_screen.dart';
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_withdraw_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_withdrawal_details_screen.dart';
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_withdrawals_screen.dart';
 import 'package:sondya_app/presentation/pages/service_checkout_screen.dart';
 import 'package:sondya_app/presentation/pages/service_details_screen.dart';
@@ -62,8 +67,6 @@ import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 import 'package:sondya_app/presentation/pages/wishlist_screen.dart';
 import 'package:sondya_app/utils/auth_utils.dart';
 
-// final GoRouter router = GoRouter1();
-
 GoRouter goRouterFunc(WidgetRef ref) {
   FutureOr<String?> paymentDoneRedirectStrict(
       BuildContext context, GoRouterState state) async {
@@ -86,7 +89,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
-    initialLocation: '/seller/services/add',
+    initialLocation: '/seller/order/deliver/work',
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(
@@ -377,6 +380,16 @@ GoRouter goRouterFunc(WidgetRef ref) {
         builder: (context, state) => const SellerProductsOrdersDetailsScreen(),
         redirect: authRedirectStrict,
       ),
+      GoRoute(
+        path: '/seller/order/update/location',
+        builder: (context, state) => const SellerOrderUpdateLocationScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/order/update/status',
+        builder: (context, state) => const SellerOrderUpdateStatusScreen(),
+        redirect: authRedirectStrict,
+      ),
 
       // seller services  order route
       GoRoute(
@@ -387,6 +400,16 @@ GoRouter goRouterFunc(WidgetRef ref) {
       GoRoute(
         path: '/seller/services/orders/details',
         builder: (context, state) => const SellerServicesOrdersDetailsScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/order/review/terms',
+        builder: (context, state) => const SellerOrderReviewTermsScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/order/deliver/work',
+        builder: (context, state) => const SellerOrderDeliverWorkScreen(),
         redirect: authRedirectStrict,
       ),
 
@@ -402,8 +425,13 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/seller/withdrawal',
+        path: '/seller/withdraw',
         builder: (context, state) => const SellerWithdrawScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/withdrawal/details',
+        builder: (context, state) => const SellerWithdrawalDetailsScreen(),
         redirect: authRedirectStrict,
       ),
     ],

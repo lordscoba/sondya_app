@@ -428,14 +428,22 @@ class SellerChatBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(8),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(12.0),
+      // add border decoration
       decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.black38,
-          width: 1,
-        ),
-        borderRadius: BorderRadius.circular(2),
+        // border: Border.all(color: Colors.black38, width: 1.0),
+        borderRadius: BorderRadius.circular(8.0),
+        color: Theme.of(context).colorScheme.background,
+        // add shadow
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
