@@ -78,7 +78,7 @@ final verifyCheckoutPaymentProvider = FutureProvider.autoDispose
     dio.interceptors.add(const AuthInterceptor());
 
     final response =
-        await dio.get(EnvironmentProductCheckoutConfig.verifyPayment + txRef);
+        await dio.get(EnvironmentUserPaymentConfig.verifyPayment + txRef);
     if (response.statusCode == 200 || response.statusCode == 201) {
       if (response.data["data"]["data"]["status"] == "successful") {
         ref.watch(productOrderDataprovider.notifier).state.paymentStatus =
@@ -87,7 +87,7 @@ final verifyCheckoutPaymentProvider = FutureProvider.autoDispose
             "order placed";
 
         final response2 = await dio.post(
-          EnvironmentProductCheckoutConfig.productOrder,
+          EnvironmentUserProductOrderConfig.productOrder,
           data: ref.watch(productOrderDataprovider.notifier).state.toJson(),
         );
 

@@ -1,17 +1,35 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sondya_app/data/remote/payments.dart';
 import 'package:sondya_app/presentation/widgets/price_formatter.dart';
+import 'package:sondya_app/utils/dateTime_to_string.dart';
 
-class UserPaymentsBody extends StatelessWidget {
+class UserPaymentsBody extends ConsumerWidget {
   const UserPaymentsBody({super.key});
 
   final leadStyle = const TextStyle(fontSize: 15);
   final trailStyle = const TextStyle(fontSize: 15, color: Color(0xFFEDB842));
-  final subStyle = const TextStyle(fontSize: 15, color: Color(0xFFFA8232));
+  // final subStyle = const TextStyle(fontSize: 15, color: Color(0xFFFA8232));
   final titleStyle = const TextStyle(fontWeight: FontWeight.bold);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final getPayments = ref.watch(getUserPaymentsProvider);
+
+    // print("here");
+    // getPayments.whenData((data) {
+    //   print(data);
+    // });
+
+    // getPayments.when(data: (data) {
+    //   print(data);
+    // }, error: (error, stackTrace) {
+    //   print(error);
+    // }, loading: () {
+    //   print("loading");
+    // });
     return SingleChildScrollView(
       child: Center(
         child: Column(
@@ -40,85 +58,57 @@ class UserPaymentsBody extends StatelessWidget {
               ),
             ),
             const Divider(),
-            ListView(
-              shrinkWrap: true,
-              children: [
-                const SizedBox(height: 20.0),
-                ListTile(
-                  leading: Text("#96459761", style: leadStyle),
-                  title: Text("Dec 30, 2023", style: titleStyle),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const PriceFormatWidget(
-                        price: 100.0,
-                        fontSize: 16,
+            getPayments.when(
+              data: (data) {
+                return ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: data.length,
+                  itemBuilder: (context, index) {
+                    print(data[index]);
+                    return ListTile(
+                      leading:
+                          Text(data[index]["payment_id"], style: leadStyle),
+                      title: Text(sondyaFormattedDate(data[index]["createdAt"]),
+                          style: titleStyle),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          PriceFormatWidget(
+                            price: data[index]["total_amount"] == null
+                                ? 0.0
+                                : data[index]["total_amount"].toDouble() ?? 0.0,
+                            fontSize: 16,
+                          ),
+                          TextButton(
+                            onPressed: null,
+                            child: Text(
+                              "View",
+                              style: trailStyle,
+                            ),
+                          ),
+                        ],
                       ),
-                      TextButton(
-                        onPressed: null,
-                        child: Text(
-                          "View",
-                          style: trailStyle,
-                        ),
+                      subtitle: Text(
+                        data[index]["payment_status"] ?? "",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: data[index]["payment_status"] == "successful"
+                                ? Colors.green
+                                : const Color(0xFFFA8232)),
                       ),
-                    ],
-                  ),
-                  subtitle: Text(
-                    "IN PROGRESS",
-                    style: subStyle,
-                  ),
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return const SizedBox(height: 20.0);
+                  },
+                );
+              },
+              error: (error, stackTrace) => Text(error.toString()),
+              loading: () => const Center(
+                child: CupertinoActivityIndicator(
+                  radius: 50,
                 ),
-                const SizedBox(height: 20.0),
-                ListTile(
-                  leading: Text("#96459761", style: leadStyle),
-                  title: Text("Dec 30, 2023", style: titleStyle),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const PriceFormatWidget(
-                        price: 100.0,
-                        fontSize: 16,
-                      ),
-                      TextButton(
-                        onPressed: null,
-                        child: Text(
-                          "View",
-                          style: trailStyle,
-                        ),
-                      ),
-                    ],
-                  ),
-                  subtitle: Text(
-                    "IN PROGRESS",
-                    style: subStyle,
-                  ),
-                ),
-                const SizedBox(height: 20.0),
-                ListTile(
-                  leading: Text("#96459761", style: leadStyle),
-                  title: Text("Dec 30, 2023", style: titleStyle),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const PriceFormatWidget(
-                        price: 100.0,
-                        fontSize: 16,
-                      ),
-                      TextButton(
-                        onPressed: null,
-                        child: Text(
-                          "View",
-                          style: trailStyle,
-                        ),
-                      ),
-                    ],
-                  ),
-                  subtitle: Text(
-                    "IN PROGRESS",
-                    style: subStyle,
-                  ),
-                ),
-              ],
+              ),
             ),
             const Divider()
           ],

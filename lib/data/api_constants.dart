@@ -86,11 +86,20 @@ class EnvironmentProfileConfig {
       '$baseUrl/profile/update/company/'; // PUT :id - user id
 }
 
-class EnvironmentProductCheckoutConfig {
+class EnvironmentUserPaymentConfig {
   // payment verification
+  static const String getUserPayments =
+      '$baseUrl/user/payments/'; // GET :user_id
+  static const String getUserPaymentsById =
+      '$baseUrl/user/payments/details/'; // GET :id
+  static const String initializePayment = '$baseUrl/user/payments/pay';
   static const String verifyPayment =
       '$baseUrl/user/payments/verify/'; // GET :tx_ref
+}
 
+class EnvironmentServiceCheckoutConfig {}
+
+class EnvironmentUserProductOrderConfig {
   static const String productOrder =
       '$baseUrl/user/order/products/create'; // POST
 
@@ -99,4 +108,88 @@ class EnvironmentProductCheckoutConfig {
 
   static const String getproductOrdersById =
       '$baseUrl/user/order/products/details/'; // GET :id - order id
+}
+
+class EnvironmentUserServiceOrderConfig {
+  static const String createServiceOrder =
+      '$baseUrl/user/order/services/create/'; // POST :service_id
+  static const String getServiceOrderById =
+      '$baseUrl/user/order/services/'; // GET: order_id
+  static const String getUserServiceOrders =
+      '$baseUrl/user/order/services/list/'; // GET: buyer_id
+  static const String updateTerms =
+      '$baseUrl/user/order/services/updateterms/'; // PUT: order_id
+  static const String updateServiceOrder =
+      '$baseUrl/user/order/services/update/'; // PUT: order_id
+}
+
+class EnvironmentTrackOrderConfig {
+  static const String getTracking = '$baseUrl/track'; // GET
+}
+
+class EnvironmentSellerProductConfig {
+  static const String create = '$baseUrl/seller/product/create'; // POST
+  static const String update = '$baseUrl/seller/product/update/'; // PUT :id
+  static const String delete = '$baseUrl/seller/product/'; // DELETE :id
+  static const String getByID = '$baseUrl/seller/product/'; // GET :id
+  static const String getAll = '$baseUrl/seller/products/'; // GET :userId
+}
+
+class EnvironmentSellerServiceConfig {
+  static const String create = '$baseUrl/seller/service/create'; // POST
+  static const String update = '$baseUrl/seller/service/update/'; // PUT :id
+  static const String delete = '$baseUrl/seller/service/'; // DELETE :id
+  static const String getByID = '$baseUrl/seller/service/'; // GET :id
+  static const String getAll = '$baseUrl/seller/services/'; // GET :userId
+}
+
+class EnvironmentSellerProductOrderConfig {
+  static const String getProductsOrders =
+      '$baseUrl/seller/order/products/'; // GET :user_id
+  static const String getProductOrdersById =
+      '$baseUrl/seller/order/product/details/'; // GET :id
+  static const String updateProductOrders =
+      '$baseUrl/seller/order/products/update'; // POST :getProductOrder Type
+  static const String deleteProductOrdersById =
+      '$baseUrl/seller/order/products/'; // GET :id
+}
+
+class EnvironmentSellerServiceOrderConfig {
+  static const String getSellerServiceOrders =
+      '$baseUrl/seller/order/services/list/'; // GET: seller_id
+  static const String getSellerServiceOrderById =
+      '$baseUrl/seller/order/services/'; // GET: order_id + seller
+  static const String updateSellerTerms =
+      '$baseUrl/seller/order/services/updateterms/'; // PUT: order_id + seller
+  static const String updateSellerServiceOrder =
+      '$baseUrl/seller/order/services/update/'; // PUT: order_id  + seller
+}
+
+class EnvironmentSellerAccountConfig {
+  static const String getBalance =
+      '$baseUrl/account/balance/'; // GET :id  - user's id
+  static const String addBankAccount =
+      '$baseUrl/account/bank/add/'; // PUT :id - user's id
+  static const String deleteBankAccount =
+      '$baseUrl/account/bank/delete/'; // DELETE :userId - user's id /:id - bank's id
+  static const String addPayPalAccount =
+      '$baseUrl/account/paypal/add/'; // PUT :id - user's id
+  static const String deletePayPalAccount =
+      '$baseUrl/account/paypal/delete/'; // DELETE :userId - user's id /:id - paypal's id
+  static const String addPayoneerAccount =
+      '$baseUrl/account/payoneer/add/'; // PUT :id - user's id
+  static const String deletePayoneerAccount =
+      '$baseUrl/account/payoneer/delete/'; // DELETE :userId - user's id /:id - payoneer's id
+}
+
+class EnvironmentSellerWithdrawalConfig {
+  static const String withdraw = '$baseUrl/seller/withdraw'; // POST
+  static const String getWithdrawals =
+      '$baseUrl/seller/withdrawals/'; // GET :id - user's id
+  static const String getWithdrawalById =
+      '$baseUrl/seller/withdrawal/details/'; // GET :id - withdrawal's id
+  static const String getWithdrawalStat =
+      '$baseUrl/seller/withdrawal/stat/'; // GET :id - user's id
+  static const String deleteWithdrawal =
+      '$baseUrl/seller/withdrawal/delete/'; // DELETE :id - withdrawal's id
 }

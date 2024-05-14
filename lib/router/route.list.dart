@@ -58,6 +58,7 @@ import 'package:sondya_app/presentation/pages/userDashboard/product_order_detail
 import 'package:sondya_app/presentation/pages/userDashboard/product_order_history_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/referral_sceen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/service_order_details_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/service_order_history_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/settings_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/track_order_details_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/track_order_screen.dart';
@@ -89,7 +90,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
-    initialLocation: '/seller/order/deliver/work',
+    initialLocation: '/seller/products',
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(
@@ -294,7 +295,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
       ),
       GoRoute(
         path: '/service/order/history',
-        builder: (context, state) => const ProductOrderHistoryScreen(),
+        builder: (context, state) => const ServiceOrderHistoryScreen(),
         redirect: authRedirectStrict,
       ),
       GoRoute(
