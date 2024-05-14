@@ -1,12 +1,91 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sondya_app/data/remote/seller.product.dart';
+import 'package:sondya_app/domain/models/home.dart';
+import 'package:sondya_app/domain/providers/seller.product.provider.dart';
 import 'package:sondya_app/presentation/widgets/price_formatter.dart';
+import 'package:sondya_app/presentation/widgets/threebounce_loader.dart';
+import 'package:sondya_app/utils/input_validations.dart';
+import 'package:sondya_app/utils/map_to_searchstring.dart';
 
-class SellerProductsBody extends StatelessWidget {
+class SellerProductsBody extends ConsumerStatefulWidget {
   const SellerProductsBody({super.key});
 
   @override
+  ConsumerState<SellerProductsBody> createState() => _SellerProductsBodyState();
+}
+
+class _SellerProductsBodyState extends ConsumerState<SellerProductsBody> {
+  late ProductSearchModel search;
+  List<dynamic> allItems = [];
+  bool bottomPage = false;
+
+  // controls the scroll container
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the variable in initState
+    _scrollController.addListener(_scrollListener);
+    search = ref.read(sellerProductSearchprovider);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _loadMore() {
+    if (search.page == null) {
+      search.page = 2;
+    } else {
+      search.page = search.page! + 1;
+    }
+    ref.read(sellerProductSearchprovider.notifier).state = search;
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      // Bottom of the page is reached
+      // print('Reached the bottom!');
+      if (bottomPage == false) {
+        setState(() {
+          _loadMore();
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // final getSellerProducts = ref.watch(getSellerProductsProvider(""));
+
+    // gets the search map removes null and page key, ready for iteration
+    var searchData = ref.watch(sellerProductSearchprovider).toJson();
+    searchData.removeWhere((key, value) => (value == null || key == "page"));
+
+    //calls search api with the filter strings
+    final getProducts = ref.watch(getSellerProductsProvider(
+        "?${mapToSearchString(ref.watch(sellerProductSearchprovider).toJson())}"));
+
+    // assigns fetched data to allitems array
+    getProducts.whenData((data) {
+      if (data.isNotEmpty) {
+        setState(() {
+          allItems = [...allItems, ...data["products"]];
+        });
+      } else {
+        setState(() {
+          bottomPage = true;
+        });
+      }
+    });
+
     return SingleChildScrollView(
       child: Center(
         child: Column(
@@ -29,13 +108,31 @@ class SellerProductsBody extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                const SizedBox(
+                SizedBox(
                   width: 200,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "Search",
+                  child: TextFormField(
+                    decoration: const InputDecoration(
+                      hintText: " Enter your search",
+                      labelText: 'Search',
                       prefixIcon: Icon(Icons.search),
                     ),
+                    validator: isInputEmpty,
+                    onChanged: (value) {
+                      Future.delayed(const Duration(seconds: 1), () {
+                        if (value.isNotEmpty) {
+                          setState(() {
+                            // print(value);
+                            search.search = value;
+                            allItems = [];
+                            search.page = null;
+                            bottomPage = false;
+                            ref
+                                .read(sellerProductSearchprovider.notifier)
+                                .state = search;
+                          });
+                        }
+                      });
+                    },
                   ),
                 ),
                 SizedBox(
@@ -52,35 +149,44 @@ class SellerProductsBody extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20.0),
-            ListView(
+            ListView.separated(
+              controller: _scrollController,
+              itemCount: allItems.isNotEmpty ? allItems.length : 1,
               shrinkWrap: true,
-              children: const [
-                SellerProductCard(
-                  name: "Plait hair",
-                  status: "Available",
-                  price: 600.0,
-                  image: "assets/shapes/circle_25.png",
-                  productId: "123",
-                  quantity: "33 qty",
-                ),
-                SellerProductCard(
-                  name: "Plait hair",
-                  status: "Status",
-                  price: 1000.0,
-                  image: "assets/shapes/circle_25.png",
-                  productId: "123",
-                  quantity: "33 qty",
-                ),
-                SellerProductCard(
-                  name: "Plait hair",
-                  status: "Sold",
-                  price: 200.0,
-                  image: "assets/shapes/circle_25.png",
-                  productId: "123",
-                  quantity: "33 qty",
-                ),
-              ],
-            )
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: 20.0),
+              itemBuilder: (context, index) {
+                if (allItems.isNotEmpty) {
+                  return SellerProductCard(
+                    name: allItems[index]["name"],
+                    status: allItems[index]["product_status"],
+                    price: allItems[index]["current_price"].toDouble(),
+                    image: allItems[index]["image"][0]["url"],
+                    productId: allItems[index]["_id"],
+                    quantity: allItems[index]["total_stock"].toString(),
+                  );
+                } else if (getProducts.hasValue && allItems.isEmpty) {
+                  return const SizedBox(
+                    height: 100, // Adjust the height as needed
+                    child: Center(child: Text("No products found")),
+                  );
+                } else {
+                  return const SizedBox(
+                    height: 100, // Adjust the height as needed
+                    child: Center(
+                      child: CupertinoActivityIndicator(
+                        radius:
+                            30, // Adjust the size of the indicator as needed
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+            if (getProducts.isLoading)
+              sondyaThreeBounceLoader(color: const Color(0xFFEDB842), size: 50),
+            if (bottomPage == true)
+              const Center(child: Text("You have reached bottom of the page"))
           ],
         ),
       ),
@@ -112,7 +218,12 @@ class SellerProductCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Image(image: AssetImage(image), height: 150),
+              Image(
+                image: NetworkImage(image),
+                height: 150,
+                width: 160,
+                fit: BoxFit.cover,
+              ),
               const SizedBox(width: 20),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,7 +241,9 @@ class SellerProductCard extends StatelessWidget {
                       const Text("Status:"),
                       Text(
                         status,
-                        style: const TextStyle(color: Colors.green),
+                        style: TextStyle(
+                            color:
+                                status == "sold" ? Colors.red : Colors.green),
                       ),
                     ],
                   ),
