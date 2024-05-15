@@ -5,14 +5,17 @@ import 'package:sondya_app/presentation/layout/top_bar.dart';
 import 'package:sondya_app/presentation/layout/user_drawer.dart';
 
 class SellerWithdrawalDetailsScreen extends StatelessWidget {
-  const SellerWithdrawalDetailsScreen({super.key});
+  final String id;
+  const SellerWithdrawalDetailsScreen({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Details", isHome: false),
       drawer: sonyaUserDrawer(context),
-      body: const SellerWithdrawalDetailsBody(),
+      body: SellerWithdrawalDetailsBody(
+        id: id,
+      ),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );
   }

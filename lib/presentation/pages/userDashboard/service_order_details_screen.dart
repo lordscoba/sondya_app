@@ -5,7 +5,8 @@ import 'package:sondya_app/presentation/layout/top_bar.dart';
 import 'package:sondya_app/presentation/layout/user_drawer.dart';
 
 class ServiceOrderDetailsScreen extends StatelessWidget {
-  const ServiceOrderDetailsScreen({super.key});
+  final String id;
+  const ServiceOrderDetailsScreen({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {

@@ -5,14 +5,17 @@ import 'package:sondya_app/presentation/layout/top_bar.dart';
 import 'package:sondya_app/presentation/layout/user_drawer.dart';
 
 class UserPaymentDetailsScreen extends StatelessWidget {
-  const UserPaymentDetailsScreen({super.key});
+  final String id;
+  const UserPaymentDetailsScreen({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Payments Details", isHome: false),
       drawer: sonyaUserDrawer(context),
-      body: const UserPaymentsDetailsBody(),
+      body: UserPaymentsDetailsBody(
+        id: id,
+      ),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );
   }

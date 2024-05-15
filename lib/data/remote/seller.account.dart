@@ -5,7 +5,7 @@ import 'package:sondya_app/data/local/get_local_auth.dart';
 import 'package:sondya_app/data/repositories/token_interceptors.dart';
 import 'package:sondya_app/domain/hive_models/auth/auth.dart';
 
-final getSellerwithdrawalStatusProvider =
+final getSellerwithdrawalgetBalanceProvider =
     FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   try {
     final dio = Dio();
@@ -19,7 +19,7 @@ final getSellerwithdrawalStatusProvider =
         await dio.get(EnvironmentSellerAccountConfig.getBalance + userId);
     // debugPrint(response.data.toString());
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return response.data["data"]["data"] as Map<String, dynamic>;
+      return response.data["data"] as Map<String, dynamic>;
     } else {
       throw Exception('Failed to fetch map data');
     }

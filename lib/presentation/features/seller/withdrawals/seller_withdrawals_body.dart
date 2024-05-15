@@ -1,11 +1,22 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sondya_app/data/remote/seller.account.dart';
+import 'package:sondya_app/data/remote/seller.withdrawal.dart';
+import 'package:sondya_app/presentation/widgets/price_formatter.dart';
+import 'package:sondya_app/utils/dateTime_to_string.dart';
 
-class SellerWithdrawalsBody extends StatelessWidget {
+class SellerWithdrawalsBody extends ConsumerWidget {
   const SellerWithdrawalsBody({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final getSellerWithdrawalsStats =
+        ref.watch(getSellerwithdrawalStatusProvider);
+    final getSellerWithdrawalsGetBalance =
+        ref.watch(getSellerwithdrawalgetBalanceProvider);
+    final getSellerWithdrawals = ref.watch(getSellerWithdrawalsProvider);
     return SingleChildScrollView(
       child: Center(
         child: Padding(
@@ -85,7 +96,6 @@ class SellerWithdrawalsBody extends StatelessWidget {
                     height: 160,
                     padding: const EdgeInsets.all(10.0),
                     decoration: BoxDecoration(
-                      // border: Border.all(color: Colors.black38, width: 1.0),
                       borderRadius: BorderRadius.circular(8.0),
                       color: Theme.of(context).colorScheme.background,
                       // add shadow
@@ -98,13 +108,26 @@ class SellerWithdrawalsBody extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Total Funds"),
-                        SizedBox(height: 10.0),
-                        Text("\$0"),
-                      ],
+                    child: getSellerWithdrawalsGetBalance.when(
+                      data: (data) {
+                        // print(data);
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Total Funds"),
+                            const SizedBox(height: 10.0),
+                            PriceFormatWidget(
+                              price: data["balance"].toDouble() ?? 0.0,
+                            )
+                          ],
+                        );
+                      },
+                      error: (error, stackTrace) => Text(error.toString()),
+                      loading: () => const Center(
+                        child: CupertinoActivityIndicator(
+                          radius: 5,
+                        ),
+                      ),
                     ),
                   ),
                   Container(
@@ -112,7 +135,6 @@ class SellerWithdrawalsBody extends StatelessWidget {
                     height: 160,
                     padding: const EdgeInsets.all(10.0),
                     decoration: BoxDecoration(
-                      // border: Border.all(color: Colors.black38, width: 1.0),
                       borderRadius: BorderRadius.circular(8.0),
                       color: Theme.of(context).colorScheme.background,
                       // add shadow
@@ -125,16 +147,28 @@ class SellerWithdrawalsBody extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Pending Withdrawal",
-                          textAlign: TextAlign.center,
+                    child: getSellerWithdrawalsStats.when(
+                      data: (data) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Pending Withdrawal",
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 10.0),
+                            PriceFormatWidget(
+                              price: data["pending"].toDouble() ?? 0.0,
+                            )
+                          ],
+                        );
+                      },
+                      error: (error, stackTrace) => Text(error.toString()),
+                      loading: () => const Center(
+                        child: CupertinoActivityIndicator(
+                          radius: 5,
                         ),
-                        SizedBox(height: 10.0),
-                        Text("\$0"),
-                      ],
+                      ),
                     ),
                   ),
                   Container(
@@ -142,7 +176,6 @@ class SellerWithdrawalsBody extends StatelessWidget {
                     height: 160,
                     padding: const EdgeInsets.all(10.0),
                     decoration: BoxDecoration(
-                      // border: Border.all(color: Colors.black38, width: 1.0),
                       borderRadius: BorderRadius.circular(8.0),
                       color: Theme.of(context).colorScheme.background,
                       // add shadow
@@ -155,13 +188,25 @@ class SellerWithdrawalsBody extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Completed"),
-                        SizedBox(height: 10.0),
-                        Text("\$0"),
-                      ],
+                    child: getSellerWithdrawalsStats.when(
+                      data: (data) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Completed"),
+                            const SizedBox(height: 10.0),
+                            PriceFormatWidget(
+                              price: data["completed"].toDouble() ?? 0.0,
+                            )
+                          ],
+                        );
+                      },
+                      error: (error, stackTrace) => Text(error.toString()),
+                      loading: () => const Center(
+                        child: CupertinoActivityIndicator(
+                          radius: 5,
+                        ),
+                      ),
                     ),
                   )
                 ],
@@ -172,89 +217,151 @@ class SellerWithdrawalsBody extends StatelessWidget {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10.0),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  columns: const <DataColumn>[
-                    DataColumn(
-                      label: Text(
-                        'Order date',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Sellers Name',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Account Details',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Amount',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Withdrawal Mode',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Status',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Action',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  ],
-                  rows: const <DataRow>[
-                    DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text('December 28, 2023')),
-                        DataCell(Text('lordscoba2tm@gmail.com')),
-                        DataCell(Text('AccessBank')),
-                        DataCell(Text('\$123')),
-                        DataCell(Text('bank')),
-                        DataCell(Text('success')),
-                        DataCell(Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.visibility),
-                            Icon(Icons.delete)
-                          ],
-                        )),
+              getSellerWithdrawals.when(
+                data: (data) {
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columns: const <DataColumn>[
+                        DataColumn(
+                          label: Text(
+                            'S/N',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Order date',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Sellers Name',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Account Details',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Amount',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Withdrawal Mode',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Status',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Action',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
                       ],
+                      rows: data.isNotEmpty
+                          ? data.asMap().entries.map<DataRow>((entry) {
+                              int index = entry.key;
+                              Map<String, dynamic> data = entry.value;
+                              // print(data);
+                              return DataRow(cells: <DataCell>[
+                                DataCell(Text('${index + 1}')),
+                                DataCell(Text(
+                                    sondyaFormattedDate(data["createdAt"]))),
+                                DataCell(Text(data["user"]["email"] ?? "")),
+                                DataCell(
+                                  Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        data["withdrawal_mode"] == "bank"
+                                            ? Column(
+                                                children: [
+                                                  Text(
+                                                      "${data["withdrawal_account"]["account_name"].toString()}, ${data["withdrawal_account"]["bank_name"].toString()}"),
+                                                  Text(
+                                                      data["withdrawal_account"]
+                                                              ["account_number"]
+                                                          .toString()),
+                                                ],
+                                              )
+                                            : data["withdrawal_mode"] ==
+                                                    "payoneer"
+                                                ? Column(
+                                                    children: [
+                                                      Text(
+                                                          data["withdrawal_account"]
+                                                                  ["email"]
+                                                              .toString()),
+                                                    ],
+                                                  )
+                                                : Column(
+                                                    children: [
+                                                      Text(
+                                                          data["withdrawal_account"]
+                                                                  ["email"]
+                                                              .toString()),
+                                                    ],
+                                                  ),
+                                      ]),
+                                ),
+                                DataCell(PriceFormatWidget(
+                                  price: data["withdrawal_amount"].toDouble() ??
+                                      0.0,
+                                )),
+                                DataCell(Text(data["withdrawal_mode"] ?? "")),
+                                DataCell(Text(data["withdrawal_status"] ?? "")),
+                                DataCell(
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          context.push(
+                                              "/seller/withdrawal/details/${data["_id"]}");
+                                        },
+                                        icon: const Icon(Icons.visibility),
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          ref.read(
+                                              getSellerwithdrawalDeleteProvider(
+                                                  data["_id"]));
+
+                                          // ignore: unused_result
+                                          ref.refresh(
+                                              getSellerWithdrawalsProvider);
+                                        },
+                                        icon: const Icon(Icons.delete),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ]);
+                            }).toList()
+                          : <DataRow>[],
                     ),
-                    DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text('December 28, 2023')),
-                        DataCell(Text('lordscoba2tm@gmail.com')),
-                        DataCell(Text('AccessBank')),
-                        DataCell(Text('\$123')),
-                        DataCell(Text('bank')),
-                        DataCell(Text('success')),
-                        DataCell(Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.visibility),
-                            Icon(Icons.delete)
-                          ],
-                        )),
-                      ],
-                    ),
-                  ],
+                  );
+                },
+                error: (error, stackTrace) => Text(error.toString()),
+                loading: () => const Center(
+                  child: CupertinoActivityIndicator(
+                    radius: 50,
+                  ),
                 ),
               ),
             ],
