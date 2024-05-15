@@ -5,7 +5,8 @@ import 'package:sondya_app/presentation/layout/top_bar.dart';
 import 'package:sondya_app/presentation/layout/user_drawer.dart';
 
 class SellerServicesDetailsScreen extends StatelessWidget {
-  const SellerServicesDetailsScreen({super.key});
+  final String id;
+  const SellerServicesDetailsScreen({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {

@@ -5,8 +5,8 @@ import 'package:sondya_app/data/local/get_local_auth.dart';
 import 'package:sondya_app/data/repositories/token_interceptors.dart';
 import 'package:sondya_app/domain/hive_models/auth/auth.dart';
 
-final getSellerServicesProvider =
-    FutureProvider.autoDispose<List<dynamic>>((ref) async {
+final getSellerServicesProvider = FutureProvider.family
+    .autoDispose<Map<String, dynamic>, String>((ref, String search) async {
   try {
     final dio = Dio();
     dio.interceptors.add(const AuthInterceptor());
@@ -15,11 +15,11 @@ final getSellerServicesProvider =
     AuthInfo localAuth = await getLocalAuth();
     String userId = localAuth.id;
 
-    final response =
-        await dio.get(EnvironmentSellerServiceConfig.getAll + userId);
+    final response = await dio
+        .get("${EnvironmentSellerServiceConfig.getAll}$userId/$search");
     // debugPrint(response.data.toString());
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return response.data["data"]["data"] as List<dynamic>;
+      return response.data["data"] as Map<String, dynamic>;
     } else {
       throw Exception('Failed to fetch map data');
     }

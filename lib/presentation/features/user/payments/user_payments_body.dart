@@ -11,7 +11,6 @@ class UserPaymentsBody extends ConsumerWidget {
 
   final leadStyle = const TextStyle(fontSize: 15);
   final trailStyle = const TextStyle(fontSize: 15, color: Color(0xFFEDB842));
-  // final subStyle = const TextStyle(fontSize: 15, color: Color(0xFFFA8232));
   final titleStyle = const TextStyle(fontWeight: FontWeight.bold);
 
   @override
@@ -23,13 +22,6 @@ class UserPaymentsBody extends ConsumerWidget {
     //   print(data);
     // });
 
-    // getPayments.when(data: (data) {
-    //   print(data);
-    // }, error: (error, stackTrace) {
-    //   print(error);
-    // }, loading: () {
-    //   print("loading");
-    // });
     return SingleChildScrollView(
       child: Center(
         child: Column(
@@ -64,7 +56,7 @@ class UserPaymentsBody extends ConsumerWidget {
                   shrinkWrap: true,
                   itemCount: data.length,
                   itemBuilder: (context, index) {
-                    print(data[index]);
+                    // print(data[index]);
                     return ListTile(
                       leading:
                           Text(data[index]["payment_id"], style: leadStyle),
@@ -80,7 +72,11 @@ class UserPaymentsBody extends ConsumerWidget {
                             fontSize: 16,
                           ),
                           TextButton(
-                            onPressed: null,
+                            onPressed: () {
+                              context.push(
+                                "/user/payment/details/${data[index]["_id"]}",
+                              );
+                            },
                             child: Text(
                               "View",
                               style: trailStyle,

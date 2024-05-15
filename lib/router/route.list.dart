@@ -90,7 +90,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
-    initialLocation: '/seller/products',
+    initialLocation: '/user/payments',
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(
@@ -145,17 +145,14 @@ GoRouter goRouterFunc(WidgetRef ref) {
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
       ),
-
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
       ),
-
       GoRoute(
         path: '/forgotPassword',
         builder: (context, state) => const ForgotPasswordScreen(),
       ),
-
       GoRoute(
         path: '/resetPassword/:email',
         builder: (context, state) {
@@ -163,7 +160,6 @@ GoRouter goRouterFunc(WidgetRef ref) {
           return ResetPasswordScreen(email: email);
         },
       ),
-
       GoRoute(
         path: '/verificationCode/:email',
         builder: (context, state) {
@@ -171,7 +167,6 @@ GoRouter goRouterFunc(WidgetRef ref) {
           return VerificationCodeScreen(email: email);
         },
       ),
-
       GoRoute(
         path: '/registerSuccess',
         builder: (context, state) => const RegisterSuccessScreen(),
@@ -277,8 +272,13 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/user/payment/details',
-        builder: (context, state) => const UserPaymentDetailsScreen(),
+        path: '/user/payment/details/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return UserPaymentDetailsScreen(
+            id: id,
+          );
+        },
         redirect: authRedirectStrict,
       ),
 
@@ -289,8 +289,13 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/product/order/details',
-        builder: (context, state) => const ProductOrderDetailsScreen(),
+        path: '/product/order/details/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return ProductOrderDetailsScreen(
+            id: id,
+          );
+        },
         redirect: authRedirectStrict,
       ),
       GoRoute(
@@ -299,8 +304,13 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/service/order/details',
-        builder: (context, state) => const ServiceOrderDetailsScreen(),
+        path: '/service/order/details/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return ServiceOrderDetailsScreen(
+            id: id,
+          );
+        },
         redirect: authRedirectStrict,
       ),
 
@@ -311,8 +321,13 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/track/details',
-        builder: (context, state) => const TrackOrderDetailsScreen(),
+        path: '/track/details/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return TrackOrderDetailsScreen(
+            id: id,
+          );
+        },
         redirect: authRedirectStrict,
       ),
 
@@ -323,8 +338,13 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/seller/products/details',
-        builder: (context, state) => const SellerProductsDetailsScreen(),
+        path: '/seller/products/details/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return SellerProductsDetailsScreen(
+            id: id,
+          );
+        },
         redirect: authRedirectStrict,
       ),
       GoRoute(
@@ -350,8 +370,13 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/seller/services/details',
-        builder: (context, state) => const SellerServicesDetailsScreen(),
+        path: '/seller/services/details/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return SellerServicesDetailsScreen(
+            id: id,
+          );
+        },
         redirect: authRedirectStrict,
       ),
       GoRoute(
@@ -377,8 +402,13 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/seller/products/orders/details',
-        builder: (context, state) => const SellerProductsOrdersDetailsScreen(),
+        path: '/seller/products/orders/details/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return SellerProductsOrdersDetailsScreen(
+            id: id,
+          );
+        },
         redirect: authRedirectStrict,
       ),
       GoRoute(
@@ -399,8 +429,13 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/seller/services/orders/details',
-        builder: (context, state) => const SellerServicesOrdersDetailsScreen(),
+        path: '/seller/services/orders/details/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return SellerServicesOrdersDetailsScreen(
+            id: id,
+          );
+        },
         redirect: authRedirectStrict,
       ),
       GoRoute(
@@ -431,8 +466,13 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/seller/withdrawal/details',
-        builder: (context, state) => const SellerWithdrawalDetailsScreen(),
+        path: '/seller/withdrawal/details/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return SellerWithdrawalDetailsScreen(
+            id: id,
+          );
+        },
         redirect: authRedirectStrict,
       ),
     ],

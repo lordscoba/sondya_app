@@ -19,7 +19,7 @@ final getSellerProductOrdersProvider =
         .get(EnvironmentSellerProductOrderConfig.getProductsOrders + userId);
     // debugPrint(response.data.toString());
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return response.data["data"]["data"] as List<dynamic>;
+      return response.data["data"] as List<dynamic>;
     } else {
       throw Exception('Failed to fetch map data');
     }
@@ -73,7 +73,7 @@ final getSellerServiceOrdersProvider =
         EnvironmentSellerServiceOrderConfig.getSellerServiceOrders + userId);
     // debugPrint(response.data.toString());
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return response.data["data"]["data"] as List<dynamic>;
+      return response.data["data"] as List<dynamic>;
     } else {
       throw Exception('Failed to fetch map data');
     }
