@@ -124,7 +124,8 @@ class EnvironmentUserServiceOrderConfig {
 }
 
 class EnvironmentTrackOrderConfig {
-  static const String getTracking = '$baseUrl/track'; // GET
+  static const String getTracking =
+      '$baseUrl/user/order/products/details/byorderid/'; // GET :order_id
 }
 
 class EnvironmentSellerProductConfig {

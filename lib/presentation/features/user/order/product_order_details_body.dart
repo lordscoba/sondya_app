@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sondya_app/presentation/widgets/dotted_line.dart';
+import 'package:sondya_app/presentation/widgets/price_formatter.dart';
+import 'package:sondya_app/utils/dateTime_to_string.dart';
 
 class ProductOrderDetailsBody extends StatelessWidget {
-  const ProductOrderDetailsBody({super.key});
+  final Map<String, dynamic> data;
+  const ProductOrderDetailsBody({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -44,18 +47,18 @@ class ProductOrderDetailsBody extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10.0),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: Row(
                       children: [
-                        Text(
+                        const Text(
                           "Order List",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(width: 10.0),
+                        const SizedBox(width: 10.0),
                         Text(
-                          "+2 Orders",
-                          style: TextStyle(color: Color(0xFF1A9882)),
+                          "+${data["checkout_items"]["order_quantity"].toString()} Orders",
+                          style: const TextStyle(color: Color(0xFF1A9882)),
                         ),
                       ],
                     ),
@@ -96,54 +99,89 @@ class ProductOrderDetailsBody extends StatelessWidget {
                           ),
                         ),
                       ],
-                      rows: const <DataRow>[
+                      rows: <DataRow>[
                         DataRow(
                           cells: <DataCell>[
-                            DataCell(Text('Ear piece')),
-                            DataCell(Text('7554444')),
-                            DataCell(Text('1 pcs')),
-                            DataCell(Text('\$123')),
-                            DataCell(Text('\$123')),
+                            DataCell(
+                                Text(data["checkout_items"]["name"] ?? "")),
+                            DataCell(Text(data["checkout_items"]["_id"] ?? "")),
+                            DataCell(Text(data["checkout_items"]
+                                    ["order_quantity"]
+                                .toString())),
+                            DataCell(
+                              PriceFormatWidget(
+                                  color: Colors.black87,
+                                  price: data["checkout_items"]["current_price"]
+                                          .toDouble() ??
+                                      0.0),
+                            ),
+                            DataCell(PriceFormatWidget(
+                                color: Colors.black87,
+                                price: data["checkout_items"]["sub_total"]
+                                        .toDouble() ??
+                                    0.0)),
                           ],
                         ),
                         DataRow(
                           cells: <DataCell>[
-                            DataCell(Text('')),
-                            DataCell(Text('')),
-                            DataCell(Text('')),
-                            DataCell(Text('Tax',
+                            const DataCell(Text('')),
+                            const DataCell(Text('')),
+                            const DataCell(Text('')),
+                            const DataCell(Text('Tax',
                                 style: TextStyle(fontWeight: FontWeight.bold))),
-                            DataCell(Text('\$1')),
+                            DataCell(PriceFormatWidget(
+                                color: Colors.black87,
+                                price:
+                                    data["checkout_items"]["tax"].toDouble() ??
+                                        0.0)),
                           ],
                         ),
                         DataRow(
                           cells: <DataCell>[
-                            DataCell(Text('')),
-                            DataCell(Text('')),
-                            DataCell(Text('')),
-                            DataCell(Text('Shipping Rate',
+                            const DataCell(Text('')),
+                            const DataCell(Text('')),
+                            const DataCell(Text('')),
+                            const DataCell(Text('Shipping Rate',
                                 style: TextStyle(fontWeight: FontWeight.bold))),
-                            DataCell(Text('\$21')),
+                            DataCell(PriceFormatWidget(
+                                color: Colors.black87,
+                                price: data["checkout_items"]["shipping_fee"]
+                                        .toDouble() ??
+                                    0.0)),
                           ],
                         ),
                         DataRow(
                           cells: <DataCell>[
-                            DataCell(Text('')),
-                            DataCell(Text('')),
-                            DataCell(Text('')),
-                            DataCell(Text('Discount',
+                            const DataCell(Text('')),
+                            const DataCell(Text('')),
+                            const DataCell(Text('')),
+                            const DataCell(Text('Discount',
                                 style: TextStyle(fontWeight: FontWeight.bold))),
-                            DataCell(Text('-\$3')),
+                            DataCell(
+                              PriceFormatWidget(
+                                  color: Colors.black87,
+                                  prefix: "-",
+                                  price: data["checkout_items"]["discount"]
+                                          .toDouble() ??
+                                      0.0),
+                            ),
                           ],
                         ),
                         DataRow(
                           cells: <DataCell>[
-                            DataCell(Text('')),
-                            DataCell(Text('')),
-                            DataCell(Text('')),
-                            DataCell(Text('Total',
+                            const DataCell(Text('')),
+                            const DataCell(Text('')),
+                            const DataCell(Text('')),
+                            const DataCell(Text('Total',
                                 style: TextStyle(fontWeight: FontWeight.bold))),
-                            DataCell(Text('\$142')),
+                            DataCell(
+                              PriceFormatWidget(
+                                  color: Colors.black87,
+                                  prefix: "-",
+                                  price: data["checkout_items"]["total_price"]
+                                          .toDouble() ??
+                                      0.0),
+                            ),
                           ],
                         ),
                       ],
@@ -171,34 +209,37 @@ class ProductOrderDetailsBody extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Vendor",
+                  const Text("Vendor",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                  SizedBox(height: 10.0),
+                  const SizedBox(height: 10.0),
                   Row(
                     children: [
-                      Icon(Icons.person, color: Color(0xFFEDB842)),
-                      SizedBox(width: 10),
-                      Text("Name:"),
+                      const Icon(Icons.person, color: Color(0xFFEDB842)),
+                      const SizedBox(width: 10),
+                      Text(
+                          "Name: ${data["checkout_items"]["owner"]["username"].toString()}"),
                     ],
                   ),
-                  SizedBox(height: 10.0),
+                  const SizedBox(height: 10.0),
                   Row(
                     children: [
-                      Icon(Icons.email, color: Color(0xFFEDB842)),
-                      SizedBox(width: 10),
-                      Text("Email:lordscoba2tm@gmail.com"),
+                      const Icon(Icons.email, color: Color(0xFFEDB842)),
+                      const SizedBox(width: 10),
+                      Text(
+                          "Email:${data["checkout_items"]["owner"]["email"].toString()}"),
                     ],
                   ),
-                  SizedBox(height: 10.0),
+                  const SizedBox(height: 10.0),
                   Row(
                     children: [
-                      Icon(Icons.phone, color: Color(0xFFEDB842)),
-                      SizedBox(width: 10),
-                      Text("Phone: +1 123 456 7890"),
+                      const Icon(Icons.phone, color: Color(0xFFEDB842)),
+                      const SizedBox(width: 10),
+                      Text(
+                          "Phone: ${data["checkout_items"]["owner"]["phone_number"].toString()}"),
                     ],
                   )
                 ],
@@ -223,34 +264,37 @@ class ProductOrderDetailsBody extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Address",
+                  const Text("Address",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                  SizedBox(height: 10.0),
+                  const SizedBox(height: 10.0),
                   Row(
                     children: [
-                      Icon(Icons.card_membership, color: Color(0xFFEDB842)),
-                      SizedBox(width: 10),
-                      Text("Order ID: 05914377"),
+                      const Icon(Icons.card_membership,
+                          color: Color(0xFFEDB842)),
+                      const SizedBox(width: 10),
+                      Text("Order ID: ${data["order_id"]}"),
                     ],
                   ),
-                  SizedBox(height: 10.0),
+                  const SizedBox(height: 10.0),
                   Row(
                     children: [
-                      Icon(Icons.location_on, color: Color(0xFFEDB842)),
-                      SizedBox(width: 10),
-                      Text("Shipping Address: 5167277272"),
+                      const Icon(Icons.location_on, color: Color(0xFFEDB842)),
+                      const SizedBox(width: 10),
+                      Text(
+                          "Shipping Address:${data["shipping_destination"]["address"]}"),
                     ],
                   ),
-                  SizedBox(height: 10.0),
+                  const SizedBox(height: 10.0),
                   Row(
                     children: [
-                      Icon(Icons.location_on, color: Color(0xFFEDB842)),
-                      SizedBox(width: 10),
-                      Text("Location: Los angeles, USA"),
+                      const Icon(Icons.location_on, color: Color(0xFFEDB842)),
+                      const SizedBox(width: 10),
+                      Text(
+                          "Location: :${data["shipping_destination"]["city"]}, ${data["shipping_destination"]["state"]}, ${data["shipping_destination"]["country"]}"),
                     ],
                   )
                 ],
@@ -275,53 +319,82 @@ class ProductOrderDetailsBody extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Order Status",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                  SizedBox(height: 10.0),
-                  OrderStatusItem(
-                    title: "Order Placed",
-                    subtitle: "An order has been placed.",
-                    date: "May 1, 2022",
-                    // cart icon
-
-                    icon: Icons.shopping_cart,
-                    isCompleted: true,
-                  ),
-                  OrderStatusItem(
-                    title: "Processing",
-                    subtitle: "Seller has proccessed your order.",
-                    date: "May 1, 2022",
-                    icon: Icons.book,
-                    isCompleted: true,
-                  ),
-                  OrderStatusItem(
-                    title: "Packed",
-                    // date: "May 1, 2022",
-                    icon: Icons.luggage_outlined,
-                    isCompleted: false,
-                  ),
-                  OrderStatusItem(
-                    title: "Shipping",
-                    // date: "May 1, 2022",
-                    icon: Icons.local_shipping,
-                    isCompleted: false,
-                  ),
-                  OrderStatusItem(
-                    title: "Delivered",
-                    // date: "May 1, 2022",
-                    icon: Icons.done,
-                    isCompleted: false,
-                  ),
-                ],
+              child: OrderStatusWidget(
+                orderStatus: data["order_status"],
+                updatedAt: data["updatedAt"],
+                createdAt: data["createdAt"],
               ),
             )
           ],
         ),
       ),
+    );
+  }
+}
+
+class OrderStatusWidget extends StatelessWidget {
+  final String updatedAt;
+  final String createdAt;
+  final String orderStatus;
+  const OrderStatusWidget({
+    super.key,
+    required this.orderStatus,
+    required this.updatedAt,
+    required this.createdAt,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // print(updatedAt);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("Order Status",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+        const SizedBox(height: 10.0),
+        OrderStatusItem(
+          title: "Order Placed",
+          subtitle: "An order has been placed.",
+          date: sondyaFormattedDate(createdAt),
+          // cart icon
+          icon: Icons.shopping_cart,
+          isCompleted: orderStatus == "order placed" ||
+              orderStatus == "processing" ||
+              orderStatus == "packed" ||
+              orderStatus == "shipping" ||
+              orderStatus == "delivered",
+        ),
+        OrderStatusItem(
+          title: "Processing",
+          subtitle: "Seller has proccessed your order.",
+          date: sondyaFormattedDate(updatedAt),
+          icon: Icons.book,
+          isCompleted: orderStatus == "processing" ||
+              orderStatus == "packed" ||
+              orderStatus == "shipping" ||
+              orderStatus == "delivered",
+        ),
+        OrderStatusItem(
+          title: "Packed",
+          date: sondyaFormattedDate(updatedAt),
+          icon: Icons.luggage_outlined,
+          isCompleted: orderStatus == "packed" ||
+              orderStatus == "shipping" ||
+              orderStatus == "delivered",
+        ),
+        OrderStatusItem(
+          title: "Shipping",
+          date: sondyaFormattedDate(updatedAt),
+          icon: Icons.local_shipping,
+          isCompleted: orderStatus == "shipping" || orderStatus == "delivered",
+        ),
+        OrderStatusItem(
+          title: "Delivered",
+          date: sondyaFormattedDate(updatedAt),
+          icon: Icons.done,
+          isCompleted: orderStatus == "delivered",
+        ),
+      ],
     );
   }
 }
@@ -386,7 +459,7 @@ class OrderStatusItem extends StatelessWidget {
                     : Text(subtitle ?? "",
                         style: const TextStyle(
                             fontSize: 15, color: Color(0xFF4A4C56))),
-                Text(date,
+                Text(isCompleted ? date : "DD/MM/YY, 00:00",
                     style: const TextStyle(
                         fontSize: 12, color: Color(0xFF858D9D))),
               ],

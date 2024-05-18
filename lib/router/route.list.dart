@@ -90,7 +90,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
-    initialLocation: '/user/payments',
+    initialLocation: '/seller/services/orders',
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(
@@ -292,8 +292,10 @@ GoRouter goRouterFunc(WidgetRef ref) {
         path: '/product/order/details/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
+          final extra = state.extra! as Map<String, dynamic>;
           return ProductOrderDetailsScreen(
             id: id,
+            data: extra,
           );
         },
         redirect: authRedirectStrict,
@@ -307,8 +309,10 @@ GoRouter goRouterFunc(WidgetRef ref) {
         path: '/service/order/details/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
+          final extra = state.extra! as Map<String, dynamic>;
           return ServiceOrderDetailsScreen(
             id: id,
+            data: extra,
           );
         },
         redirect: authRedirectStrict,
@@ -405,20 +409,36 @@ GoRouter goRouterFunc(WidgetRef ref) {
         path: '/seller/products/orders/details/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
+          final extra = state.extra! as Map<String, dynamic>;
           return SellerProductsOrdersDetailsScreen(
             id: id,
+            data: extra,
           );
         },
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/seller/order/update/location',
-        builder: (context, state) => const SellerOrderUpdateLocationScreen(),
+        path: '/seller/order/update/location/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          final extra = state.extra! as Map<String, dynamic>;
+          return SellerOrderUpdateLocationScreen(
+            id: id,
+            data: extra,
+          );
+        },
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/seller/order/update/status',
-        builder: (context, state) => const SellerOrderUpdateStatusScreen(),
+        path: '/seller/order/update/status/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          final extra = state.extra! as Map<String, dynamic>;
+          return SellerOrderUpdateStatusScreen(
+            id: id,
+            data: extra,
+          );
+        },
         redirect: authRedirectStrict,
       ),
 
@@ -432,20 +452,36 @@ GoRouter goRouterFunc(WidgetRef ref) {
         path: '/seller/services/orders/details/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
+          final extra = state.extra! as Map<String, dynamic>;
           return SellerServicesOrdersDetailsScreen(
+            id: id,
+            data: extra,
+          );
+        },
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/seller/order/review/terms/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          final extra = state.extra! as Map<String, dynamic>;
+          return SellerOrderReviewTermsScreen(
+            data: extra,
             id: id,
           );
         },
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/seller/order/review/terms',
-        builder: (context, state) => const SellerOrderReviewTermsScreen(),
-        redirect: authRedirectStrict,
-      ),
-      GoRoute(
-        path: '/seller/order/deliver/work',
-        builder: (context, state) => const SellerOrderDeliverWorkScreen(),
+        path: '/seller/order/deliver/work/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          final extra = state.extra! as Map<String, dynamic>;
+          return SellerOrderDeliverWorkScreen(
+            data: extra,
+            id: id,
+          );
+        },
         redirect: authRedirectStrict,
       ),
 

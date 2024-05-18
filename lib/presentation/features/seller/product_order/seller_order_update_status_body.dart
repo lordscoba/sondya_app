@@ -4,7 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
 
 class SellerOrderUpdateStatusBody extends ConsumerStatefulWidget {
-  const SellerOrderUpdateStatusBody({super.key});
+  final Map<String, dynamic> data;
+  final String id;
+  const SellerOrderUpdateStatusBody(
+      {super.key, required this.data, required this.id});
 
   @override
   ConsumerState<SellerOrderUpdateStatusBody> createState() =>

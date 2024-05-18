@@ -48,7 +48,6 @@ class UserPaymentsDetailsBody extends ConsumerWidget {
             ),
             getSellerPaymentsDetails.when(
               data: (data) {
-                print(data);
                 return Table(
                   defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                   border: TableBorder.all(

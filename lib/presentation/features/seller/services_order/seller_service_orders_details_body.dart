@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sondya_app/presentation/features/service_details/service_details_body.dart';
-import 'package:sondya_app/presentation/features/user/order/product_order_details_body.dart';
+import 'package:sondya_app/presentation/features/user/order/service_order_details_body.dart';
+import 'package:sondya_app/presentation/widgets/price_formatter.dart';
 
 class SellerServiceOrdersDetailsBody extends StatelessWidget {
-  const SellerServiceOrdersDetailsBody({super.key});
+  final Map<String, dynamic> data;
+  const SellerServiceOrdersDetailsBody({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
+    // print(data);
     return SingleChildScrollView(
       child: Center(
         child: Padding(
@@ -54,7 +57,12 @@ class SellerServiceOrdersDetailsBody extends StatelessWidget {
                     width: 210,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.push(
+                          '/seller/order/review/terms/${data["_id"]}',
+                          extra: data,
+                        );
+                      },
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -69,7 +77,12 @@ class SellerServiceOrdersDetailsBody extends StatelessWidget {
                     width: 210,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.push(
+                          '/seller/order/deliver/work/${data["_id"]}',
+                          extra: data,
+                        );
+                      },
                       child: const Text("Deliver Work"),
                     ),
                   )
@@ -95,18 +108,21 @@ class SellerServiceOrdersDetailsBody extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10.0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
                       child: Row(
                         children: [
-                          Text(
+                          const Text(
                             "Order List",
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          SizedBox(width: 10.0),
+                          const SizedBox(width: 10.0),
                           Text(
-                            "+2 Orders",
-                            style: TextStyle(color: Color(0xFF1A9882)),
+                            data["checkout_items"]["terms"]["duration"]
+                                    .toString() +
+                                data["checkout_items"]["terms"]["durationUnit"]
+                                    .toString(),
+                            style: const TextStyle(color: Color(0xFF1A9882)),
                           ),
                         ],
                       ),
@@ -147,7 +163,7 @@ class SellerServiceOrdersDetailsBody extends StatelessWidget {
                             ),
                           ),
                         ],
-                        rows: const <DataRow>[
+                        rows: <DataRow>[
                           DataRow(
                             cells: <DataCell>[
                               DataCell(
@@ -158,14 +174,16 @@ class SellerServiceOrdersDetailsBody extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Hair Dressing',
-                                        style: TextStyle(
+                                        data["checkout_items"]["name"],
+                                        style: const TextStyle(
                                             fontWeight: FontWeight.bold),
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
                                       ),
                                       Text(
-                                        'I Can dress your hair an make it very fine',
+                                        data["checkout_items"]
+                                                ["brief_description"]
+                                            .toString(),
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
                                       ),
@@ -173,54 +191,25 @@ class SellerServiceOrdersDetailsBody extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              DataCell(Text('84671527')),
-                              DataCell(Text('24 hrs')),
-                              DataCell(Text('\$20')),
-                              DataCell(Text('\$20')),
-                            ],
-                          ),
-                          DataRow(
-                            cells: <DataCell>[
-                              DataCell(Text('')),
-                              DataCell(Text('')),
-                              DataCell(Text('')),
-                              DataCell(Text('Tax',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold))),
-                              DataCell(Text('\$1')),
-                            ],
-                          ),
-                          DataRow(
-                            cells: <DataCell>[
-                              DataCell(Text('')),
-                              DataCell(Text('')),
-                              DataCell(Text('')),
-                              DataCell(Text('Shipping Rate',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold))),
-                              DataCell(Text('\$21')),
-                            ],
-                          ),
-                          DataRow(
-                            cells: <DataCell>[
-                              DataCell(Text('')),
-                              DataCell(Text('')),
-                              DataCell(Text('')),
-                              DataCell(Text('Discount',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold))),
-                              DataCell(Text('-\$3')),
-                            ],
-                          ),
-                          DataRow(
-                            cells: <DataCell>[
-                              DataCell(Text('')),
-                              DataCell(Text('')),
-                              DataCell(Text('')),
-                              DataCell(Text('Total',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold))),
-                              DataCell(Text('\$142')),
+                              DataCell(Text(data["order_id"].toString())),
+                              DataCell(Text(
+                                  '${data["checkout_items"]["terms"]["duration"]} ${data["checkout_items"]["terms"]["durationUnit"]}')),
+                              DataCell(
+                                PriceFormatWidget(
+                                    color: Colors.black87,
+                                    price: data["checkout_items"]["terms"]
+                                                ["amount"]
+                                            .toDouble() ??
+                                        0.0),
+                              ),
+                              DataCell(
+                                PriceFormatWidget(
+                                    color: Colors.black87,
+                                    price: data["checkout_items"]["terms"]
+                                                ["amount"]
+                                            .toDouble() ??
+                                        0.0),
+                              ),
                             ],
                           ),
                         ],
@@ -249,34 +238,37 @@ class SellerServiceOrdersDetailsBody extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Vendor",
+                    const Text("Vendor",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 20)),
-                    SizedBox(height: 10.0),
+                    const SizedBox(height: 10.0),
                     Row(
                       children: [
-                        Icon(Icons.person, color: Color(0xFFEDB842)),
-                        SizedBox(width: 10),
-                        Text("Name:"),
+                        const Icon(Icons.person, color: Color(0xFFEDB842)),
+                        const SizedBox(width: 10),
+                        Text(
+                            "Name: ${data["checkout_items"]["owner"]["username"].toString()}"),
                       ],
                     ),
-                    SizedBox(height: 10.0),
+                    const SizedBox(height: 10.0),
                     Row(
                       children: [
-                        Icon(Icons.email, color: Color(0xFFEDB842)),
-                        SizedBox(width: 10),
-                        Text("Email:lordscoba2tm@gmail.com"),
+                        const Icon(Icons.email, color: Color(0xFFEDB842)),
+                        const SizedBox(width: 10),
+                        Text(
+                            "Email: ${data["checkout_items"]["owner"]["email"].toString()}"),
                       ],
                     ),
-                    SizedBox(height: 10.0),
+                    const SizedBox(height: 10.0),
                     Row(
                       children: [
-                        Icon(Icons.phone, color: Color(0xFFEDB842)),
-                        SizedBox(width: 10),
-                        Text("Phone: +1 123 456 7890"),
+                        const Icon(Icons.phone, color: Color(0xFFEDB842)),
+                        const SizedBox(width: 10),
+                        Text(
+                            "Phone:  ${data["checkout_items"]["owner"]["phone_number"].toString()}"),
                       ],
                     )
                   ],
@@ -301,34 +293,35 @@ class SellerServiceOrdersDetailsBody extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Customer",
+                    const Text("Customer",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 20)),
-                    SizedBox(height: 10.0),
+                    const SizedBox(height: 10.0),
                     Row(
                       children: [
-                        Icon(Icons.person, color: Color(0xFFEDB842)),
-                        SizedBox(width: 10),
-                        Text("Name:"),
+                        const Icon(Icons.person, color: Color(0xFFEDB842)),
+                        const SizedBox(width: 10),
+                        Text("Name: ${data["buyer"]["username"].toString()}"),
                       ],
                     ),
-                    SizedBox(height: 10.0),
+                    const SizedBox(height: 10.0),
                     Row(
                       children: [
-                        Icon(Icons.email, color: Color(0xFFEDB842)),
-                        SizedBox(width: 10),
-                        Text("Email:lordscoba2tm@gmail.com"),
+                        const Icon(Icons.email, color: Color(0xFFEDB842)),
+                        const SizedBox(width: 10),
+                        Text("Email: ${data["buyer"]["email"].toString()}"),
                       ],
                     ),
-                    SizedBox(height: 10.0),
+                    const SizedBox(height: 10.0),
                     Row(
                       children: [
-                        Icon(Icons.phone, color: Color(0xFFEDB842)),
-                        SizedBox(width: 10),
-                        Text("Phone: +1 123 456 7890"),
+                        const Icon(Icons.phone, color: Color(0xFFEDB842)),
+                        const SizedBox(width: 10),
+                        Text(
+                            "Phone: ${data["buyer"]["phone_number"].toString()}"),
                       ],
                     )
                   ],
@@ -353,36 +346,10 @@ class SellerServiceOrdersDetailsBody extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Order Status",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20)),
-                    SizedBox(height: 10.0),
-                    OrderStatusItem(
-                      title: "Order Placed",
-                      subtitle: "An order has been placed.",
-                      date: "May 1, 2022",
-                      // cart icon
-
-                      icon: Icons.shopping_cart,
-                      isCompleted: true,
-                    ),
-                    OrderStatusItem(
-                      title: "Progress",
-                      subtitle: "Seller is proccessing your order.",
-                      date: "May 1, 2022",
-                      icon: Icons.book,
-                      isCompleted: true,
-                    ),
-                    OrderStatusItem(
-                      title: "Delivered",
-                      // date: "May 1, 2022",
-                      icon: Icons.handshake_outlined,
-                      isCompleted: false,
-                    ),
-                  ],
+                child: ServiceOrderStatusWidget(
+                  orderStatus: data["order_status"].toString(),
+                  createdAt: data["createdAt"].toString(),
+                  updatedAt: data["updatedAt"].toString(),
                 ),
               )
             ],

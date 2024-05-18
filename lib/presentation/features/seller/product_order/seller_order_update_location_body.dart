@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:sondya_app/utils/input_validations.dart';
 
 class SellerOrderUpdateLocationBody extends ConsumerStatefulWidget {
-  const SellerOrderUpdateLocationBody({super.key});
+  final Map<String, dynamic> data;
+  const SellerOrderUpdateLocationBody({super.key, required this.data});
 
   @override
   ConsumerState<SellerOrderUpdateLocationBody> createState() =>

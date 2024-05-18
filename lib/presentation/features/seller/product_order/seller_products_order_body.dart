@@ -89,7 +89,11 @@ class SellerProductsOrderBody extends ConsumerWidget {
                               fontSize: 16,
                             ),
                             TextButton(
-                              onPressed: null,
+                              onPressed: () {
+                                context.push(
+                                    "/seller/products/orders/details/$index",
+                                    extra: data[index]);
+                              },
                               child: Text(
                                 "View",
                                 style: trailStyle,
