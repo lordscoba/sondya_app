@@ -4,10 +4,12 @@ import 'package:sondya_app/presentation/widgets/picture_slider.dart';
 import 'package:sondya_app/presentation/widgets/price_formatter.dart';
 
 class SellerServicesDetailsBody extends StatelessWidget {
-  const SellerServicesDetailsBody({super.key});
+  final Map<String, dynamic> data;
+  const SellerServicesDetailsBody({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
+    // print(data);
     return SingleChildScrollView(
       child: Center(
         child: Padding(
@@ -27,23 +29,8 @@ class SellerServicesDetailsBody extends StatelessWidget {
                   ),
                 ],
               ),
-              const SondyaPictureSlider(
-                pictureList: [
-                  {
-                    "url":
-                        "https://res.cloudinary.com/dyeyatchg/image/upload/v1701811873/sondya/joxkbxnbrvedpobfe1fn.jpg",
-                    "public_id": "sondya/joxkbxnbrvedpobfe1fn",
-                    "folder": "sondya",
-                    "_id": "656f96a162f02cf0261acb04"
-                  },
-                  {
-                    "url":
-                        "https://res.cloudinary.com/dyeyatchg/image/upload/v1701811873/sondya/sq1daw132aqbnvq7umap.png",
-                    "public_id": "sondya/sq1daw132aqbnvq7umap",
-                    "folder": "sondya",
-                    "_id": "656f96a162f02cf0261acb05"
-                  }
-                ],
+              SondyaPictureSlider(
+                pictureList: data["image"],
               ),
               const SizedBox(height: 20.0),
               Container(
@@ -75,13 +62,12 @@ class SellerServicesDetailsBody extends StatelessWidget {
                     const SizedBox(
                       height: 5,
                     ),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("GIG"),
-                        // Text("\$500"),
+                        const Text("GIG"),
                         PriceFormatWidget(
-                          price: 200.0,
+                          price: data["current_price"].toDouble() ?? 0.0,
                           fontSize: 18,
                         ),
                       ],
@@ -99,33 +85,33 @@ class SellerServicesDetailsBody extends StatelessWidget {
                     const SizedBox(
                       height: 5,
                     ),
-                    const Text(
-                      'A very good thing i did there',
+                    Text(
+                      data["brief_description"],
                     ),
                     const SizedBox(
                       height: 12,
                     ),
-                    const Text(
-                      "2 Days Delivery",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    Text(
+                      "${data["duration"]}  Delivery",
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(
-                      height: 12,
-                    ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text("Continue"),
-                          Icon(Icons.arrow_forward),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
+                    // const SizedBox(
+                    //   height: 12,
+                    // ),
+                    // ElevatedButton(
+                    //   onPressed: () {},
+                    //   child: const Row(
+                    //     mainAxisSize: MainAxisSize.min,
+                    //     children: [
+                    //       Text("Continue"),
+                    //       Icon(Icons.arrow_forward),
+                    //     ],
+                    //   ),
+                    // ),
+                    // const SizedBox(
+                    //   height: 5,
+                    // ),
                   ],
                 ),
               ),
@@ -139,9 +125,10 @@ class SellerServicesDetailsBody extends StatelessWidget {
               const SizedBox(
                 height: 10,
               ),
-              const Text(
-                "A very good day indeed",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+              Text(
+                data["description"],
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
               ),
               const SizedBox(
                 height: 20,
@@ -153,20 +140,21 @@ class SellerServicesDetailsBody extends StatelessWidget {
               const SizedBox(
                 height: 10,
               ),
-              const Row(
+              Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.person_outline),
-                  SizedBox(
+                  const Icon(Icons.person_outline),
+                  const SizedBox(
                     width: 10,
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("lordscoba, lordscoba2tm@gmail.com"),
-                      Text('I am a very good  there'),
+                      Text(
+                          "${data["owner"]["username"] ?? ""}, ${data["owner"]["email"] ?? ""}"),
+                      Text(data["location_description"] ?? ""),
                     ],
                   ),
                 ],
@@ -181,13 +169,13 @@ class SellerServicesDetailsBody extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(2),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           "From",
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
@@ -195,16 +183,16 @@ class SellerServicesDetailsBody extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "Nigeria",
-                          style: TextStyle(
+                          data["country"] ?? "",
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF62646A),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
-                        Text(
+                        const Text(
                           "State",
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
@@ -212,16 +200,16 @@ class SellerServicesDetailsBody extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "Lagos",
-                          style: TextStyle(
+                          data["state"] ?? "",
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF62646A),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
-                        Text(
+                        const Text(
                           "City",
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
@@ -229,16 +217,16 @@ class SellerServicesDetailsBody extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "Ikeja",
-                          style: TextStyle(
+                          data["city"] ?? "",
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF62646A),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
-                        Text(
+                        const Text(
                           "Website Link",
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
@@ -246,8 +234,8 @@ class SellerServicesDetailsBody extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          " www.lordscoba.com",
-                          style: TextStyle(
+                          data["website_link"] ?? "",
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF62646A),
                           ),
@@ -257,7 +245,7 @@ class SellerServicesDetailsBody extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           "Email",
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
@@ -265,16 +253,16 @@ class SellerServicesDetailsBody extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "lordscoba2tm@gmail.com",
-                          style: TextStyle(
+                          data["email"] ?? "",
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF62646A),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
-                        Text(
+                        const Text(
                           "Phone Number",
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
@@ -282,16 +270,16 @@ class SellerServicesDetailsBody extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          " 08012345678",
-                          style: TextStyle(
+                          data["phone_number"] ?? "",
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF62646A),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
-                        Text(
+                        const Text(
                           "Phone Number Back Up",
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
@@ -299,16 +287,16 @@ class SellerServicesDetailsBody extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          " 08012345678",
-                          style: TextStyle(
+                          data["phone_number_backup"] ?? "",
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF62646A),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
-                        Text(
+                        const Text(
                           "Map Location",
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
@@ -316,8 +304,8 @@ class SellerServicesDetailsBody extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          " Ikeja, Lagos, Nigeria",
-                          style: TextStyle(
+                          data["map_location_link"] ?? "",
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF62646A),
                           ),

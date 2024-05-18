@@ -90,7 +90,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
-    initialLocation: '/seller/services/orders',
+    initialLocation: '/seller/services',
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(
@@ -345,8 +345,10 @@ GoRouter goRouterFunc(WidgetRef ref) {
         path: '/seller/products/details/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
+          final extra = state.extra! as Map<String, dynamic>;
           return SellerProductsDetailsScreen(
             id: id,
+            data: extra,
           );
         },
         redirect: authRedirectStrict,
@@ -377,8 +379,10 @@ GoRouter goRouterFunc(WidgetRef ref) {
         path: '/seller/services/details/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
+          final extra = state.extra! as Map<String, dynamic>;
           return SellerServicesDetailsScreen(
             id: id,
+            data: extra,
           );
         },
         redirect: authRedirectStrict,

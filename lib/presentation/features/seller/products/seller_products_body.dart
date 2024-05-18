@@ -158,6 +158,8 @@ class _SellerProductsBodyState extends ConsumerState<SellerProductsBody> {
               itemBuilder: (context, index) {
                 if (allItems.isNotEmpty) {
                   return SellerProductCard(
+                    id: allItems[index]["_id"],
+                    data: allItems[index],
                     name: allItems[index]["name"],
                     status: allItems[index]["product_status"],
                     price: allItems[index]["current_price"].toDouble(),
@@ -195,6 +197,8 @@ class _SellerProductsBodyState extends ConsumerState<SellerProductsBody> {
 }
 
 class SellerProductCard extends StatelessWidget {
+  final String id;
+  final Map<String, dynamic> data;
   final String name;
   final String status;
   final double price;
@@ -208,7 +212,9 @@ class SellerProductCard extends StatelessWidget {
       required this.price,
       required this.image,
       required this.productId,
-      required this.quantity});
+      required this.quantity,
+      required this.id,
+      required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -259,7 +265,10 @@ class SellerProductCard extends StatelessWidget {
                         icon: const Icon(Icons.delete),
                       ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          context.push("/seller/products/details/$id",
+                              extra: data);
+                        },
                         icon: const Icon(Icons.visibility),
                       ),
                     ],
