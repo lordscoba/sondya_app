@@ -13,7 +13,9 @@ class TrackOrderDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Track Details", isHome: false),
       drawer: sonyaUserDrawer(context),
-      body: const TrackOrderDetailsBody(),
+      body: TrackOrderDetailsBody(
+        id: id,
+      ),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );
   }

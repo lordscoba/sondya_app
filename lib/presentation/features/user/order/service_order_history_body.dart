@@ -90,7 +90,11 @@ class ServiceOrderHistoryBody extends ConsumerWidget {
                               fontSize: 16,
                             ),
                             TextButton(
-                              onPressed: null,
+                              onPressed: () {
+                                context.push(
+                                    '/service/order/details/${data[index]["_id"]}',
+                                    extra: data[index]);
+                              },
                               child: Text(
                                 "View",
                                 style: trailStyle,

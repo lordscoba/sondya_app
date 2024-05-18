@@ -5,7 +5,10 @@ import 'package:sondya_app/presentation/widgets/select_widget.dart';
 import 'package:sondya_app/utils/input_validations.dart';
 
 class SellerOrderReviewTermsBody extends ConsumerStatefulWidget {
-  const SellerOrderReviewTermsBody({super.key});
+  final Map<String, dynamic> data;
+  final String id;
+  const SellerOrderReviewTermsBody(
+      {super.key, required this.data, required this.id});
 
   @override
   ConsumerState<SellerOrderReviewTermsBody> createState() =>

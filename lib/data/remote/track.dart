@@ -9,11 +9,11 @@ final getTrackOrderDetailsProvider = FutureProvider.family
     final dio = Dio();
     dio.interceptors.add(const AuthInterceptor());
 
-    final response = await dio
-        .get(EnvironmentUserProductOrderConfig.getproductOrdersById + orderId);
+    final response =
+        await dio.get(EnvironmentTrackOrderConfig.getTracking + orderId);
     // debugPrint(response.data.toString());
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return response.data["data"]["data"] as Map<String, dynamic>;
+      return response.data["data"] as Map<String, dynamic>;
     } else {
       throw Exception('Failed to fetch map data');
     }

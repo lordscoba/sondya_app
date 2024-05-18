@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class TrackOrderBody extends StatelessWidget {
+class TrackOrderBody extends StatefulWidget {
   const TrackOrderBody({super.key});
+
+  @override
+  State<TrackOrderBody> createState() => _TrackOrderBodyState();
+}
+
+class _TrackOrderBodyState extends State<TrackOrderBody> {
+  String orderId = "";
 
   @override
   Widget build(BuildContext context) {
@@ -47,11 +54,16 @@ class TrackOrderBody extends StatelessWidget {
               const SizedBox(
                 height: 20,
               ),
-              const TextField(
-                decoration: InputDecoration(
+              TextField(
+                decoration: const InputDecoration(
                   hintText: "ID...",
                   // labelText: 'Code',
                 ),
+                onChanged: (value) {
+                  setState(() {
+                    orderId = value;
+                  });
+                },
               ),
               const SizedBox(
                 height: 20,
@@ -72,7 +84,9 @@ class TrackOrderBody extends StatelessWidget {
                 height: 20,
               ),
               ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.push("/track/details/$orderId");
+                  },
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

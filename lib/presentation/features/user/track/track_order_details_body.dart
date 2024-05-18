@@ -1,304 +1,218 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sondya_app/data/remote/track.dart';
+import 'package:sondya_app/presentation/features/user/order/product_order_details_body.dart';
+import 'package:sondya_app/utils/dateTime_to_string.dart';
 
-class TrackOrderDetailsBody extends StatelessWidget {
-  const TrackOrderDetailsBody({super.key});
+class TrackOrderDetailsBody extends ConsumerWidget {
+  final String id;
+  const TrackOrderDetailsBody({super.key, required this.id});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final getOrderDetails = ref.watch(getTrackOrderDetailsProvider(id));
+
+    // getOrderDetails.whenData(
+    //   (value) {
+    //     print(value);
+    //   },
+    // );
+
     return SingleChildScrollView(
       child: Center(
         child: Container(
           padding: const EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20.0),
-              IconButton(
-                onPressed: () {
-                  context.pop();
-                },
-                icon: const Icon(Icons.arrow_back),
-              ),
-              const SizedBox(height: 20.0),
-              const Text("Order ID:#91743127", style: TextStyle(fontSize: 20)),
-              const SizedBox(height: 20.0),
-              const Text(
-                "Order date:",
-                style: TextStyle(
-                  fontSize: 15,
-                ),
-              ),
-              const SizedBox(height: 10.0),
-              const Text(
-                "Estimated delivery:",
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Color(0xFFEDB842),
-                ),
-              ),
-              const SizedBox(height: 30.0),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+          child: getOrderDetails.when(
+            data: (data) {
+              // print(data["order_location"]);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 20.0),
+                  IconButton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                    icon: const Icon(Icons.arrow_back),
+                  ),
+                  const SizedBox(height: 20.0),
+                  SelectableText(
+                    "Order ID: ${data["order_id"]}",
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  const SizedBox(height: 20.0),
+                  Text(
+                    "Order date: ${sondyaFormattedDate(data["createdAt"])}",
+                    style: const TextStyle(
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 10.0),
+                  const Text(
+                    "Estimated delivery:",
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFFEDB842),
+                    ),
+                  ),
+                  const SizedBox(height: 30.0),
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 10.0),
-                      Row(
+                      Column(
                         children: [
-                          const Icon(
-                            Icons.book,
-                            color: Color(0xFFEDB842),
-                            size: 28,
-                          ),
-                          const SizedBox(width: 10),
-                          Container(
-                            width: 30,
-                            height: 30,
-                            padding: const EdgeInsets.all(3.0),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFEDB842),
-                              shape: BoxShape.circle,
+                          data["checkout_items"]["image"].isEmpty ||
+                                  data["checkout_items"]["image"][0]["url"] ==
+                                      null
+                              ? Container()
+                              : Image(
+                                  image: NetworkImage(data["checkout_items"]
+                                      ["image"][0]["url"]),
+                                  width:
+                                      MediaQuery.of(context).size.width - 100,
+                                  height: 300,
+                                  fit: BoxFit.cover,
+                                ),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              data["checkout_items"]["name"],
+                              style: const TextStyle(fontSize: 18),
                             ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          const Text("Order Placed"),
+                          )
                         ],
                       ),
-                      const SizedBox(height: 10.0),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.luggage_outlined,
-                            color: Color(0xFFEDB842),
-                            size: 28,
-                          ),
-                          const SizedBox(width: 10),
-                          Container(
-                            width: 30,
-                            height: 30,
-                            padding: const EdgeInsets.all(3.0),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFEDB842),
-                              shape: BoxShape.circle,
-                            ),
-                            // child: const Center(
-                            //   child: Icon(
-                            //     Icons.check,
-                            //     color: Colors.white,
-                            //     size: 24,
-                            //   ),
-                            // ),
-                          ),
-                          const SizedBox(width: 10),
-                          const Text("Packaging"),
-                        ],
+                      const SizedBox(
+                        height: 20,
                       ),
-                      const SizedBox(height: 10.0),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.local_shipping,
-                            color: Color(0xFFEDB842),
-                            size: 28,
-                          ),
-                          const SizedBox(width: 10),
-                          Container(
-                            width: 30,
-                            height: 30,
-                            padding: const EdgeInsets.all(3.0),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFEDB842),
-                              shape: BoxShape.circle,
-                            ),
-                            // child: const Center(
-                            //   child: Icon(
-                            //     Icons.check,
-                            //     color: Colors.white,
-                            //     size: 24,
-                            //   ),
-                            // ),
-                          ),
-                          const SizedBox(width: 10),
-                          const Text("On The Road"),
-                        ],
+                      OrderStatusWidget(
+                        orderStatus: data["order_status"].toLowerCase(),
+                        updatedAt: data["updatedAt"],
+                        createdAt: data["createdAt"],
                       ),
-                      const SizedBox(height: 10.0),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.handshake,
-                            color: Color(0xFFEDB842),
-                            size: 28,
-                          ),
-                          const SizedBox(width: 10),
-                          Container(
-                            width: 30,
-                            height: 30,
-                            padding: const EdgeInsets.all(3.0),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFEDB842),
-                              shape: BoxShape.circle,
-                            ),
-                            // child: const Center(
-                            //   child: Icon(
-                            //     Icons.check,
-                            //     color: Colors.white,
-                            //     size: 24,
-                            //   ),
-                            // ),
-                          ),
-                          const SizedBox(width: 10),
-                          const Text("Delivered"),
-                        ],
-                      ),
-                      const SizedBox(height: 10.0),
                     ],
                   ),
-                  const Column(
+                  const SizedBox(height: 40.0),
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Image(
-                        image: AssetImage("assets/images/success_picture.png"),
-                        width: 100,
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.4,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Origin",
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 20),
+                            const Text("Address"),
+                            const SizedBox(height: 5),
+                            Text(data["checkout_items"]["address"] ?? ""),
+                            const SizedBox(height: 5),
+                            Text(
+                                "${data["checkout_items"]?["city"] ?? ""}, ${data["checkout_items"]["state"] ?? ""},  ${data["checkout_items"]["country"] ?? ""}"),
+                            const SizedBox(height: 5),
+                            Text(data["checkout_items"]["phone_number"] ?? ""),
+                          ],
+                        ),
                       ),
                       SizedBox(
-                        width: 200,
-                        child: Text(
-                          "Sondya App product",
-                          style: TextStyle(fontSize: 18),
+                        width: MediaQuery.of(context).size.width * 0.4,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Destination",
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 20),
+                            const Text("Address"),
+                            const SizedBox(height: 5),
+                            Text(data["shipping_destination"]["address"] ?? ""),
+                            const SizedBox(height: 5),
+                            Text(
+                                "${data["shipping_destination"]["city"] ?? ""}, ${data["shipping_destination"]["state"] ?? ""},  ${data["shipping_destination"]["country"] ?? ""}"),
+                            const SizedBox(height: 5),
+                            Text(data["shipping_destination"]["phone_number"] ??
+                                ""),
+                          ],
                         ),
                       )
                     ],
-                  )
-                ],
-              ),
-              const SizedBox(height: 40.0),
-              const Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Origin",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 20),
-                      Text("Address"),
-                      SizedBox(height: 5),
-                      Text("5167277272"),
-                      SizedBox(height: 5),
-                      Text("Uyo, Nigeria"),
-                      SizedBox(height: 5),
-                      Text("+23808726262"),
-                    ],
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Destination",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 20),
-                      Text("Address"),
-                      SizedBox(height: 5),
-                      Text("5167277272"),
-                      SizedBox(height: 5),
-                      Text("Uyo, Nigeria"),
-                      SizedBox(height: 5),
-                      Text("+23808726262"),
-                    ],
-                  )
+                  const Divider(),
+                  const SizedBox(height: 30.0),
+                  const Text(
+                    "Current Locations",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20.0),
+                  // data Table here
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columns: const <DataColumn>[
+                        DataColumn(
+                          label: Text(
+                            'Country',
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'State',
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'City',
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Zip Code',
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Order Status',
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        ),
+                      ],
+                      rows: data["order_location"].isEmpty
+                          ? const <DataRow>[]
+                          : data["order_location"].map<DataRow>((e) {
+                              return DataRow(
+                                cells: <DataCell>[
+                                  DataCell(Text(e["country"])),
+                                  DataCell(Text(e["state"])),
+                                  DataCell(Text(e["city"])),
+                                  DataCell(Text(e["zip_code"])),
+                                  DataCell(Text(e["order_status"])),
+                                ],
+                              );
+                            }).toList(),
+                    ),
+                  ),
                 ],
+              );
+            },
+            error: (error, stackTrace) => Text(error.toString()),
+            loading: () => const Center(
+              child: CupertinoActivityIndicator(
+                radius: 50,
               ),
-              const Divider(),
-              const SizedBox(height: 30.0),
-              const Text(
-                "Current Locations",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20.0),
-              // data Table here
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  columns: const <DataColumn>[
-                    DataColumn(
-                      label: Text(
-                        'Country',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'State',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'City',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Zip Code',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        'Order Status',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                  ],
-                  rows: const <DataRow>[
-                    DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text('Nigeria')),
-                        DataCell(Text('Akwa Ibom')),
-                        DataCell(Text('Uyo')),
-                        DataCell(Text('123456')),
-                        DataCell(Text('Delivered')),
-                      ],
-                    ),
-                    DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text('Nigeria')),
-                        DataCell(Text('Akwa Ibom')),
-                        DataCell(Text('Uyo')),
-                        DataCell(Text('123456')),
-                        DataCell(Text('Delivered')),
-                      ],
-                    ),
-                    DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text('Nigeria')),
-                        DataCell(Text('Akwa Ibom')),
-                        DataCell(Text('Uyo')),
-                        DataCell(Text('123456')),
-                        DataCell(Text('Delivered')),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

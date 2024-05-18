@@ -89,7 +89,11 @@ class ProductOrderHistoryBody extends ConsumerWidget {
                               fontSize: 16,
                             ),
                             TextButton(
-                              onPressed: null,
+                              onPressed: () {
+                                context.push(
+                                    '/product/order/details/${data[index]["_id"]}',
+                                    extra: data[index]);
+                              },
                               child: Text(
                                 "View",
                                 style: trailStyle,
