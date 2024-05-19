@@ -7,14 +7,16 @@ import 'package:sondya_app/presentation/widgets/price_formatter.dart';
 import 'package:sondya_app/presentation/widgets/ratings_widget.dart';
 
 class SellerProductsDetailsBody extends StatelessWidget {
-  const SellerProductsDetailsBody({super.key});
+  final Map<String, dynamic> data;
+  const SellerProductsDetailsBody({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, List<String>> variants = {
-      "color": ["blue", "red"],
-      "size": ["big", "small"]
-    };
+    // final Map<String, List<String>> variants = {
+    //   "color": ["blue", "red"],
+    //   "size": ["big", "small"]
+    // };
+    // print(data);
     return SingleChildScrollView(
       child: Center(
         child: Padding(
@@ -34,34 +36,20 @@ class SellerProductsDetailsBody extends StatelessWidget {
                   ),
                 ],
               ),
-              const SondyaPictureSlider(
-                pictureList: [
-                  {
-                    "url":
-                        "https://res.cloudinary.com/dyeyatchg/image/upload/v1701811873/sondya/joxkbxnbrvedpobfe1fn.jpg",
-                    "public_id": "sondya/joxkbxnbrvedpobfe1fn",
-                    "folder": "sondya",
-                    "_id": "656f96a162f02cf0261acb04"
-                  },
-                  {
-                    "url":
-                        "https://res.cloudinary.com/dyeyatchg/image/upload/v1701811873/sondya/sq1daw132aqbnvq7umap.png",
-                    "public_id": "sondya/sq1daw132aqbnvq7umap",
-                    "folder": "sondya",
-                    "_id": "656f96a162f02cf0261acb05"
-                  }
-                ],
+              SondyaPictureSlider(
+                pictureList: data["image"],
               ),
               const SizedBox(height: 20.0),
-              const Row(
+              Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SondyaStarRating(
-                    averageRating: 3.0,
+                    averageRating: data["rating"].toDouble(),
                   ),
                   Text(
-                    "8 Star Rating",
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    "${data["rating"].toDouble()}(${data["total_rating"]}) Star Rating",
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -69,43 +57,48 @@ class SellerProductsDetailsBody extends StatelessWidget {
                 height: 8,
               ),
               Text(
-                "Pine apple",
+                data["name"],
                 style: GoogleFonts.playfairDisplay(
                     fontSize: 20, fontWeight: FontWeight.w600),
               ),
               const SizedBox(
                 height: 8,
               ),
+              Text(data["description"],
+                  style: const TextStyle(fontSize: 16, color: Colors.grey)),
+              const SizedBox(
+                height: 8,
+              ),
               Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   RichText(
-                    text: const TextSpan(
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    text: TextSpan(
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                       children: [
-                        TextSpan(
+                        const TextSpan(
                           text: 'Model:',
                           style: TextStyle(color: Color(0xFF5F6C72)),
                         ),
                         TextSpan(
-                          text: "5636633",
-                          style: TextStyle(color: Color(0xFF000000)),
+                          text: data["model"].toString(),
+                          style: const TextStyle(color: Color(0xFF000000)),
                         ),
                       ],
                     ),
                   ),
                   RichText(
-                    text: const TextSpan(
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    text: TextSpan(
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                       children: [
-                        TextSpan(
+                        const TextSpan(
                           text: 'Availability:',
                           style: TextStyle(color: Color(0xFF5F6C72)),
                         ),
                         TextSpan(
-                          text: "available",
-                          style: TextStyle(color: Color(0xFFEDB842)),
+                          text: data["product_status"].toString(),
+                          style: const TextStyle(color: Color(0xFFEDB842)),
                         ),
                       ],
                     ),
@@ -120,31 +113,31 @@ class SellerProductsDetailsBody extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   RichText(
-                    text: const TextSpan(
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    text: TextSpan(
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                       children: [
-                        TextSpan(
+                        const TextSpan(
                           text: 'Brand:',
                           style: TextStyle(color: Color(0xFF5F6C72)),
                         ),
                         TextSpan(
-                          text: "Apple",
-                          style: TextStyle(color: Color(0xFF000000)),
+                          text: data["brand"].toString(),
+                          style: const TextStyle(color: Color(0xFF000000)),
                         ),
                       ],
                     ),
                   ),
                   RichText(
-                    text: const TextSpan(
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    text: TextSpan(
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                       children: [
-                        TextSpan(
+                        const TextSpan(
                           text: 'Category:',
                           style: TextStyle(color: Color(0xFF5F6C72)),
                         ),
                         TextSpan(
-                          text: "fruits",
-                          style: TextStyle(color: Color(0xFFEDB842)),
+                          text: data["sub_category"].toString(),
+                          style: const TextStyle(color: Color(0xFFEDB842)),
                         ),
                       ],
                     ),
@@ -156,15 +149,15 @@ class SellerProductsDetailsBody extends StatelessWidget {
               ),
               Row(
                 children: [
-                  const PriceFormatWidget(
-                    price: 100.9,
+                  PriceFormatWidget(
+                    price: data["current_price"].toDouble() ?? 0.0,
                     fontSize: 15,
                   ),
                   const SizedBox(
                     width: 5,
                   ),
-                  const PriceFormatWidget(
-                    price: 200.0,
+                  PriceFormatWidget(
+                    price: data["old_price"].toDouble() ?? 0.0,
                     oldPrice: true,
                     fontSize: 15,
                   ),
@@ -179,14 +172,16 @@ class SellerProductsDetailsBody extends StatelessWidget {
                       borderRadius: BorderRadius.circular(
                           8.0), // Optional: Rounded corners
                     ),
-                    child: const Text(
-                      "15 %off",
-                      style: TextStyle(
-                        color: Colors.white, // Text color
-                        fontSize: 16.0, // Font size
-                        fontWeight: FontWeight.bold, // Font weight
-                      ),
-                    ),
+                    child: data["old_price"] != null || data["old_price"] != 0
+                        ? Text(
+                            "${data["discount_percentage"]} %off",
+                            style: const TextStyle(
+                              color: Colors.white, // Text color
+                              fontSize: 16.0, // Font size
+                              fontWeight: FontWeight.bold, // Font weight
+                            ),
+                          )
+                        : const SizedBox(),
                   )
                 ],
               ),
@@ -201,33 +196,39 @@ class SellerProductsDetailsBody extends StatelessWidget {
               ListView(
                 shrinkWrap: true,
                 children: [
-                  for (var entry in variants.entries)
-                    ListTile(
-                      leading: Text(
-                          "${entry.key}: "), // Display the key (e.g., "color" or "size")
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          for (var value in entry.value)
-                            Text(
-                                "$value "), // Display each value (e.g., "blue", "red", "big", "small")
-                        ],
-                      ),
-                    ),
+                  data["variants"] == null || data["variants"].isEmpty
+                      ? const Text("No variants available")
+                      : Column(
+                          children: [
+                            for (var entry in data["variants"].entries)
+                              ListTile(
+                                leading: Text(
+                                    "${entry.key}: "), // Display the key (e.g., "color" or "size")
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    for (var value in entry.value)
+                                      Text(
+                                          "$value,"), // Display each value (e.g., "blue", "red", "big", "small")
+                                  ],
+                                ),
+                              )
+                          ],
+                        ),
                 ],
               ),
-              const ProductDetailsTab(
-                description: "I am description",
-                owner: {},
-                address: '',
-                country: '',
-                state: '',
-                city: '',
-                zipCode: '',
-                subCategory: '',
-                model: '',
-                brand: '',
-                name: '',
+              ProductDetailsTab(
+                description: data["description"].toString(),
+                owner: data["owner"] ?? {},
+                address: data["address"].toString(),
+                country: data["country"].toString(),
+                state: data["state"].toString(),
+                city: data["city"].toString(),
+                zipCode: data["zip_code"].toString(),
+                subCategory: data["sub_category"].toString(),
+                model: data["model"].toString(),
+                brand: data["brand"].toString(),
+                name: data["name"].toString(),
               ),
             ],
           ),

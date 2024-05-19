@@ -1,11 +1,16 @@
+import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sondya_app/domain/models/home.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:sondya_app/data/remote/home.dart';
+import 'package:sondya_app/domain/providers/seller.product.provider.dart';
 import 'package:sondya_app/presentation/widgets/image_selection.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
+import 'package:sondya_app/presentation/widgets/success_error_message.dart';
 import 'package:sondya_app/presentation/widgets/variants_widget.dart';
-import 'package:sondya_app/utils/input_validations.dart';
 
 class SellerProductsAddBody extends ConsumerStatefulWidget {
   const SellerProductsAddBody({super.key});
@@ -16,11 +21,13 @@ class SellerProductsAddBody extends ConsumerStatefulWidget {
 }
 
 class _SellerProductsAddBodyState extends ConsumerState<SellerProductsAddBody> {
-  final _formKey = GlobalKey<FormState>();
   String current = "1"; // 1, 2, 3
-  List<String> done = ["1"]; // if done contains 1, 2, 3, it means all is done
+  List<String> done = []; // if done contains 1, 2, 3, it means all is done
+
   @override
   Widget build(BuildContext context) {
+    final AsyncValue<Map<String, dynamic>> checkState =
+        ref.watch(sellerAddProductProvider);
     return SingleChildScrollView(
       child: Center(
         child: Column(
@@ -99,15 +106,71 @@ class _SellerProductsAddBodyState extends ConsumerState<SellerProductsAddBody> {
                   const SizedBox(
                     height: 10,
                   ),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        if (current == "1") const AddModalBody1(),
-                        if (current == "2") const AddModalBody2(),
-                        if (current == "3") const AddModalBody3(),
-                      ],
-                    ),
+                  Column(
+                    children: [
+                      checkState.when(
+                        data: (data) {
+                          return sondyaDisplaySuccessMessage(
+                              context, data["message"]);
+                        },
+                        loading: () => const SizedBox(),
+                        error: (error, stackTrace) {
+                          return sondyaDisplayErrorMessage(
+                              error.toString(), context);
+                        },
+                      ),
+                      if (current == "1")
+                        AddModalBody1(
+                          onPressed: () {
+                            setState(() {
+                              done.add("1");
+                              current = "2";
+                            });
+                          },
+                        ),
+                      if (current == "2")
+                        AddModalBody2(
+                          onPressed: () {
+                            setState(() {
+                              done.add("2");
+                              current = "3";
+                            });
+                          },
+                        ),
+                      if (current == "3")
+                        AddModalBody3(
+                          onPressed: () {
+                            setState(() {
+                              done.add("3");
+                            });
+                            if (!done.contains("1")) {
+                              AnimatedSnackBar.rectangle(
+                                'Error',
+                                "You are not done with step 1, if you are done with step 01 click on save in step 01",
+                                type: AnimatedSnackBarType.warning,
+                                brightness: Brightness.light,
+                              ).show(
+                                context,
+                              );
+                            } else if (!done.contains("2")) {
+                              AnimatedSnackBar.rectangle(
+                                'Error',
+                                "You are not done with step 1 or step 2, if you are done with step 01 or step 02 click on save in step 02",
+                                type: AnimatedSnackBarType.warning,
+                                brightness: Brightness.light,
+                              ).show(
+                                context,
+                              );
+                            } else {
+                              print("post");
+                              print(ref
+                                  .watch(sellerProductDataprovider.notifier)
+                                  .state
+                                  .toJson());
+                            }
+                          },
+                        ),
+                    ],
                   )
                 ],
               ),
@@ -119,33 +182,96 @@ class _SellerProductsAddBodyState extends ConsumerState<SellerProductsAddBody> {
   }
 }
 
-class AddModalBody1 extends StatefulWidget {
+class AddModalBody1 extends ConsumerStatefulWidget {
   final void Function()? onPressed;
   const AddModalBody1({super.key, this.onPressed});
 
   @override
-  State<AddModalBody1> createState() => _AddModalBody1State();
+  ConsumerState<AddModalBody1> createState() => _AddModalBody1State();
 }
 
-class _AddModalBody1State extends State<AddModalBody1> {
+class _AddModalBody1State extends ConsumerState<AddModalBody1> {
   var _selectedCategory = "Category";
   var _selectedStatus = "Status";
+
+  // var name = "";
+  // var brand = "";
+  // var status = "";
+  // var subCategory = "";
+  // var tags = "";
+  // var country = "";
+  // var state = "";
+  // var city = "";
+  // var zipCode = "";
+  // var address = "";
+
+  late TextEditingController _nameController;
+  late TextEditingController _brandController;
+  late TextEditingController _statusController;
+  late TextEditingController _subCategoryController;
+  late TextEditingController _tagsController;
+  late TextEditingController _countryController;
+  late TextEditingController _stateController;
+  late TextEditingController _cityController;
+  late TextEditingController _zipCodeController;
+  late TextEditingController _addressController;
+
+  @override
+  void initState() {
+    super.initState();
+    var products = ref.read(sellerProductDataprovider.notifier).state;
+    _nameController = TextEditingController(text: products.name);
+    _brandController = TextEditingController(text: products.brand);
+    _statusController = TextEditingController(text: products.productStatus);
+    _subCategoryController = TextEditingController(text: products.subCategory);
+    _tagsController = TextEditingController(text: products.tag);
+    _countryController = TextEditingController(text: products.country);
+    _stateController = TextEditingController(text: products.state);
+    _cityController = TextEditingController(text: products.city);
+    _zipCodeController = TextEditingController(text: products.zipCode);
+    _addressController = TextEditingController(text: products.address);
+    if (products.subCategory != null) {
+      _selectedCategory = products.subCategory!;
+    }
+    if (products.productStatus != null) {
+      _selectedStatus = products.productStatus!;
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _brandController.dispose();
+    _statusController.dispose();
+    _subCategoryController.dispose();
+    _tagsController.dispose();
+    _countryController.dispose();
+    _stateController.dispose();
+    _cityController.dispose();
+    _zipCodeController.dispose();
+    _addressController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    var products = ref.watch(sellerProductDataprovider.notifier).state;
+    final getProductCategory = ref.watch(getProductCategoryProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text("Product Name", style: TextStyle(color: Colors.grey)),
         const SizedBox(height: 5),
-        TextFormField(
+        TextField(
+          controller: _nameController,
           decoration: const InputDecoration(
             hintText: " Enter Product Name",
-            labelText: 'Product Name',
           ),
-          initialValue: "Product Name",
-          validator: isInputEmpty,
-          onSaved: (value) {
-            // user.firstName = value!;
+          onChanged: (value) {
+            // setState(() {
+            //   // name = value;
+            // });
+            products.name = value;
           },
         ),
         Row(
@@ -174,8 +300,10 @@ class _AddModalBody1State extends State<AddModalBody1> {
                           context: context,
                           onItemSelected: (value) {
                             setState(() {
+                              // status = value;
                               _selectedStatus = value;
                             });
+                            products.productStatus = value;
                           },
                         );
                       },
@@ -195,51 +323,67 @@ class _AddModalBody1State extends State<AddModalBody1> {
                 ],
               ),
             ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
-                  const Text("Sub Category",
-                      style: TextStyle(color: Colors.grey)),
-                  const SizedBox(height: 5),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () async {
-                        List<String> sortByList = [
-                          "Latest",
-                          "Oldest",
-                          "Alphabetical(A-Z)",
-                          "Alphabetical(Z-A)"
-                        ];
-                        SondyaSelectWidget().showBottomSheet<String>(
-                          options: sortByList,
-                          context: context,
-                          onItemSelected: (value) {
-                            setState(() {
-                              _selectedCategory = value;
-                            });
+            getProductCategory.when(
+              data: (data) {
+                return SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.45,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10),
+                      const Text("Sub Category",
+                          style: TextStyle(color: Colors.grey)),
+                      const SizedBox(height: 5),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            List<String> subCategoryList = [];
+                            for (var element in data["data"]) {
+                              subCategoryList.add(element["name"]);
+                            }
+                            SondyaSelectWidget().showBottomSheet<String>(
+                              options: subCategoryList,
+                              context: context,
+                              onItemSelected: (value) {
+                                products.category = "products";
+                                products.subCategory = value;
+                                setState(() {
+                                  // subCategory = value;
+                                  _selectedCategory = value;
+                                });
+                              },
+                            );
                           },
-                        );
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _selectedCategory,
-                            style: const TextStyle(fontSize: 12),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.22,
+                                child: Text(
+                                  _selectedCategory,
+                                  style: const TextStyle(fontSize: 12),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const Icon(Icons.arrow_drop_down),
+                            ],
                           ),
-                          const Icon(Icons.arrow_drop_down),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                );
+              },
+              error: (error, stackTrace) => Text(error.toString()),
+              loading: () => const Center(
+                child: CupertinoActivityIndicator(
+                  radius: 50,
+                ),
               ),
-            )
+            ),
           ],
         ),
         Row(
@@ -253,15 +397,16 @@ class _AddModalBody1State extends State<AddModalBody1> {
                   const SizedBox(height: 10),
                   const Text("Brand", style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _brandController,
                     decoration: const InputDecoration(
                       hintText: " Enter Brand",
-                      labelText: 'Brand',
                     ),
-                    initialValue: "Brand",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      // setState(() {
+                      //   brand = value;
+                      // });
+                      products.brand = value;
                     },
                   ),
                 ],
@@ -275,15 +420,16 @@ class _AddModalBody1State extends State<AddModalBody1> {
                   const SizedBox(height: 10),
                   const Text("Tags", style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _tagsController,
                     decoration: const InputDecoration(
                       hintText: " Enter Tags",
-                      labelText: 'Tags',
                     ),
-                    initialValue: "Tags",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      // setState(() {
+                      //   tags = value;
+                      // });
+                      products.tag = value;
                     },
                   ),
                 ],
@@ -302,15 +448,16 @@ class _AddModalBody1State extends State<AddModalBody1> {
                   const SizedBox(height: 10),
                   const Text("Country", style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _countryController,
                     decoration: const InputDecoration(
                       hintText: " Enter Country",
-                      labelText: 'Country',
                     ),
-                    initialValue: "Country",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      // setState(() {
+                      //   country = value;
+                      // });
+                      products.country = value;
                     },
                   ),
                 ],
@@ -324,15 +471,16 @@ class _AddModalBody1State extends State<AddModalBody1> {
                   const SizedBox(height: 10),
                   const Text("State", style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _stateController,
                     decoration: const InputDecoration(
                       hintText: " Enter State",
-                      labelText: 'State',
                     ),
-                    initialValue: "State",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      // setState(() {
+                      //   state = value;
+                      // });
+                      products.state = value;
                     },
                   ),
                 ],
@@ -351,15 +499,16 @@ class _AddModalBody1State extends State<AddModalBody1> {
                   const SizedBox(height: 10),
                   const Text("City", style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _cityController,
                     decoration: const InputDecoration(
                       hintText: " Enter City",
-                      labelText: 'City',
                     ),
-                    initialValue: "City",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      // setState(() {
+                      //   city = value;
+                      // });
+                      products.city = value;
                     },
                   ),
                 ],
@@ -373,15 +522,16 @@ class _AddModalBody1State extends State<AddModalBody1> {
                   const SizedBox(height: 10),
                   const Text("Zip Code", style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _zipCodeController,
                     decoration: const InputDecoration(
                       hintText: " Enter Zip Code",
-                      labelText: 'Zip Code',
                     ),
-                    initialValue: "Zip Code",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      // setState(() {
+                      //   zipCode = value;
+                      // });
+                      products.zipCode = value;
                     },
                   ),
                 ],
@@ -392,15 +542,16 @@ class _AddModalBody1State extends State<AddModalBody1> {
         const SizedBox(height: 10),
         const Text("Address", style: TextStyle(color: Colors.grey)),
         const SizedBox(height: 5),
-        TextFormField(
+        TextField(
+          controller: _addressController,
           decoration: const InputDecoration(
             hintText: " Enter Address",
-            labelText: 'Address',
           ),
-          initialValue: "Address",
-          validator: isInputEmpty,
-          onSaved: (value) {
-            // user.firstName = value!;
+          onChanged: (value) {
+            // setState(() {
+            //   address = value;
+            // });
+            products.address = value;
           },
         ),
         const SizedBox(height: 10),
@@ -421,11 +572,33 @@ class _AddModalBody1State extends State<AddModalBody1> {
               width: MediaQuery.of(context).size.width * 0.45,
               height: 50,
               child: ElevatedButton(
-                onPressed: widget.onPressed,
+                onPressed: () {
+                  if (_nameController.text == "" ||
+                      _brandController.text == "" ||
+                      _statusController.text == "" ||
+                      _subCategoryController.text == "" ||
+                      _tagsController.text == "" ||
+                      _countryController.text == "" ||
+                      _stateController.text == "" ||
+                      _cityController.text == "" ||
+                      _zipCodeController.text == "" ||
+                      _addressController.text == "") {
+                    AnimatedSnackBar.rectangle(
+                      'Error',
+                      "Please fill all the fields",
+                      type: AnimatedSnackBarType.warning,
+                      brightness: Brightness.light,
+                    ).show(
+                      context,
+                    );
+                  } else {
+                    widget.onPressed!();
+                  }
+                },
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Text("Post"),
+                    Text("Save"),
                     SizedBox(width: 3),
                     Icon(Icons.arrow_forward),
                   ],
@@ -439,29 +612,92 @@ class _AddModalBody1State extends State<AddModalBody1> {
   }
 }
 
-class AddModalBody2 extends StatelessWidget {
+class AddModalBody2 extends ConsumerStatefulWidget {
   final void Function()? onPressed;
   const AddModalBody2({super.key, this.onPressed});
 
   @override
+  ConsumerState<AddModalBody2> createState() => _AddModalBody2State();
+}
+
+class _AddModalBody2State extends ConsumerState<AddModalBody2> {
+  // String description = "";
+  // String currentPrice = "";
+  // String oldPrice = "";
+  // String discountPercentage = "";
+  // String totalStock = "";
+  // String vatAmount = "";
+  List<XFile> image = [];
+
+  late TextEditingController _descriptionController;
+  late TextEditingController _currentPriceController;
+  late TextEditingController _oldPriceController;
+  late TextEditingController _discountPercentageController;
+  late TextEditingController _totalStockController;
+  late TextEditingController _vatAmountController;
+
+  @override
+  void initState() {
+    super.initState();
+    var products = ref.read(sellerProductDataprovider.notifier).state;
+    _descriptionController = TextEditingController(text: products.description);
+    _currentPriceController = TextEditingController(
+        text: products.currentPrice.toString() == "null"
+            ? "0.0"
+            : products.currentPrice.toString());
+    _oldPriceController = TextEditingController(
+        text: products.oldPrice.toString() == "null"
+            ? "0.0"
+            : products.oldPrice.toString());
+    _discountPercentageController = TextEditingController(
+        text: products.discountPercentage.toString() == "null"
+            ? "0.0"
+            : products.discountPercentage.toString());
+    _totalStockController = TextEditingController(
+        text: products.totalStock.toString() == "null"
+            ? "0"
+            : products.totalStock.toString());
+    _vatAmountController = TextEditingController(
+        text: products.vatPercentage.toString() == "null"
+            ? "0.0"
+            : products.vatPercentage.toString());
+
+    if (products.image != null) {
+      image = products.image!;
+    }
+  }
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    _currentPriceController.dispose();
+    _oldPriceController.dispose();
+    _discountPercentageController.dispose();
+    _totalStockController.dispose();
+    _vatAmountController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var products = ref.watch(sellerProductDataprovider.notifier).state;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 10),
         const Text("Description", style: TextStyle(color: Colors.grey)),
         const SizedBox(height: 5),
-        // text area
-        TextFormField(
+        TextField(
+          controller: _descriptionController,
           maxLines: 3,
           decoration: const InputDecoration(
             hintText: " Enter Description",
-            labelText: 'Description',
           ),
-          initialValue: "Description",
-          validator: isInputEmpty,
-          onSaved: (value) {
-            // user.firstName = value!;
+          onChanged: (value) {
+            // setState(() {
+            //   description = value;
+            // });
+            products.description = value;
           },
         ),
         const SizedBox(height: 10),
@@ -470,15 +706,24 @@ class AddModalBody2 extends StatelessWidget {
         const SizedBox(height: 10),
         const Text("Price", style: TextStyle(color: Colors.grey)),
         const SizedBox(height: 5),
-        TextFormField(
+        TextField(
+          controller: _currentPriceController,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: <TextInputFormatter>[
+            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+          ],
           decoration: const InputDecoration(
             hintText: "Enter Price",
-            labelText: 'Price',
           ),
-          initialValue: "Price",
-          validator: isInputEmpty,
-          onSaved: (value) {
-            // user.firstName = value!;
+          onChanged: (value) {
+            // setState(() {
+            //   currentPrice = value;
+            // });
+            if (value != "") {
+              products.currentPrice = double.parse(value);
+            } else {
+              products.currentPrice = 0.0;
+            }
           },
         ),
         Row(
@@ -492,15 +737,25 @@ class AddModalBody2 extends StatelessWidget {
                   const SizedBox(height: 10),
                   const Text("Old Price", style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _oldPriceController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                    ],
                     decoration: const InputDecoration(
                       hintText: " Enter Old Price",
-                      labelText: 'Old Price',
                     ),
-                    initialValue: "Old Price",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      // setState(() {
+                      //   oldPrice = value;
+                      // });
+                      if (value != "") {
+                        products.oldPrice = double.parse(value);
+                      } else {
+                        products.oldPrice = 0.0;
+                      }
                     },
                   ),
                 ],
@@ -515,15 +770,25 @@ class AddModalBody2 extends StatelessWidget {
                   const Text("Discount Precentage (%)",
                       style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _discountPercentageController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                    ],
                     decoration: const InputDecoration(
                       hintText: " Enter Discount Precentage (%)",
-                      labelText: 'Discount Precentage (%)',
                     ),
-                    initialValue: "100%",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      // setState(() {
+                      //   discountPercentage = value;
+                      // });
+                      if (value != "") {
+                        products.discountPercentage = double.parse(value);
+                      } else {
+                        products.discountPercentage = 0.0;
+                      }
                     },
                   ),
                 ],
@@ -543,15 +808,24 @@ class AddModalBody2 extends StatelessWidget {
                   const Text("Total Stock",
                       style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _totalStockController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
                     decoration: const InputDecoration(
                       hintText: " Enter Total Stock",
-                      labelText: 'Total Stock',
                     ),
-                    initialValue: "Total Stock",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      // setState(() {
+                      //   totalStock = value;
+                      // });
+                      if (value != "") {
+                        products.totalStock = int.parse(value);
+                      } else {
+                        products.totalStock = 0;
+                      }
                     },
                   ),
                 ],
@@ -566,15 +840,25 @@ class AddModalBody2 extends StatelessWidget {
                   const Text("VAT Amount (%)",
                       style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _vatAmountController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                    ],
                     decoration: const InputDecoration(
                       hintText: " Enter VAT Amount (%)",
-                      labelText: 'VAT Amount (%)',
                     ),
-                    initialValue: "100%",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      // setState(() {
+                      //   vatAmount = value;
+                      // });
+                      if (value != "") {
+                        products.vatPercentage = double.parse(value);
+                      } else {
+                        products.vatPercentage = 0.0;
+                      }
                     },
                   ),
                 ],
@@ -585,13 +869,13 @@ class AddModalBody2 extends StatelessWidget {
         const SizedBox(height: 20),
         const Text("Media",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-
         const SizedBox(height: 10),
         SondyaMultipleImageSelection(
-          savedNetworkImage:
-              ims.map((image) => ImageType.fromJson(image)).toList(),
           onSetImage: (value) {
-            print(value);
+            setState(() {
+              image = value;
+            });
+            products.image = value;
           },
         ),
         const SizedBox(height: 10),
@@ -612,11 +896,31 @@ class AddModalBody2 extends StatelessWidget {
               width: MediaQuery.of(context).size.width * 0.45,
               height: 50,
               child: ElevatedButton(
-                onPressed: onPressed,
+                onPressed: () {
+                  if (_descriptionController.text == "" ||
+                      _currentPriceController.text == "" ||
+                      _oldPriceController.text == "" ||
+                      _discountPercentageController.text == "" ||
+                      _totalStockController.text == "" ||
+                      _vatAmountController.text == "" ||
+                      image.isEmpty) {
+                    AnimatedSnackBar.rectangle(
+                      'Error',
+                      "Please fill all the fields",
+                      type: AnimatedSnackBarType.warning,
+                      brightness: Brightness.light,
+                    ).show(
+                      context,
+                    );
+                  } else {
+                    widget.onPressed!();
+                  }
+                  // print(products.toJson());
+                },
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Text("Post"),
+                    Text("Save"),
                     SizedBox(width: 3),
                     Icon(Icons.arrow_forward),
                   ],
@@ -668,12 +972,46 @@ var ims = [
   },
 ];
 
-class AddModalBody3 extends StatelessWidget {
+class AddModalBody3 extends ConsumerStatefulWidget {
   final void Function()? onPressed;
   const AddModalBody3({super.key, this.onPressed});
 
   @override
+  ConsumerState<AddModalBody3> createState() => _AddModalBody3State();
+}
+
+class _AddModalBody3State extends ConsumerState<AddModalBody3> {
+  // String modelNumber = "";
+  // String totalVariant = "";
+  Map<String, List<dynamic>>? variants = {};
+
+  late TextEditingController _modelNumberController;
+  late TextEditingController _totalVariantController;
+
+  @override
+  void initState() {
+    super.initState();
+    var products = ref.read(sellerProductDataprovider.notifier).state;
+    _modelNumberController = TextEditingController(text: products.model);
+    _totalVariantController = TextEditingController(
+        text: products.totalVariants.toString() == "null"
+            ? "0"
+            : products.totalVariants.toString());
+    if (products.variants != null && products.variants != {}) {
+      variants = products.variants!;
+    }
+  }
+
+  @override
+  void dispose() {
+    _modelNumberController.dispose();
+    _totalVariantController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var products = ref.watch(sellerProductDataprovider.notifier).state;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -692,15 +1030,16 @@ class AddModalBody3 extends StatelessWidget {
                   const Text("Model Number",
                       style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _modelNumberController,
                     decoration: const InputDecoration(
                       hintText: " Enter Model Number",
-                      labelText: 'Model Number',
                     ),
-                    initialValue: "353gg2",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      // setState(() {
+                      //   modelNumber = value;
+                      // });
+                      products.model = value;
                     },
                   ),
                 ],
@@ -715,15 +1054,24 @@ class AddModalBody3 extends StatelessWidget {
                   const Text("Total variant",
                       style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _totalVariantController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
                     decoration: const InputDecoration(
                       hintText: " Enter Total variant",
-                      labelText: 'Total variant',
                     ),
-                    initialValue: "Total variant",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      // setState(() {
+                      //   totalVariant = value;
+                      // });
+                      if (value != "") {
+                        products.totalVariants = int.parse(value);
+                      } else {
+                        products.totalVariants = 0;
+                      }
                     },
                   ),
                 ],
@@ -737,10 +1085,12 @@ class AddModalBody3 extends StatelessWidget {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         VariationWidget(
-          mapData: const {},
+          mapData: variants!,
           onItemSelected: (mapData) {
-            // user.vaue = mapData
-            print(mapData);
+            setState(() {
+              variants = mapData;
+            });
+            products.variants = mapData;
           },
         ),
         const SizedBox(height: 10),
@@ -761,7 +1111,22 @@ class AddModalBody3 extends StatelessWidget {
               width: MediaQuery.of(context).size.width * 0.45,
               height: 50,
               child: ElevatedButton(
-                onPressed: onPressed,
+                onPressed: () {
+                  if (_modelNumberController.text == "" ||
+                      _totalVariantController.text == "" ||
+                      variants == {}) {
+                    AnimatedSnackBar.rectangle(
+                      'Error',
+                      "Please fill all the fields",
+                      type: AnimatedSnackBarType.warning,
+                      brightness: Brightness.light,
+                    ).show(
+                      context,
+                    );
+                  } else {
+                    widget.onPressed!();
+                  }
+                },
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [

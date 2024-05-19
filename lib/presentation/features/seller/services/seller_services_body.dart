@@ -135,7 +135,9 @@ class _SellerServicesBodyState extends ConsumerState<SellerServicesBody> {
                 SizedBox(
                   width: 200,
                   child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.push('/seller/services/add');
+                      },
                       child: const Row(
                         children: [
                           Icon(Icons.add),
@@ -155,6 +157,8 @@ class _SellerServicesBodyState extends ConsumerState<SellerServicesBody> {
               itemBuilder: (context, index) {
                 if (allItems.isNotEmpty) {
                   return SellerServiceCard(
+                    id: allItems[index]["_id"] ?? "",
+                    data: allItems[index],
                     name: allItems[index]["name"] ?? "",
                     status: allItems[index]["service_status"] ?? "",
                     price: allItems[index]["current_price"].toDouble() ?? 0.0,
@@ -194,6 +198,8 @@ class _SellerServicesBodyState extends ConsumerState<SellerServicesBody> {
 }
 
 class SellerServiceCard extends StatelessWidget {
+  final String id;
+  final Map<String, dynamic> data;
   final String name;
   final String? status;
   final double? price;
@@ -207,7 +213,9 @@ class SellerServiceCard extends StatelessWidget {
       this.price,
       this.image,
       this.productId,
-      this.duration});
+      this.duration,
+      required this.id,
+      required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -256,7 +264,10 @@ class SellerServiceCard extends StatelessWidget {
                         icon: const Icon(Icons.delete),
                       ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          context.push("/seller/services/details/$id",
+                              extra: data);
+                        },
                         icon: const Icon(Icons.visibility),
                       ),
                     ],

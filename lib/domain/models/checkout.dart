@@ -168,7 +168,8 @@ class CheckoutItems {
   int? totalRating;
   int? totalVariants;
   // Variants? variants;
-  dynamic variants;
+  // dynamic variants;
+  Map<String, List<dynamic>>? variants;
   String? country;
   String? state;
   String? city;
@@ -244,8 +245,7 @@ class CheckoutItems {
     rating = json['rating'];
     totalRating = json['total_rating'];
     totalVariants = json['total_variants'];
-    variants =
-        json['variants'] != null ? Variants.fromJson(json['variants']) : null;
+    variants = json['variants']?.cast<String, List<dynamic>>() ?? {};
     selectedVariants =
         (json['selected_variants'] as Map<String, dynamic>?)?.map((key, value) {
       if (value is List<dynamic>) {
@@ -300,9 +300,7 @@ class CheckoutItems {
     data['rating'] = rating;
     data['total_rating'] = totalRating;
     data['total_variants'] = totalVariants;
-    if (variants != null) {
-      data['variants'] = variants!.toJson();
-    }
+    data['variants'] = variants;
     data['state'] = state;
     data['city'] = city;
     data['zip_code'] = zipCode;
@@ -322,25 +320,6 @@ class CheckoutItems {
     if (trackDistanceTime != null) {
       data['track_distance_time'] = trackDistanceTime!.toJson();
     }
-    return data;
-  }
-}
-
-class Variants {
-  List<String>? color;
-  List<String>? size;
-
-  Variants({this.color, this.size});
-
-  Variants.fromJson(Map<String, dynamic> json) {
-    color = json['color'].cast<String>();
-    size = json['size'].cast<String>();
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['color'] = color;
-    data['size'] = size;
     return data;
   }
 }
