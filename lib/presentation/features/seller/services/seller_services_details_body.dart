@@ -96,22 +96,6 @@ class SellerServicesDetailsBody extends StatelessWidget {
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.w600),
                     ),
-                    // const SizedBox(
-                    //   height: 12,
-                    // ),
-                    // ElevatedButton(
-                    //   onPressed: () {},
-                    //   child: const Row(
-                    //     mainAxisSize: MainAxisSize.min,
-                    //     children: [
-                    //       Text("Continue"),
-                    //       Icon(Icons.arrow_forward),
-                    //     ],
-                    //   ),
-                    // ),
-                    // const SizedBox(
-                    //   height: 5,
-                    // ),
                   ],
                 ),
               ),

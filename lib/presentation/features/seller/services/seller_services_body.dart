@@ -135,7 +135,9 @@ class _SellerServicesBodyState extends ConsumerState<SellerServicesBody> {
                 SizedBox(
                   width: 200,
                   child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.push('/seller/services/add');
+                      },
                       child: const Row(
                         children: [
                           Icon(Icons.add),

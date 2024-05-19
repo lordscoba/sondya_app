@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:sondya_app/utils/input_validations.dart';
 
 class VariationWidget extends StatefulWidget {
   final Map<String, List<dynamic>> mapData;
@@ -87,11 +88,12 @@ class VariantItem extends StatefulWidget {
 }
 
 class _VariantItemState extends State<VariantItem> {
-  final _formKey = GlobalKey<FormState>();
   late String key;
   late List<dynamic> values;
 
   String newValues = "";
+
+  Timer? _debounce;
   @override
   void initState() {
     super.initState();
@@ -101,137 +103,136 @@ class _VariantItemState extends State<VariantItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.4,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("Variation Type",
-                    style: TextStyle(color: Colors.grey)),
-                const SizedBox(height: 5),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    hintText: " Enter Variation Type",
-                    labelText: 'Variation Type',
-                  ),
-                  initialValue: key,
-                  validator: isInputEmpty,
-                  onSaved: (value) {
-                    key = value!;
-                  },
+    TextEditingController controller = TextEditingController(text: key);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.4,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Variation Type",
+                  style: TextStyle(color: Colors.grey)),
+              const SizedBox(height: 5),
+              TextField(
+                decoration: const InputDecoration(
+                  hintText: " Enter Variation Type",
+                  labelText: 'Variation Type',
                 ),
-              ],
-            ),
+                controller: controller,
+                onChanged: (value) {
+                  setState(() {
+                    key = value;
+                  });
+                },
+              ),
+            ],
           ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.4,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                values.isEmpty
-                    ? const Text(
-                        "Variation",
-                        style: TextStyle(color: Colors.grey),
-                      )
-                    : Wrap(
-                        spacing: 5,
-                        children: values.map((item) {
-                          return Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                height: 35,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 5),
-                                decoration: BoxDecoration(
-                                  color:
-                                      const Color(0xFFEDB842).withOpacity(0.7),
-                                  shape: BoxShape.rectangle,
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Text(
-                                  item.toString(),
-                                  style: const TextStyle(color: Colors.white),
-                                ),
+        ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.4,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              values.isEmpty
+                  ? const Text(
+                      "Variation",
+                      style: TextStyle(color: Colors.grey),
+                    )
+                  : Wrap(
+                      spacing: 5,
+                      children: values.map((item) {
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              height: 35,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEDB842).withOpacity(0.7),
+                                shape: BoxShape.rectangle,
+                                borderRadius: BorderRadius.circular(5),
                               ),
-                              Container(
-                                height: 30,
-                                width: 30,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFEDB842),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: IconButton(
-                                  padding: const EdgeInsets.all(2.0),
-                                  iconSize: 15,
-                                  color: Colors.white,
-                                  icon: const Icon(Icons.close),
-                                  onPressed: () {
-                                    setState(() {
-                                      if (_formKey.currentState!.validate()) {
-                                        values.remove(item);
-                                        _formKey.currentState?.save();
+                              child: Text(
+                                item.toString(),
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            Container(
+                              height: 30,
+                              width: 30,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFEDB842),
+                                shape: BoxShape.circle,
+                              ),
+                              child: IconButton(
+                                padding: const EdgeInsets.all(2.0),
+                                iconSize: 15,
+                                color: Colors.white,
+                                icon: const Icon(Icons.close),
+                                onPressed: () {
+                                  setState(() {
+                                    values.remove(item);
 
-                                        // call back and save
-                                        widget.onItemSelected(key, values);
-                                      }
-                                    });
-                                  },
-                                ),
+                                    widget.onItemSelected(key, values);
+                                  });
+                                },
                               ),
-                            ],
-                          );
-                        }).toList(),
-                      ),
-                const SizedBox(height: 10),
-                TextFormField(
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+              const SizedBox(height: 10),
+              TextField(
                   decoration: const InputDecoration(
                     hintText: " Enter Variation",
                     labelText: 'Variation',
                   ),
                   controller: TextEditingController(text: newValues),
-                  validator: isInputEmpty,
-                  onSaved: (value) {
-                    if (value != null) {
-                      newValues = value;
-                    }
-                  },
-                ),
-              ],
-            ),
+                  onChanged: (value) {
+                    if (_debounce?.isActive ?? false) _debounce!.cancel();
+                    _debounce = Timer(const Duration(milliseconds: 500), () {
+                      if (value.isNotEmpty) {
+                        setState(() {
+                          newValues = value;
+                          if (values.isEmpty) {
+                            values.add(newValues);
+                          } else {
+                            values.last = newValues;
+                          }
+                          widget.onItemSelected(key, values);
+                        });
+                      }
+                    });
+                  }),
+            ],
           ),
-          Container(
-            width: MediaQuery.of(context).size.width * 0.1,
-            decoration: BoxDecoration(
-                color: const Color(0xFFEDB842).withOpacity(0.33),
-                borderRadius: BorderRadius.circular(8)),
-            child: IconButton(
-              icon: const Icon(
-                Icons.add,
-                color: Color(0xFFEDB842),
-              ),
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState?.save();
-                  setState(() {
-                    values.add(newValues);
-                    // call back and save
-                    widget.onItemSelected(key, values);
-                    newValues = "";
-                  });
-                }
-              },
+        ),
+        Container(
+          width: MediaQuery.of(context).size.width * 0.1,
+          decoration: BoxDecoration(
+              color: const Color(0xFFEDB842).withOpacity(0.33),
+              borderRadius: BorderRadius.circular(8)),
+          child: IconButton(
+            icon: const Icon(
+              Icons.add,
+              color: Color(0xFFEDB842),
             ),
-          )
-        ],
-      ),
+            onPressed: () {
+              setState(() {
+                values.add("");
+                widget.onItemSelected(key, values);
+                newValues = "";
+              });
+            },
+          ),
+        )
+      ],
     );
   }
 }

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sondya_app/domain/models/product.dart';
+import 'package:sondya_app/domain/providers/seller.product.provider.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
+import 'package:sondya_app/presentation/widgets/success_error_message.dart';
 import 'package:sondya_app/presentation/widgets/variants_widget.dart';
 import 'package:sondya_app/utils/input_validations.dart';
 
@@ -18,8 +21,20 @@ class _SellerProductsEditBodyState
   final _formKey = GlobalKey<FormState>();
   var _selectedCategory = "Category";
   var _selectedStatus = "Status";
+
+  late ProductDataModel product;
+
+  @override
+  void initState() {
+    super.initState();
+    product = ProductDataModel();
+    // Initialize the variable in initState
+  }
+
   @override
   Widget build(BuildContext context) {
+    final AsyncValue<Map<String, dynamic>> checkState =
+        ref.watch(sellerEditProductProvider);
     return SingleChildScrollView(
       child: Center(
         child: Container(
@@ -40,6 +55,16 @@ class _SellerProductsEditBodyState
                       icon: const Icon(Icons.arrow_back),
                     ),
                   ],
+                ),
+                checkState.when(
+                  data: (data) {
+                    return sondyaDisplaySuccessMessage(
+                        context, data["message"]);
+                  },
+                  loading: () => const SizedBox(),
+                  error: (error, stackTrace) {
+                    return sondyaDisplayErrorMessage(error.toString(), context);
+                  },
                 ),
                 const SizedBox(height: 20),
                 const Text("Category",

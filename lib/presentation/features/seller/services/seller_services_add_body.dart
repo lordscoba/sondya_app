@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sondya_app/domain/models/home.dart';
+import 'package:sondya_app/domain/providers/seller.service.provider.dart';
 import 'package:sondya_app/presentation/widgets/image_selection.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
+import 'package:sondya_app/presentation/widgets/success_error_message.dart';
 import 'package:sondya_app/utils/decode_json.dart';
 import 'package:sondya_app/utils/input_validations.dart';
 
@@ -19,8 +21,20 @@ class _SellerServicesAddBodyState extends ConsumerState<SellerServicesAddBody> {
   final _formKey = GlobalKey<FormState>();
   String current = "1"; // 1, 2, 3
   List<String> done = ["1"]; // if done contains 1, 2, 3, it means all is done
+
+  late ServiceSearchModel service;
+
+  @override
+  void initState() {
+    super.initState();
+    service = ServiceSearchModel();
+    // Initialize the variable in initState
+  }
+
   @override
   Widget build(BuildContext context) {
+    final AsyncValue<Map<String, dynamic>> checkState =
+        ref.watch(sellerAddServiceProvider);
     return SingleChildScrollView(
       child: Center(
         child: Column(
@@ -103,6 +117,17 @@ class _SellerServicesAddBodyState extends ConsumerState<SellerServicesAddBody> {
                     key: _formKey,
                     child: Column(
                       children: [
+                        checkState.when(
+                          data: (data) {
+                            return sondyaDisplaySuccessMessage(
+                                context, data["message"]);
+                          },
+                          loading: () => const SizedBox(),
+                          error: (error, stackTrace) {
+                            return sondyaDisplayErrorMessage(
+                                error.toString(), context);
+                          },
+                        ),
                         if (current == "1") const AddServModalBody1(),
                         if (current == "2") const AddServModalBody2(),
                         if (current == "3") const AddServModalBody3(),

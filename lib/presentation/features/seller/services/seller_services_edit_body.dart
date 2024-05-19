@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sondya_app/domain/models/home.dart';
+import 'package:sondya_app/domain/providers/seller.service.provider.dart';
 import 'package:sondya_app/presentation/features/seller/products/seller_products_add_body.dart';
 import 'package:sondya_app/presentation/widgets/image_selection.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
+import 'package:sondya_app/presentation/widgets/success_error_message.dart';
 import 'package:sondya_app/utils/decode_json.dart';
 import 'package:sondya_app/utils/input_validations.dart';
 
@@ -23,8 +25,19 @@ class _SellerServicesEditBodyState
   var _selectedCategory = "Category";
   var _selectedStatus = "Status";
 
+  late ServiceSearchModel service;
+
+  @override
+  void initState() {
+    super.initState();
+    service = ServiceSearchModel();
+    // Initialize the variable in initState
+  }
+
   @override
   Widget build(BuildContext context) {
+    final AsyncValue<Map<String, dynamic>> checkState =
+        ref.watch(sellerEditServiceProvider);
     return SingleChildScrollView(
       child: Center(
         child: Container(
@@ -45,6 +58,16 @@ class _SellerServicesEditBodyState
                       icon: const Icon(Icons.arrow_back),
                     ),
                   ],
+                ),
+                checkState.when(
+                  data: (data) {
+                    return sondyaDisplaySuccessMessage(
+                        context, data["message"]);
+                  },
+                  loading: () => const SizedBox(),
+                  error: (error, stackTrace) {
+                    return sondyaDisplayErrorMessage(error.toString(), context);
+                  },
                 ),
                 const SizedBox(height: 20),
                 const Text("Service Name",
