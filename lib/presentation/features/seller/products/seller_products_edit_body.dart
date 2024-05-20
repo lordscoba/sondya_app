@@ -9,7 +9,10 @@ import 'package:sondya_app/presentation/widgets/variants_widget.dart';
 import 'package:sondya_app/utils/input_validations.dart';
 
 class SellerProductsEditBody extends ConsumerStatefulWidget {
-  const SellerProductsEditBody({super.key});
+  final String id;
+  final Map<String, dynamic> data;
+  const SellerProductsEditBody(
+      {super.key, required this.id, required this.data});
 
   @override
   ConsumerState<SellerProductsEditBody> createState() =>

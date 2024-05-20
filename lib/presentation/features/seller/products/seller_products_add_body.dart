@@ -10,6 +10,7 @@ import 'package:sondya_app/domain/providers/seller.product.provider.dart';
 import 'package:sondya_app/presentation/widgets/image_selection.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
 import 'package:sondya_app/presentation/widgets/success_error_message.dart';
+import 'package:sondya_app/presentation/widgets/threebounce_loader.dart';
 import 'package:sondya_app/presentation/widgets/variants_widget.dart';
 
 class SellerProductsAddBody extends ConsumerStatefulWidget {
@@ -66,6 +67,21 @@ class _SellerProductsAddBodyState extends ConsumerState<SellerProductsAddBody> {
               ),
               child: Column(
                 children: [
+                  checkState.when(
+                    data: (data) {
+                      if (data.isNotEmpty) {
+                        WidgetsBinding.instance.addPostFrameCallback(
+                            (_) => context.push('/seller/products/status'));
+                      }
+                      return sondyaDisplaySuccessMessage(
+                          context, data["message"]);
+                    },
+                    loading: () => const SizedBox(),
+                    error: (error, stackTrace) {
+                      return sondyaDisplayErrorMessage(
+                          error.toString(), context);
+                    },
+                  ),
                   Row(
                     children: [
                       AddProdModalButton(
@@ -108,17 +124,6 @@ class _SellerProductsAddBodyState extends ConsumerState<SellerProductsAddBody> {
                   ),
                   Column(
                     children: [
-                      checkState.when(
-                        data: (data) {
-                          return sondyaDisplaySuccessMessage(
-                              context, data["message"]);
-                        },
-                        loading: () => const SizedBox(),
-                        error: (error, stackTrace) {
-                          return sondyaDisplayErrorMessage(
-                              error.toString(), context);
-                        },
-                      ),
                       if (current == "1")
                         AddModalBody1(
                           onPressed: () {
@@ -162,11 +167,11 @@ class _SellerProductsAddBodyState extends ConsumerState<SellerProductsAddBody> {
                                 context,
                               );
                             } else {
-                              print("post");
-                              print(ref
-                                  .watch(sellerProductDataprovider.notifier)
-                                  .state
-                                  .toJson());
+                              ref
+                                  .read(sellerAddProductProvider.notifier)
+                                  .addProduct(ref
+                                      .watch(sellerProductDataprovider.notifier)
+                                      .state);
                             }
                           },
                         ),
@@ -194,21 +199,8 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
   var _selectedCategory = "Category";
   var _selectedStatus = "Status";
 
-  // var name = "";
-  // var brand = "";
-  // var status = "";
-  // var subCategory = "";
-  // var tags = "";
-  // var country = "";
-  // var state = "";
-  // var city = "";
-  // var zipCode = "";
-  // var address = "";
-
   late TextEditingController _nameController;
   late TextEditingController _brandController;
-  late TextEditingController _statusController;
-  late TextEditingController _subCategoryController;
   late TextEditingController _tagsController;
   late TextEditingController _countryController;
   late TextEditingController _stateController;
@@ -222,8 +214,6 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
     var products = ref.read(sellerProductDataprovider.notifier).state;
     _nameController = TextEditingController(text: products.name);
     _brandController = TextEditingController(text: products.brand);
-    _statusController = TextEditingController(text: products.productStatus);
-    _subCategoryController = TextEditingController(text: products.subCategory);
     _tagsController = TextEditingController(text: products.tag);
     _countryController = TextEditingController(text: products.country);
     _stateController = TextEditingController(text: products.state);
@@ -242,8 +232,6 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
   void dispose() {
     _nameController.dispose();
     _brandController.dispose();
-    _statusController.dispose();
-    _subCategoryController.dispose();
     _tagsController.dispose();
     _countryController.dispose();
     _stateController.dispose();
@@ -268,9 +256,6 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
             hintText: " Enter Product Name",
           ),
           onChanged: (value) {
-            // setState(() {
-            //   // name = value;
-            // });
             products.name = value;
           },
         ),
@@ -300,7 +285,6 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
                           context: context,
                           onItemSelected: (value) {
                             setState(() {
-                              // status = value;
                               _selectedStatus = value;
                             });
                             products.productStatus = value;
@@ -346,7 +330,7 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
                               options: subCategoryList,
                               context: context,
                               onItemSelected: (value) {
-                                products.category = "products";
+                                products.category = "product";
                                 products.subCategory = value;
                                 setState(() {
                                   // subCategory = value;
@@ -403,9 +387,6 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
                       hintText: " Enter Brand",
                     ),
                     onChanged: (value) {
-                      // setState(() {
-                      //   brand = value;
-                      // });
                       products.brand = value;
                     },
                   ),
@@ -426,9 +407,6 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
                       hintText: " Enter Tags",
                     ),
                     onChanged: (value) {
-                      // setState(() {
-                      //   tags = value;
-                      // });
                       products.tag = value;
                     },
                   ),
@@ -454,9 +432,6 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
                       hintText: " Enter Country",
                     ),
                     onChanged: (value) {
-                      // setState(() {
-                      //   country = value;
-                      // });
                       products.country = value;
                     },
                   ),
@@ -477,9 +452,6 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
                       hintText: " Enter State",
                     ),
                     onChanged: (value) {
-                      // setState(() {
-                      //   state = value;
-                      // });
                       products.state = value;
                     },
                   ),
@@ -505,9 +477,6 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
                       hintText: " Enter City",
                     ),
                     onChanged: (value) {
-                      // setState(() {
-                      //   city = value;
-                      // });
                       products.city = value;
                     },
                   ),
@@ -528,9 +497,6 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
                       hintText: " Enter Zip Code",
                     ),
                     onChanged: (value) {
-                      // setState(() {
-                      //   zipCode = value;
-                      // });
                       products.zipCode = value;
                     },
                   ),
@@ -548,9 +514,6 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
             hintText: " Enter Address",
           ),
           onChanged: (value) {
-            // setState(() {
-            //   address = value;
-            // });
             products.address = value;
           },
         ),
@@ -575,14 +538,15 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
                 onPressed: () {
                   if (_nameController.text == "" ||
                       _brandController.text == "" ||
-                      _statusController.text == "" ||
-                      _subCategoryController.text == "" ||
                       _tagsController.text == "" ||
                       _countryController.text == "" ||
                       _stateController.text == "" ||
                       _cityController.text == "" ||
                       _zipCodeController.text == "" ||
-                      _addressController.text == "") {
+                      _addressController.text == "" ||
+                      _addressController.text == "" ||
+                      _selectedCategory == "Category" ||
+                      _selectedStatus == "Status") {
                     AnimatedSnackBar.rectangle(
                       'Error',
                       "Please fill all the fields",
@@ -621,12 +585,6 @@ class AddModalBody2 extends ConsumerStatefulWidget {
 }
 
 class _AddModalBody2State extends ConsumerState<AddModalBody2> {
-  // String description = "";
-  // String currentPrice = "";
-  // String oldPrice = "";
-  // String discountPercentage = "";
-  // String totalStock = "";
-  // String vatAmount = "";
   List<XFile> image = [];
 
   late TextEditingController _descriptionController;
@@ -694,9 +652,6 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
             hintText: " Enter Description",
           ),
           onChanged: (value) {
-            // setState(() {
-            //   description = value;
-            // });
             products.description = value;
           },
         ),
@@ -716,9 +671,6 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
             hintText: "Enter Price",
           ),
           onChanged: (value) {
-            // setState(() {
-            //   currentPrice = value;
-            // });
             if (value != "") {
               products.currentPrice = double.parse(value);
             } else {
@@ -748,9 +700,6 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
                       hintText: " Enter Old Price",
                     ),
                     onChanged: (value) {
-                      // setState(() {
-                      //   oldPrice = value;
-                      // });
                       if (value != "") {
                         products.oldPrice = double.parse(value);
                       } else {
@@ -781,9 +730,6 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
                       hintText: " Enter Discount Precentage (%)",
                     ),
                     onChanged: (value) {
-                      // setState(() {
-                      //   discountPercentage = value;
-                      // });
                       if (value != "") {
                         products.discountPercentage = double.parse(value);
                       } else {
@@ -818,9 +764,6 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
                       hintText: " Enter Total Stock",
                     ),
                     onChanged: (value) {
-                      // setState(() {
-                      //   totalStock = value;
-                      // });
                       if (value != "") {
                         products.totalStock = int.parse(value);
                       } else {
@@ -851,9 +794,6 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
                       hintText: " Enter VAT Amount (%)",
                     ),
                     onChanged: (value) {
-                      // setState(() {
-                      //   vatAmount = value;
-                      // });
                       if (value != "") {
                         products.vatPercentage = double.parse(value);
                       } else {
@@ -871,6 +811,7 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         SondyaMultipleImageSelection(
+          savedFileImage: image.isNotEmpty ? image : null,
           onSetImage: (value) {
             setState(() {
               image = value;
@@ -898,11 +839,11 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
               child: ElevatedButton(
                 onPressed: () {
                   if (_descriptionController.text == "" ||
-                      _currentPriceController.text == "" ||
-                      _oldPriceController.text == "" ||
-                      _discountPercentageController.text == "" ||
-                      _totalStockController.text == "" ||
-                      _vatAmountController.text == "" ||
+                      _currentPriceController.text == "0.0" ||
+                      _oldPriceController.text == "0.0" ||
+                      _discountPercentageController.text == "0.0" ||
+                      _totalStockController.text == "0" ||
+                      _vatAmountController.text == "0.0" ||
                       image.isEmpty) {
                     AnimatedSnackBar.rectangle(
                       'Error',
@@ -915,7 +856,6 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
                   } else {
                     widget.onPressed!();
                   }
-                  // print(products.toJson());
                 },
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -934,44 +874,6 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
   }
 }
 
-var ims = [
-  {
-    "url":
-        "https://res.cloudinary.com/dyeyatchg/image/upload/v1700469639/sondya/tqrpvccrrbgz4gzkecyz.png",
-    "public_id": "sondya/tqrpvccrrbgz4gzkecyz",
-    "folder": "sondya",
-    "_id": "655b1b87e9e25909e4909314"
-  },
-  {
-    "url":
-        "https://res.cloudinary.com/dyeyatchg/image/upload/v1700393981/sondya/kpknp9au7cyempw2jz8s.jpg",
-    "public_id": "sondya/kpknp9au7cyempw2jz8s",
-    "folder": "sondya",
-    "_id": "6559f3ff1cc17a69f9747361"
-  },
-  {
-    "url":
-        "https://res.cloudinary.com/dyeyatchg/image/upload/v1700393981/sondya/kpknp9au7cyempw2jz8s.jpg",
-    "public_id": "sondya/kpknp9au7cyempw2jz8s",
-    "folder": "sondya",
-    "_id": "6559f3ff1cc17a69f9747361"
-  },
-  {
-    "url":
-        "https://res.cloudinary.com/dyeyatchg/image/upload/v1700393981/sondya/kpknp9au7cyempw2jz8s.jpg",
-    "public_id": "sondya/kpknp9au7cyempw2jz8s",
-    "folder": "sondya",
-    "_id": "6559f3ff1cc17a69f9747361"
-  },
-  {
-    "url":
-        "https://res.cloudinary.com/dyeyatchg/image/upload/v1700393981/sondya/kpknp9au7cyempw2jz8s.jpg",
-    "public_id": "sondya/kpknp9au7cyempw2jz8s",
-    "folder": "sondya",
-    "_id": "6559f3ff1cc17a69f9747361"
-  },
-];
-
 class AddModalBody3 extends ConsumerStatefulWidget {
   final void Function()? onPressed;
   const AddModalBody3({super.key, this.onPressed});
@@ -981,8 +883,6 @@ class AddModalBody3 extends ConsumerStatefulWidget {
 }
 
 class _AddModalBody3State extends ConsumerState<AddModalBody3> {
-  // String modelNumber = "";
-  // String totalVariant = "";
   Map<String, List<dynamic>>? variants = {};
 
   late TextEditingController _modelNumberController;
@@ -1012,6 +912,8 @@ class _AddModalBody3State extends ConsumerState<AddModalBody3> {
   @override
   Widget build(BuildContext context) {
     var products = ref.watch(sellerProductDataprovider.notifier).state;
+    final AsyncValue<Map<String, dynamic>> checkState =
+        ref.watch(sellerAddProductProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1036,9 +938,6 @@ class _AddModalBody3State extends ConsumerState<AddModalBody3> {
                       hintText: " Enter Model Number",
                     ),
                     onChanged: (value) {
-                      // setState(() {
-                      //   modelNumber = value;
-                      // });
                       products.model = value;
                     },
                   ),
@@ -1064,9 +963,6 @@ class _AddModalBody3State extends ConsumerState<AddModalBody3> {
                       hintText: " Enter Total variant",
                     ),
                     onChanged: (value) {
-                      // setState(() {
-                      //   totalVariant = value;
-                      // });
                       if (value != "") {
                         products.totalVariants = int.parse(value);
                       } else {
@@ -1113,7 +1009,7 @@ class _AddModalBody3State extends ConsumerState<AddModalBody3> {
               child: ElevatedButton(
                 onPressed: () {
                   if (_modelNumberController.text == "" ||
-                      _totalVariantController.text == "" ||
+                      _totalVariantController.text == "0" ||
                       variants == {}) {
                     AnimatedSnackBar.rectangle(
                       'Error',
@@ -1127,14 +1023,16 @@ class _AddModalBody3State extends ConsumerState<AddModalBody3> {
                     widget.onPressed!();
                   }
                 },
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text("Post"),
-                    SizedBox(width: 3),
-                    Icon(Icons.arrow_forward),
-                  ],
-                ),
+                child: checkState.isLoading
+                    ? sondyaThreeBounceLoader(color: Colors.white)
+                    : const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Text("Post"),
+                          SizedBox(width: 3),
+                          Icon(Icons.arrow_forward),
+                        ],
+                      ),
               ),
             )
           ],

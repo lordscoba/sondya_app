@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sondya_app/domain/models/home.dart';
 import 'package:sondya_app/domain/providers/seller.service.provider.dart';
-import 'package:sondya_app/presentation/features/seller/products/seller_products_add_body.dart';
+import 'package:sondya_app/presentation/features/seller/services/seller_services_add_body.dart';
 import 'package:sondya_app/presentation/widgets/image_selection.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
 import 'package:sondya_app/presentation/widgets/success_error_message.dart';
@@ -11,7 +11,10 @@ import 'package:sondya_app/utils/decode_json.dart';
 import 'package:sondya_app/utils/input_validations.dart';
 
 class SellerServicesEditBody extends ConsumerStatefulWidget {
-  const SellerServicesEditBody({super.key});
+  final String id;
+  final Map<String, dynamic> data;
+  const SellerServicesEditBody(
+      {super.key, required this.data, required this.id});
 
   @override
   ConsumerState<SellerServicesEditBody> createState() =>

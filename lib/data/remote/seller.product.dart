@@ -1,9 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'package:sondya_app/data/api_constants.dart';
 import 'package:sondya_app/data/local/get_local_auth.dart';
 import 'package:sondya_app/data/repositories/token_interceptors.dart';
 import 'package:sondya_app/domain/hive_models/auth/auth.dart';
+import 'package:sondya_app/domain/models/checkout.dart';
+import 'package:sondya_app/domain/models/product.dart';
 
 final getSellerProductsProvider = FutureProvider.family
     .autoDispose<Map<String, dynamic>, String>((ref, String search) async {
@@ -87,7 +91,7 @@ class SellerAddProductNotifier
     extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
   SellerAddProductNotifier() : super(const AsyncValue.data({}));
 
-  Future<void> addProduct(data) async {
+  Future<void> addProduct(ProductDataModel data) async {
     try {
       // Set loading state
       state = const AsyncValue.loading();
@@ -96,20 +100,44 @@ class SellerAddProductNotifier
       final dio = Dio();
       dio.interceptors.add(const AuthInterceptor());
 
-      // // get auth user id
-      // AuthInfo localAuth = await getLocalAuth();
-      // String userId = localAuth.id;
+      // get auth user id
+      AuthInfo localAuth = await getLocalAuth();
 
-      // Make the PUT request
+      // assign local auth to owner
+      Owner owner = Owner(
+        id: localAuth.id,
+        username: localAuth.username,
+        email: localAuth.email,
+        phoneNumber: localAuth.phoneNumber,
+      );
+
+      // assign owner to data
+      data.owner = owner;
+
+      // assign image to formdata
+      List<MultipartFile> imageList = [];
+      for (var element in data.image!) {
+        final mimeTypeData = lookupMimeType(element.path);
+        imageList.add(
+          await MultipartFile.fromFile(element.path,
+              filename: element.name,
+              contentType:
+                  MediaType('image', mimeTypeData!.split('/').last.toString())),
+        );
+      }
+
+      final formData = FormData.fromMap(
+        {
+          ...data.toJson(),
+          'image': imageList,
+        },
+      );
+
+      // Make the POST request
       final response = await dio.post(
         EnvironmentSellerProductConfig.create,
-        data: data,
+        data: formData,
       );
-      // Make the PUT request
-      // final response = await dio.put(
-      //   "${EnvironmentKycConfig.kycPersonalDetails}/haha/dgsggsgs",
-      //   data: details,
-      // );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         state = AsyncValue.data(response.data as Map<String, dynamic>);
