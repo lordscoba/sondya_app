@@ -1,13 +1,17 @@
+import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sondya_app/domain/models/home.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:sondya_app/data/remote/home.dart';
 import 'package:sondya_app/domain/providers/seller.service.provider.dart';
 import 'package:sondya_app/presentation/widgets/image_selection.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
 import 'package:sondya_app/presentation/widgets/success_error_message.dart';
+import 'package:sondya_app/presentation/widgets/threebounce_loader.dart';
 import 'package:sondya_app/utils/decode_json.dart';
-import 'package:sondya_app/utils/input_validations.dart';
 
 class SellerServicesAddBody extends ConsumerStatefulWidget {
   const SellerServicesAddBody({super.key});
@@ -18,18 +22,8 @@ class SellerServicesAddBody extends ConsumerStatefulWidget {
 }
 
 class _SellerServicesAddBodyState extends ConsumerState<SellerServicesAddBody> {
-  final _formKey = GlobalKey<FormState>();
   String current = "1"; // 1, 2, 3
-  List<String> done = ["1"]; // if done contains 1, 2, 3, it means all is done
-
-  late ServiceSearchModel service;
-
-  @override
-  void initState() {
-    super.initState();
-    service = ServiceSearchModel();
-    // Initialize the variable in initState
-  }
+  List<String> done = []; // if done contains 1, 2, 3, it means all is done
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +67,21 @@ class _SellerServicesAddBodyState extends ConsumerState<SellerServicesAddBody> {
               ),
               child: Column(
                 children: [
+                  checkState.when(
+                    data: (data) {
+                      if (data.isNotEmpty) {
+                        WidgetsBinding.instance.addPostFrameCallback(
+                            (_) => context.push('/seller/services/status'));
+                      }
+                      return sondyaDisplaySuccessMessage(
+                          context, data["message"]);
+                    },
+                    loading: () => const SizedBox(),
+                    error: (error, stackTrace) {
+                      return sondyaDisplayErrorMessage(
+                          error.toString(), context);
+                    },
+                  ),
                   Row(
                     children: [
                       AddServModalButton(
@@ -113,26 +122,60 @@ class _SellerServicesAddBodyState extends ConsumerState<SellerServicesAddBody> {
                   const SizedBox(
                     height: 10,
                   ),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        checkState.when(
-                          data: (data) {
-                            return sondyaDisplaySuccessMessage(
-                                context, data["message"]);
-                          },
-                          loading: () => const SizedBox(),
-                          error: (error, stackTrace) {
-                            return sondyaDisplayErrorMessage(
-                                error.toString(), context);
+                  Column(
+                    children: [
+                      if (current == "1")
+                        AddServModalBody1(
+                          onPressed: () {
+                            setState(() {
+                              done.add("1");
+                              current = "2";
+                            });
                           },
                         ),
-                        if (current == "1") const AddServModalBody1(),
-                        if (current == "2") const AddServModalBody2(),
-                        if (current == "3") const AddServModalBody3(),
-                      ],
-                    ),
+                      if (current == "2")
+                        AddServModalBody2(
+                          onPressed: () {
+                            setState(() {
+                              done.add("2");
+                              current = "3";
+                            });
+                          },
+                        ),
+                      if (current == "3")
+                        AddServModalBody3(
+                          onPressed: () {
+                            setState(() {
+                              done.add("3");
+                            });
+                            if (!done.contains("1")) {
+                              AnimatedSnackBar.rectangle(
+                                'Error',
+                                "You are not done with step 01, if you are done with step 01 click on save in step 01",
+                                type: AnimatedSnackBarType.warning,
+                                brightness: Brightness.light,
+                              ).show(
+                                context,
+                              );
+                            } else if (!done.contains("2")) {
+                              AnimatedSnackBar.rectangle(
+                                'Error',
+                                "You are not done with step 2, if you are done with step 02 click on save in step 02",
+                                type: AnimatedSnackBarType.warning,
+                                brightness: Brightness.light,
+                              ).show(
+                                context,
+                              );
+                            } else {
+                              ref
+                                  .read(sellerAddServiceProvider.notifier)
+                                  .addService(ref
+                                      .watch(sellerServiceDataprovider.notifier)
+                                      .state);
+                            }
+                          },
+                        ),
+                    ],
                   )
                 ],
               ),
@@ -144,33 +187,60 @@ class _SellerServicesAddBodyState extends ConsumerState<SellerServicesAddBody> {
   }
 }
 
-class AddServModalBody1 extends StatefulWidget {
+class AddServModalBody1 extends ConsumerStatefulWidget {
   final void Function()? onPressed;
   const AddServModalBody1({super.key, this.onPressed});
 
   @override
-  State<AddServModalBody1> createState() => _AddServModalBody1State();
+  ConsumerState<AddServModalBody1> createState() => _AddServModalBody1State();
 }
 
-class _AddServModalBody1State extends State<AddServModalBody1> {
+class _AddServModalBody1State extends ConsumerState<AddServModalBody1> {
   var _selectedCategory = "Category";
   var _selectedStatus = "Status";
+
+  late TextEditingController _nameController;
+  late TextEditingController _briefDescriptionController;
+
+  @override
+  void initState() {
+    super.initState();
+    var service = ref.read(sellerServiceDataprovider.notifier).state;
+    _nameController = TextEditingController(text: service.name);
+    _briefDescriptionController =
+        TextEditingController(text: service.briefDescription);
+
+    if (service.subCategory != null) {
+      _selectedCategory = service.subCategory!;
+    }
+    if (service.serviceStatus != null) {
+      _selectedStatus = service.serviceStatus!;
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _nameController.dispose();
+    _briefDescriptionController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    var service = ref.watch(sellerServiceDataprovider.notifier).state;
+    final getServiceCategory = ref.watch(getServiceCategoryProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text("Service Name", style: TextStyle(color: Colors.grey)),
         const SizedBox(height: 5),
-        TextFormField(
+        TextField(
+          controller: _nameController,
           decoration: const InputDecoration(
             hintText: " Enter Service Name",
-            labelText: 'Service Name',
           ),
-          initialValue: "Service Name",
-          validator: isInputEmpty,
-          onSaved: (value) {
-            // user.firstName = value!;
+          onChanged: (value) {
+            service.name = value;
           },
         ),
         Row(
@@ -201,6 +271,7 @@ class _AddServModalBody1State extends State<AddServModalBody1> {
                             setState(() {
                               _selectedStatus = value;
                             });
+                            service.serviceStatus = value;
                           },
                         );
                       },
@@ -220,65 +291,79 @@ class _AddServModalBody1State extends State<AddServModalBody1> {
                 ],
               ),
             ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
-                  const Text("Sub Category",
-                      style: TextStyle(color: Colors.grey)),
-                  const SizedBox(height: 5),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () async {
-                        List<String> sortByList = [
-                          "Latest",
-                          "Oldest",
-                          "Alphabetical(A-Z)",
-                          "Alphabetical(Z-A)"
-                        ];
-                        SondyaSelectWidget().showBottomSheet<String>(
-                          options: sortByList,
-                          context: context,
-                          onItemSelected: (value) {
-                            setState(() {
-                              _selectedCategory = value;
-                            });
+            getServiceCategory.when(
+              data: (data) {
+                return SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.45,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10),
+                      const Text("Sub Category",
+                          style: TextStyle(color: Colors.grey)),
+                      const SizedBox(height: 5),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            List<String> subCategoryList = [];
+                            for (var element in data["data"]) {
+                              subCategoryList.add(element["name"]);
+                            }
+                            SondyaSelectWidget().showBottomSheet<String>(
+                              options: subCategoryList,
+                              context: context,
+                              onItemSelected: (value) {
+                                service.category = "service";
+                                service.subCategory = value;
+                                setState(() {
+                                  // subCategory = value;
+                                  _selectedCategory = value;
+                                });
+                              },
+                            );
                           },
-                        );
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _selectedCategory,
-                            style: const TextStyle(fontSize: 12),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.22,
+                                child: Text(
+                                  _selectedCategory,
+                                  style: const TextStyle(fontSize: 12),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const Icon(Icons.arrow_drop_down),
+                            ],
                           ),
-                          const Icon(Icons.arrow_drop_down),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                );
+              },
+              error: (error, stackTrace) => Text(error.toString()),
+              loading: () => const Center(
+                child: CupertinoActivityIndicator(
+                  radius: 50,
+                ),
               ),
-            )
+            ),
           ],
         ),
         const Text("Brief Description", style: TextStyle(color: Colors.grey)),
         const SizedBox(height: 5),
-        TextFormField(
+        TextField(
+          controller: _briefDescriptionController,
           maxLines: 3,
           decoration: const InputDecoration(
             hintText: " Enter Brief Description",
-            labelText: 'Brief Description',
           ),
-          initialValue: "Brief Description",
-          validator: isInputEmpty,
-          onSaved: (value) {
-            // user.firstName = value!;
+          onChanged: (value) {
+            service.briefDescription = value;
           },
         ),
         const SizedBox(height: 10),
@@ -299,11 +384,27 @@ class _AddServModalBody1State extends State<AddServModalBody1> {
               width: MediaQuery.of(context).size.width * 0.45,
               height: 50,
               child: ElevatedButton(
-                onPressed: widget.onPressed,
+                onPressed: () {
+                  if (_nameController.text == "" ||
+                      _briefDescriptionController.text == "" ||
+                      _selectedCategory == "Category" ||
+                      _selectedStatus == "Status") {
+                    AnimatedSnackBar.rectangle(
+                      'Error',
+                      "Please fill all the fields",
+                      type: AnimatedSnackBarType.warning,
+                      brightness: Brightness.light,
+                    ).show(
+                      context,
+                    );
+                  } else {
+                    widget.onPressed!();
+                  }
+                },
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Text("Next"),
+                    Text("Save"),
                     SizedBox(width: 3),
                     Icon(Icons.arrow_forward),
                   ],
@@ -317,12 +418,58 @@ class _AddServModalBody1State extends State<AddServModalBody1> {
   }
 }
 
-class AddServModalBody2 extends StatelessWidget {
+class AddServModalBody2 extends ConsumerStatefulWidget {
   final void Function()? onPressed;
   const AddServModalBody2({super.key, this.onPressed});
 
   @override
+  ConsumerState<AddServModalBody2> createState() => _AddServModalBody2State();
+}
+
+class _AddServModalBody2State extends ConsumerState<AddServModalBody2> {
+  List<XFile> image = [];
+
+  late TextEditingController _descriptionController;
+  late TextEditingController _currentPriceController;
+  late TextEditingController _oldPriceController;
+  late TextEditingController _durationController;
+  late TextEditingController _serviceLocationController;
+
+  @override
+  void initState() {
+    super.initState();
+    var service = ref.read(sellerServiceDataprovider.notifier).state;
+    _descriptionController = TextEditingController(text: service.description);
+    _currentPriceController = TextEditingController(
+        text: service.currentPrice.toString() == "null"
+            ? "0.0"
+            : service.currentPrice.toString());
+    _oldPriceController = TextEditingController(
+        text: service.oldPrice.toString() == "null"
+            ? "0.0"
+            : service.oldPrice.toString());
+
+    _durationController = TextEditingController(text: service.duration);
+    _serviceLocationController =
+        TextEditingController(text: service.locationDescription);
+    if (service.image != null) {
+      image = service.image!;
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _descriptionController.dispose();
+    _currentPriceController.dispose();
+    _oldPriceController.dispose();
+    _durationController.dispose();
+    _serviceLocationController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var service = ref.watch(sellerServiceDataprovider.notifier).state;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -330,16 +477,14 @@ class AddServModalBody2 extends StatelessWidget {
         const Text("Description", style: TextStyle(color: Colors.grey)),
         const SizedBox(height: 5),
         // text area
-        TextFormField(
+        TextField(
+          controller: _descriptionController,
           maxLines: 3,
           decoration: const InputDecoration(
             hintText: " Enter Description",
-            labelText: 'Description',
           ),
-          initialValue: "Description",
-          validator: isInputEmpty,
-          onSaved: (value) {
-            // user.firstName = value!;
+          onChanged: (value) {
+            service.description = value;
           },
         ),
         const SizedBox(height: 10),
@@ -348,15 +493,21 @@ class AddServModalBody2 extends StatelessWidget {
         const SizedBox(height: 10),
         const Text("Price", style: TextStyle(color: Colors.grey)),
         const SizedBox(height: 5),
-        TextFormField(
+        TextField(
+          controller: _currentPriceController,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: <TextInputFormatter>[
+            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+          ],
           decoration: const InputDecoration(
             hintText: "Enter Price",
-            labelText: 'Price',
           ),
-          initialValue: "Price",
-          validator: isInputEmpty,
-          onSaved: (value) {
-            // user.firstName = value!;
+          onChanged: (value) {
+            if (value != "") {
+              service.currentPrice = double.parse(value);
+            } else {
+              service.currentPrice = 0.0;
+            }
           },
         ),
         Row(
@@ -370,15 +521,22 @@ class AddServModalBody2 extends StatelessWidget {
                   const SizedBox(height: 10),
                   const Text("Old Price", style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _oldPriceController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                    ],
                     decoration: const InputDecoration(
                       hintText: " Enter Old Price",
-                      labelText: 'Old Price',
                     ),
-                    initialValue: "Old Price",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      if (value != "") {
+                        service.oldPrice = double.parse(value);
+                      } else {
+                        service.oldPrice = 0.0;
+                      }
                     },
                   ),
                 ],
@@ -392,15 +550,13 @@ class AddServModalBody2 extends StatelessWidget {
                   const SizedBox(height: 10),
                   const Text("Duration", style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _durationController,
                     decoration: const InputDecoration(
                       hintText: "Duration",
-                      labelText: 'Duration',
                     ),
-                    initialValue: "Duration",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      service.duration = value;
                     },
                   ),
                 ],
@@ -411,16 +567,14 @@ class AddServModalBody2 extends StatelessWidget {
         const SizedBox(height: 10),
         const Text("Location of service", style: TextStyle(color: Colors.grey)),
         const SizedBox(height: 5),
-        TextFormField(
+        TextField(
+          controller: _serviceLocationController,
           maxLines: 3,
           decoration: const InputDecoration(
             hintText: "Enter Location of service",
-            // labelText: 'Location of service',
           ),
-          initialValue: "Location of service",
-          validator: isInputEmpty,
-          onSaved: (value) {
-            // user.firstName = value!;
+          onChanged: (value) {
+            service.locationDescription = value;
           },
         ),
         const SizedBox(height: 10),
@@ -429,10 +583,12 @@ class AddServModalBody2 extends StatelessWidget {
 
         const SizedBox(height: 10),
         SondyaMultipleImageSelection(
-          savedNetworkImage:
-              ims.map((image) => ImageType.fromJson(image)).toList(),
+          savedFileImage: image.isNotEmpty ? image : null,
           onSetImage: (value) {
-            print(value);
+            setState(() {
+              image = value;
+            });
+            service.image = value;
           },
         ),
         const SizedBox(height: 10),
@@ -453,11 +609,29 @@ class AddServModalBody2 extends StatelessWidget {
               width: MediaQuery.of(context).size.width * 0.45,
               height: 50,
               child: ElevatedButton(
-                onPressed: onPressed,
+                onPressed: () {
+                  if (_descriptionController.text == "" ||
+                      _currentPriceController.text == "0.0" ||
+                      _oldPriceController.text == "0.0" ||
+                      _durationController.text == "" ||
+                      _serviceLocationController.text == "" ||
+                      image.isEmpty) {
+                    AnimatedSnackBar.rectangle(
+                      'Error',
+                      "Please fill all the fields",
+                      type: AnimatedSnackBarType.warning,
+                      brightness: Brightness.light,
+                    ).show(
+                      context,
+                    );
+                  } else {
+                    widget.onPressed!();
+                  }
+                },
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Text("Post"),
+                    Text("Save"),
                     SizedBox(width: 3),
                     Icon(Icons.arrow_forward),
                   ],
@@ -520,8 +694,50 @@ class AddServModalBody3 extends ConsumerStatefulWidget {
 class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
   String _selectedCountry = "Country";
 
+  late TextEditingController _phoneNumberController;
+  late TextEditingController _phoneNumberBackupController;
+  late TextEditingController _emailController;
+  late TextEditingController _websiteLinkController;
+  late TextEditingController _stateController;
+  late TextEditingController _cityController;
+  late TextEditingController _mapLocationLinkController;
+
+  @override
+  void initState() {
+    super.initState();
+    var service = ref.read(sellerServiceDataprovider.notifier).state;
+    _phoneNumberController = TextEditingController(text: service.phoneNumber);
+    _phoneNumberBackupController =
+        TextEditingController(text: service.phoneNumberBackup);
+    _emailController = TextEditingController(text: service.email);
+    _websiteLinkController = TextEditingController(text: service.websiteLink);
+    _stateController = TextEditingController(text: service.state);
+    _cityController = TextEditingController(text: service.city);
+    _mapLocationLinkController =
+        TextEditingController(text: service.mapLocationLink);
+
+    if (service.country != null) {
+      _selectedCountry = service.country!;
+    }
+  }
+
+  @override
+  void dispose() {
+    _phoneNumberController.dispose();
+    _phoneNumberBackupController.dispose();
+    _emailController.dispose();
+    _websiteLinkController.dispose();
+    _stateController.dispose();
+    _cityController.dispose();
+    _mapLocationLinkController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    var service = ref.watch(sellerServiceDataprovider.notifier).state;
+    final AsyncValue<Map<String, dynamic>> checkState =
+        ref.watch(sellerAddServiceProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -538,15 +754,13 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
                   const Text("Phone Number",
                       style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _phoneNumberController,
                     decoration: const InputDecoration(
                       hintText: " Enter Phone Number",
-                      labelText: 'Phone Number',
                     ),
-                    initialValue: "Phone Number",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      service.phoneNumber = value;
                     },
                   ),
                 ],
@@ -561,15 +775,13 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
                   const Text("Backup Phone Number (Optional)",
                       style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _phoneNumberBackupController,
                     decoration: const InputDecoration(
                       hintText: " Backup Phone Number (Optional)",
-                      labelText: 'Backup Phone Number (Optional)',
                     ),
-                    initialValue: "00000000000",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      service.phoneNumberBackup = value;
                     },
                   ),
                 ],
@@ -590,15 +802,13 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
                   const Text("Email Address",
                       style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _emailController,
                     decoration: const InputDecoration(
                       hintText: "Email Address",
-                      labelText: 'Email Address',
                     ),
-                    initialValue: "Email Address",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      service.email = value;
                     },
                   ),
                 ],
@@ -613,15 +823,13 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
                   const Text("Website Link (Optional)",
                       style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _websiteLinkController,
                     decoration: const InputDecoration(
                       hintText: " Website Link (Optional)",
-                      labelText: 'Website Link (Optional)',
                     ),
-                    initialValue: "Website Link (Optional)",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      service.websiteLink = value;
                     },
                   ),
                 ],
@@ -656,7 +864,7 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
                             setState(() {
                               _selectedCountry = value;
                             });
-                            // user.country = value.toString();
+                            service.country = value;
                           },
                         );
                       },
@@ -680,15 +888,13 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
                   const SizedBox(height: 10),
                   const Text("State", style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _stateController,
                     decoration: const InputDecoration(
                       hintText: "State",
-                      labelText: 'State',
                     ),
-                    initialValue: "State",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      service.state = value;
                     },
                   ),
                 ],
@@ -708,15 +914,13 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
                   const SizedBox(height: 10),
                   const Text("City", style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _cityController,
                     decoration: const InputDecoration(
                       hintText: "City",
-                      labelText: 'City',
                     ),
-                    initialValue: "City",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      service.city = value;
                     },
                   ),
                 ],
@@ -731,15 +935,13 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
                   const Text("Map Location (Optional)",
                       style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  TextField(
+                    controller: _mapLocationLinkController,
                     decoration: const InputDecoration(
                       hintText: "Map Location (Optional)",
-                      labelText: 'Map Location (Optional)',
                     ),
-                    initialValue: "Map Location (Optional)",
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      // user.firstName = value!;
+                    onChanged: (value) {
+                      service.mapLocationLink = value;
                     },
                   ),
                 ],
@@ -763,15 +965,37 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
               width: MediaQuery.of(context).size.width * 0.45,
               height: 50,
               child: ElevatedButton(
-                onPressed: widget.onPressed,
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text("Post"),
-                    SizedBox(width: 3),
-                    Icon(Icons.arrow_forward),
-                  ],
-                ),
+                onPressed: () {
+                  if (_phoneNumberController.text == "" ||
+                      _phoneNumberBackupController.text == "" ||
+                      _emailController.text == "" ||
+                      _websiteLinkController.text == "" ||
+                      _selectedCountry == "Country" ||
+                      _stateController.text == "" ||
+                      _cityController.text == "" ||
+                      _mapLocationLinkController.text == "") {
+                    AnimatedSnackBar.rectangle(
+                      'Error',
+                      "Please fill all the fields",
+                      type: AnimatedSnackBarType.warning,
+                      brightness: Brightness.light,
+                    ).show(
+                      context,
+                    );
+                  } else {
+                    widget.onPressed!();
+                  }
+                },
+                child: checkState.isLoading
+                    ? sondyaThreeBounceLoader(color: Colors.white)
+                    : const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Text("Post"),
+                          SizedBox(width: 3),
+                          Icon(Icons.arrow_forward),
+                        ],
+                      ),
               ),
             )
           ],

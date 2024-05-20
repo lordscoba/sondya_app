@@ -90,8 +90,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
-    initialLocation: '/seller/products/add',
-    // initialLocation: '/product/search',
+    initialLocation: '/seller/products/edit',
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(
@@ -355,8 +354,15 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/seller/products/edit',
-        builder: (context, state) => const SellerProductsEditScreen(),
+        path: '/seller/products/edit/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          final extra = state.extra! as Map<String, dynamic>;
+          return SellerProductsEditScreen(
+            id: id,
+            data: extra,
+          );
+        },
         redirect: authRedirectStrict,
       ),
       GoRoute(
@@ -389,8 +395,15 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/seller/services/edit',
-        builder: (context, state) => const SellerServicesEditScreen(),
+        path: '/seller/services/edit/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          final extra = state.extra! as Map<String, dynamic>;
+          return SellerServicesEditScreen(
+            id: id,
+            data: extra,
+          );
+        },
         redirect: authRedirectStrict,
       ),
       GoRoute(

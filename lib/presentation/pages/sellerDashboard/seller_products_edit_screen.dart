@@ -5,14 +5,20 @@ import 'package:sondya_app/presentation/layout/top_bar.dart';
 import 'package:sondya_app/presentation/layout/user_drawer.dart';
 
 class SellerProductsEditScreen extends StatelessWidget {
-  const SellerProductsEditScreen({super.key});
+  final String id;
+  final Map<String, dynamic> data;
+  const SellerProductsEditScreen(
+      {super.key, required this.id, required this.data});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Edit Product", isHome: false),
       drawer: sonyaUserDrawer(context),
-      body: const SellerProductsEditBody(),
+      body: SellerProductsEditBody(
+        id: id,
+        data: data,
+      ),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );
   }

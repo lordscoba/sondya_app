@@ -211,8 +211,12 @@ class _ProfilePicsSelectorState extends State<ProfilePicsSelector> {
 class SondyaMultipleImageSelection extends StatefulWidget {
   final void Function(List<XFile> value)? onSetImage;
   final List<ImageType>? savedNetworkImage;
+  final List<XFile>? savedFileImage;
   const SondyaMultipleImageSelection(
-      {super.key, this.onSetImage, this.savedNetworkImage});
+      {super.key,
+      this.onSetImage,
+      this.savedNetworkImage,
+      this.savedFileImage});
 
   @override
   State<SondyaMultipleImageSelection> createState() =>
@@ -227,6 +231,7 @@ class _SondyaMultipleImageSelectionState
   @override
   void initState() {
     super.initState();
+    _image = widget.savedFileImage;
     // Initialize the variable in initState
   }
 
