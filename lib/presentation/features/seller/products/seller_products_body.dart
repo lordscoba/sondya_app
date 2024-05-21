@@ -158,13 +158,13 @@ class _SellerProductsBodyState extends ConsumerState<SellerProductsBody> {
               itemBuilder: (context, index) {
                 if (allItems.isNotEmpty) {
                   return SellerProductCard(
-                    id: allItems[index]["_id"],
+                    id: allItems[index]["_id"] ?? "",
                     data: allItems[index],
-                    name: allItems[index]["name"],
-                    status: allItems[index]["product_status"],
-                    price: allItems[index]["current_price"].toDouble(),
-                    image: allItems[index]["image"][0]["url"],
-                    productId: allItems[index]["_id"],
+                    name: allItems[index]["name"] ?? "",
+                    status: allItems[index]["product_status"] ?? "",
+                    price: allItems[index]["current_price"].toDouble() ?? 0.0,
+                    image: allItems[index]["image"][0]["url"] ?? "",
+                    productId: allItems[index]["_id"] ?? "",
                     quantity: allItems[index]["total_stock"].toString(),
                   );
                 } else if (getProducts.hasValue && allItems.isEmpty) {
@@ -196,7 +196,7 @@ class _SellerProductsBodyState extends ConsumerState<SellerProductsBody> {
   }
 }
 
-class SellerProductCard extends StatelessWidget {
+class SellerProductCard extends ConsumerWidget {
   final String id;
   final Map<String, dynamic> data;
   final String name;
@@ -217,19 +217,22 @@ class SellerProductCard extends StatelessWidget {
       required this.data});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // print(image);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
       child: Column(
         children: [
           Row(
             children: [
-              Image(
-                image: NetworkImage(image),
-                height: 150,
-                width: 160,
-                fit: BoxFit.cover,
-              ),
+              image.isEmpty || image == ""
+                  ? const SizedBox()
+                  : Image(
+                      image: NetworkImage(image),
+                      height: 150,
+                      width: 160,
+                      fit: BoxFit.cover,
+                    ),
               const SizedBox(width: 20),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,11 +260,20 @@ class SellerProductCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          context.push("/seller/products/edit/$id",
+                              extra: data);
+                        },
                         icon: const Icon(Icons.edit),
                       ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          ref.read(getSellerDeleteProductProvider(id));
+
+                          // ignore: unused_result
+                          ref.refresh(getSellerProductsProvider(
+                              "?${mapToSearchString(ref.watch(sellerProductSearchprovider).toJson())}"));
+                        },
                         icon: const Icon(Icons.delete),
                       ),
                       IconButton(

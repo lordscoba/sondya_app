@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
@@ -47,7 +48,7 @@ final getSellerProductsDetailsProvider = FutureProvider.family
     final response = await dio.get(EnvironmentSellerProductConfig.getByID + id);
     // debugPrint(response.data.toString());
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return response.data["data"]["data"] as Map<String, dynamic>;
+      return response.data["data"] as Map<String, dynamic>;
     } else {
       throw Exception('Failed to fetch map data');
     }
@@ -72,7 +73,7 @@ final getSellerDeleteProductProvider = FutureProvider.family
         await dio.delete(EnvironmentSellerProductConfig.delete + id);
     // debugPrint(response.data.toString());
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return response.data["data"]["data"] as Map<String, dynamic>;
+      return response.data["data"] as Map<String, dynamic>;
     } else {
       throw Exception('Failed to fetch map data');
     }
@@ -158,8 +159,10 @@ class SellerEditProductNotifier
     extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
   SellerEditProductNotifier() : super(const AsyncValue.data({}));
 
-  Future<void> editProduct(data) async {
+  Future<void> editProduct(ProductDataModel data, String id) async {
     try {
+      // print(id);
+      // print(data.toJson());
       // Set loading state
       state = const AsyncValue.loading();
 
@@ -169,18 +172,41 @@ class SellerEditProductNotifier
 
       // get auth user id
       AuthInfo localAuth = await getLocalAuth();
-      String userId = localAuth.id;
+
+      // assign local auth to owner
+      Owner owner = Owner(
+        id: localAuth.id,
+        username: localAuth.username,
+        email: localAuth.email,
+        phoneNumber: localAuth.phoneNumber ?? "",
+      );
+
+      // assign owner to data
+      data.owner = owner;
+
+      // assign image to formdata
+      List<MultipartFile> imageList = [];
+      if (data.image != null) {
+        for (var element in data.image!) {
+          final mimeTypeData = lookupMimeType(element.path);
+          imageList.add(
+            await MultipartFile.fromFile(element.path,
+                filename: element.name,
+                contentType: MediaType(
+                    'image', mimeTypeData!.split('/').last.toString())),
+          );
+        }
+      }
+
+      final formData = FormData.fromMap(
+        {...data.toJson(), 'image': imageList},
+      );
 
       // Make the PUT request
       final response = await dio.put(
-        EnvironmentSellerProductConfig.update + userId,
-        data: data,
+        EnvironmentSellerProductConfig.update + id,
+        data: formData,
       );
-      // Make the PUT request
-      // final response = await dio.put(
-      //   "${EnvironmentKycConfig.kycPersonalDetails}/haha/dgsggsgs",
-      //   data: details,
-      // );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         state = AsyncValue.data(response.data as Map<String, dynamic>);
@@ -188,10 +214,10 @@ class SellerEditProductNotifier
     } on DioException catch (e) {
       if (e.response != null) {
         state = AsyncValue.error(e.response?.data['message'], e.stackTrace);
-        // debugPrint(e.response?.data['message'].toString());
+        debugPrint(e.response?.data['message'].toString());
       } else {
         state = AsyncValue.error(e.message.toString(), e.stackTrace);
-        // debugPrint(e.message.toString());
+        debugPrint(e.message.toString());
       }
     }
   }

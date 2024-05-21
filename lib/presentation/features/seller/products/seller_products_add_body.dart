@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -898,7 +900,7 @@ class _AddModalBody3State extends ConsumerState<AddModalBody3> {
             ? "0"
             : products.totalVariants.toString());
     if (products.variants != null && products.variants != {}) {
-      variants = products.variants!;
+      variants = json.decode(products.variants!);
     }
   }
 
@@ -986,7 +988,7 @@ class _AddModalBody3State extends ConsumerState<AddModalBody3> {
             setState(() {
               variants = mapData;
             });
-            products.variants = mapData;
+            products.variants = jsonEncode(mapData);
           },
         ),
         const SizedBox(height: 10),
