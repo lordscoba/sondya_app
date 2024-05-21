@@ -6,9 +6,7 @@ import 'package:sondya_app/presentation/layout/user_drawer.dart';
 
 class SellerProductsEditScreen extends StatelessWidget {
   final String id;
-  final Map<String, dynamic> data;
-  const SellerProductsEditScreen(
-      {super.key, required this.id, required this.data});
+  const SellerProductsEditScreen({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +15,6 @@ class SellerProductsEditScreen extends StatelessWidget {
       drawer: sonyaUserDrawer(context),
       body: SellerProductsEditBody(
         id: id,
-        data: data,
       ),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

@@ -90,7 +90,8 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
-    initialLocation: '/seller/products/edit',
+    initialLocation: '/seller/products',
+    // initialLocation: '/seller/products/add',
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(
@@ -357,10 +358,8 @@ GoRouter goRouterFunc(WidgetRef ref) {
         path: '/seller/products/edit/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
-          final extra = state.extra! as Map<String, dynamic>;
           return SellerProductsEditScreen(
             id: id,
-            data: extra,
           );
         },
         redirect: authRedirectStrict,

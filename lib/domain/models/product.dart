@@ -18,8 +18,8 @@ class ProductDataModel {
   String? productStatus;
   int? totalVariants;
   List<XFile>? image;
-  // dynamic variants;
-  Map<String, List<dynamic>>? variants;
+  String? deleteImageId;
+  String? variants;
   String? address;
   String? city;
   String? country;
@@ -43,6 +43,7 @@ class ProductDataModel {
       this.productStatus,
       this.totalVariants,
       this.image,
+      this.deleteImageId = "[]",
       this.variants,
       this.address,
       this.city,
@@ -69,10 +70,9 @@ class ProductDataModel {
     if (json['image'] != null) {
       image = (json['image'] as List).map((x) => XFile(x)).toList();
     }
-    variants = json['variants']?.cast<String, List<dynamic>>() ?? {};
-    // variants =
-    //     json['variants'] != null ? Variants.fromJson(json['variants']) : null;
+    deleteImageId = json['deleteImageId'];
     address = json['address'];
+    address = json['variants'];
     city = json['city'];
     country = json['country'];
     state = json['state'];
@@ -101,10 +101,7 @@ class ProductDataModel {
     if (image != null) {
       data['image'] = image!.map((v) => v).toList();
     }
-    // if (variants != null) {
-    //   data['variants'] = variants!.toJson();
-    // }
-    //
+    data['deleteImageId'] = deleteImageId;
     data['variants'] = variants;
     data['address'] = address;
     data['city'] = city;

@@ -210,13 +210,15 @@ class _ProfilePicsSelectorState extends State<ProfilePicsSelector> {
 // for multiple images
 class SondyaMultipleImageSelection extends StatefulWidget {
   final void Function(List<XFile> value)? onSetImage;
+  final void Function(List<String> value)? onSetDeletedImageId;
   final List<ImageType>? savedNetworkImage;
   final List<XFile>? savedFileImage;
   const SondyaMultipleImageSelection(
       {super.key,
       this.onSetImage,
       this.savedNetworkImage,
-      this.savedFileImage});
+      this.savedFileImage,
+      this.onSetDeletedImageId});
 
   @override
   State<SondyaMultipleImageSelection> createState() =>
@@ -225,19 +227,30 @@ class SondyaMultipleImageSelection extends StatefulWidget {
 
 class _SondyaMultipleImageSelectionState
     extends State<SondyaMultipleImageSelection> {
+  // image file
   List<XFile>? _image;
+
+  // error variable
   dynamic _pickImageError;
+
+  // deleted image id to be sent to backend server
+  List<String> deletedImageId = [];
+
+  // image network
+  List<ImageType> _networkImage = [];
 
   @override
   void initState() {
     super.initState();
     _image = widget.savedFileImage;
+    _networkImage = widget.savedNetworkImage ?? [];
     // Initialize the variable in initState
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onLongPress: _getImage,
       onDoubleTap: _getImage,
       child: DottedBorder(
         borderType: BorderType.RRect,
@@ -247,9 +260,8 @@ class _SondyaMultipleImageSelectionState
         strokeWidth: 2, // Adjust border width
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 200, minWidth: 380),
-          child: _image == null
-              ? widget.savedNetworkImage != null &&
-                      widget.savedNetworkImage!.isNotEmpty
+          child: _image == null || _image!.isEmpty
+              ? _networkImage.isNotEmpty
                   ? _getNetworkImageWidget()
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -284,7 +296,26 @@ class _SondyaMultipleImageSelectionState
                         )
                       ],
                     )
-              : _getImageWidget(),
+              : _networkImage.isNotEmpty
+                  ? Column(
+                      children: [
+                        const Text(
+                          "Old Image(s)",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        _getNetworkImageWidget(),
+                        const SizedBox(height: 10),
+                        const Text(
+                          "New Image(s)",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 10),
+                        _getImageWidget(),
+                      ],
+                    )
+                  : _getImageWidget(),
         ),
       ),
     );
@@ -316,7 +347,7 @@ class _SondyaMultipleImageSelectionState
   }
 
   Widget _getImageWidget() {
-    if (kIsWeb && widget.savedNetworkImage == null) {
+    if (kIsWeb && _networkImage.isEmpty) {
       // Display image for web
       if (_image != null && _image!.isNotEmpty) {
         return Wrap(
@@ -366,17 +397,19 @@ class _SondyaMultipleImageSelectionState
   }
 
   Widget _getNetworkImageWidget() {
-    if (widget.savedNetworkImage != null &&
-        widget.savedNetworkImage!.isNotEmpty) {
+    if (_networkImage.isNotEmpty) {
       return Wrap(
         spacing: 8.0, // Adjust spacing as needed
         runSpacing: 8.0, // Adjust run spacing as needed
-        children: widget.savedNetworkImage!.map((imageType) {
+        children: _networkImage.map((imageType) {
           return MultiImageItem(
             onRemove: () {
               setState(() {
-                widget.savedNetworkImage!.remove(imageType);
-                // widget.onSetImage!(widget.savedNetworkImage!);
+                _networkImage.remove(imageType);
+
+                deletedImageId.add(imageType.sId ?? "");
+                widget.onSetDeletedImageId!(deletedImageId);
+                // widget.onSetImage!(_networkImage);
               });
             },
             path: imageType.url!,

@@ -16,6 +16,7 @@ class ServiceDataModel {
   String? serviceStatus;
   String? duration;
   List<XFile>? image;
+  String? deleteImageId;
   String? locationDescription;
   String? phoneNumber;
   String? phoneNumberBackup;
@@ -41,6 +42,7 @@ class ServiceDataModel {
       this.serviceStatus,
       this.duration,
       this.image,
+      this.deleteImageId = "[]",
       this.locationDescription,
       this.phoneNumber,
       this.phoneNumberBackup,
@@ -68,6 +70,7 @@ class ServiceDataModel {
     if (json['image'] != null) {
       image = (json['image'] as List).map((x) => XFile(x)).toList();
     }
+    deleteImageId = json['deleteImageId'];
     locationDescription = json['location_description'];
     phoneNumber = json['phone_number'];
     phoneNumberBackup = json['phone_number_backup'];
@@ -99,6 +102,7 @@ class ServiceDataModel {
     if (image != null) {
       data['image'] = image!.map((v) => v).toList();
     }
+    data['deleteImageId'] = deleteImageId;
     data['location_description'] = locationDescription;
     data['phone_number'] = phoneNumber;
     data['phone_number_backup'] = phoneNumberBackup;
