@@ -1,8 +1,12 @@
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sondya_app/data/remote/seller.account.dart';
+import 'package:sondya_app/domain/providers/account.provider.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
-import 'package:sondya_app/utils/input_validations.dart';
+import 'package:sondya_app/presentation/widgets/success_error_message.dart';
+import 'package:sondya_app/presentation/widgets/threebounce_loader.dart';
 
 class SellerAddAccountBody extends ConsumerStatefulWidget {
   const SellerAddAccountBody({super.key});
@@ -15,8 +19,21 @@ class SellerAddAccountBody extends ConsumerStatefulWidget {
 class _SellerAddAccountBodyState extends ConsumerState<SellerAddAccountBody> {
   final _formKey = GlobalKey<FormState>();
   String _selectedMode = "bank";
+
+  String _paypalEmail = "";
+  String _payoneerEmail = "";
+  String _bankName = "";
+  String _accountName = "";
+  String _accountNumber = "";
+  String _routingNumber = "";
   @override
   Widget build(BuildContext context) {
+    final AsyncValue<Map<String, dynamic>> checkState1 =
+        ref.watch(addBankAccountProvider);
+    final AsyncValue<Map<String, dynamic>> checkState2 =
+        ref.watch(addPaypalAccountProvider);
+    final AsyncValue<Map<String, dynamic>> checkState3 =
+        ref.watch(addPayoneerAccountProvider);
     return SingleChildScrollView(
       child: Center(
         child: Padding(
@@ -37,6 +54,36 @@ class _SellerAddAccountBodyState extends ConsumerState<SellerAddAccountBody> {
                       icon: const Icon(Icons.arrow_back),
                     ),
                   ],
+                ),
+                checkState1.when(
+                  data: (data) {
+                    return sondyaDisplaySuccessMessage(
+                        context, data["message"]);
+                  },
+                  loading: () => const SizedBox(),
+                  error: (error, stackTrace) {
+                    return sondyaDisplayErrorMessage(error.toString(), context);
+                  },
+                ),
+                checkState2.when(
+                  data: (data) {
+                    return sondyaDisplaySuccessMessage(
+                        context, data["message"]);
+                  },
+                  loading: () => const SizedBox(),
+                  error: (error, stackTrace) {
+                    return sondyaDisplayErrorMessage(error.toString(), context);
+                  },
+                ),
+                checkState3.when(
+                  data: (data) {
+                    return sondyaDisplaySuccessMessage(
+                        context, data["message"]);
+                  },
+                  loading: () => const SizedBox(),
+                  error: (error, stackTrace) {
+                    return sondyaDisplayErrorMessage(error.toString(), context);
+                  },
                 ),
                 const SizedBox(height: 20.0),
                 const Text(
@@ -60,7 +107,7 @@ class _SellerAddAccountBodyState extends ConsumerState<SellerAddAccountBody> {
                         onItemSelected: (value) {
                           setState(() {
                             _selectedMode = value;
-                            print(value);
+                            // print(value);
                           });
                         },
                       );
@@ -90,12 +137,9 @@ class _SellerAddAccountBodyState extends ConsumerState<SellerAddAccountBody> {
                             TextFormField(
                               decoration: const InputDecoration(
                                 hintText: "Bank Name",
-                                // labelText: 'Product Name',
                               ),
-                              initialValue: "Bank Name",
-                              validator: isInputEmpty,
                               onSaved: (value) {
-                                // user.firstName = value!;
+                                _bankName = value!;
                               },
                             ),
                             const SizedBox(height: 10),
@@ -105,12 +149,9 @@ class _SellerAddAccountBodyState extends ConsumerState<SellerAddAccountBody> {
                             TextFormField(
                               decoration: const InputDecoration(
                                 hintText: " Account Number",
-                                // labelText: 'Product Name',
                               ),
-                              initialValue: "Account Number",
-                              validator: isInputEmpty,
                               onSaved: (value) {
-                                // user.firstName = value!;
+                                _accountNumber = value!;
                               },
                             ),
                             const SizedBox(height: 10),
@@ -120,12 +161,9 @@ class _SellerAddAccountBodyState extends ConsumerState<SellerAddAccountBody> {
                             TextFormField(
                               decoration: const InputDecoration(
                                 hintText: " Account Name",
-                                // labelText: 'Product Name',
                               ),
-                              initialValue: "Account Name",
-                              validator: isInputEmpty,
                               onSaved: (value) {
-                                // user.firstName = value!;
+                                _accountName = value!;
                               },
                             ),
                             const SizedBox(height: 10),
@@ -135,12 +173,9 @@ class _SellerAddAccountBodyState extends ConsumerState<SellerAddAccountBody> {
                             TextFormField(
                               decoration: const InputDecoration(
                                 hintText: " Rounting Number",
-                                // labelText: 'Product Name',
                               ),
-                              initialValue: "Rounting Number",
-                              validator: isInputEmpty,
                               onSaved: (value) {
-                                // user.firstName = value!;
+                                _routingNumber = value!;
                               },
                             ),
                           ],
@@ -160,12 +195,9 @@ class _SellerAddAccountBodyState extends ConsumerState<SellerAddAccountBody> {
                             TextFormField(
                               decoration: const InputDecoration(
                                 hintText: "paypal email",
-                                // labelText: 'Product Name',
                               ),
-                              // initialValue: "paypal email",
-                              validator: isInputEmpty,
                               onSaved: (value) {
-                                // user.firstName = value!;
+                                _paypalEmail = value!;
                               },
                             ),
                           ],
@@ -184,19 +216,116 @@ class _SellerAddAccountBodyState extends ConsumerState<SellerAddAccountBody> {
                             const SizedBox(height: 5),
                             TextFormField(
                               decoration: const InputDecoration(
-                                  // hintText: "payoneer email",
-                                  // labelText: 'Product Name',
-                                  ),
-                              initialValue: "payoneer email",
-                              validator: isInputEmpty,
+                                hintText: "payoneer email",
+                              ),
                               onSaved: (value) {
-                                // user.firstName = value!;
+                                _payoneerEmail = value!;
                               },
                             ),
                           ],
                         ),
                       )
                     : Container(),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                        if (_selectedMode == "bank") {
+                          if (_bankName != "" &&
+                              _accountNumber != "" &&
+                              _accountName != "" &&
+                              _routingNumber != "") {
+                            Map<String, dynamic> data = {
+                              "bank_name": _bankName,
+                              "account_number": _accountNumber,
+                              "account_name": _accountName,
+                              "routing_number": _routingNumber
+                            };
+                            // print(data);
+                            ref
+                                .read(addBankAccountProvider.notifier)
+                                .addBankAccount(data)
+                                .then((value) {
+                              context.go("/seller/withdrawals");
+                              // ignore: unused_result
+                              ref.refresh(
+                                  getSellerwithdrawalgetBalanceProvider);
+                            });
+                            // context.go("/seller/withdrawals");
+                          } else {
+                            AnimatedSnackBar.rectangle(
+                              'Error',
+                              "Please fill all the fields",
+                              type: AnimatedSnackBarType.warning,
+                              brightness: Brightness.light,
+                            ).show(
+                              context,
+                            );
+                          }
+                        } else if (_selectedMode == "paypal") {
+                          if (_paypalEmail != "") {
+                            Map<String, dynamic> data = {"email": _paypalEmail};
+
+                            ref
+                                .read(addPaypalAccountProvider.notifier)
+                                .addPaypalAccount(data)
+                                .then((value) {
+                              context.go("/seller/withdrawals");
+                              // ignore: unused_result
+                              ref.refresh(
+                                  getSellerwithdrawalgetBalanceProvider);
+                            });
+                          } else {
+                            AnimatedSnackBar.rectangle(
+                              'Error',
+                              "Please fill all the fields",
+                              type: AnimatedSnackBarType.warning,
+                              brightness: Brightness.light,
+                            ).show(
+                              context,
+                            );
+                          }
+                        } else if (_selectedMode == "payoneer") {
+                          if (_payoneerEmail != "") {
+                            Map<String, dynamic> data = {
+                              "email": _payoneerEmail
+                            };
+                            // print(data);
+                            ref
+                                .read(addPayoneerAccountProvider.notifier)
+                                .addPayoneerAccount(data)
+                                .then((value) {
+                              context.go("/seller/withdrawals");
+                              // ignore: unused_result
+                              ref.refresh(
+                                  getSellerwithdrawalgetBalanceProvider);
+                            });
+
+                            // context.go("/seller/withdrawals");
+                          } else {
+                            AnimatedSnackBar.rectangle(
+                              'Error',
+                              "Please fill all the fields",
+                              type: AnimatedSnackBarType.warning,
+                              brightness: Brightness.light,
+                            ).show(
+                              context,
+                            );
+                          }
+                        }
+                      }
+                    },
+                    // child: const Text("Add Account")),
+                    child: checkState1.isLoading ||
+                            checkState2.isLoading ||
+                            checkState3.isLoading
+                        ? sondyaThreeBounceLoader(color: Colors.white)
+                        : const Text("Save Changes"),
+                  ),
+                ),
               ],
             ),
           ),

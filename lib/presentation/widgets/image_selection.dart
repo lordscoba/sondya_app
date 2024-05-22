@@ -298,6 +298,7 @@ class _SondyaMultipleImageSelectionState
                     )
               : _networkImage.isNotEmpty
                   ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
                           "Old Image(s)",
