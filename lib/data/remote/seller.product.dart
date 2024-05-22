@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
@@ -161,8 +160,6 @@ class SellerEditProductNotifier
 
   Future<void> editProduct(ProductDataModel data, String id) async {
     try {
-      // print(id);
-      // print(data.toJson());
       // Set loading state
       state = const AsyncValue.loading();
 
@@ -214,10 +211,10 @@ class SellerEditProductNotifier
     } on DioException catch (e) {
       if (e.response != null) {
         state = AsyncValue.error(e.response?.data['message'], e.stackTrace);
-        debugPrint(e.response?.data['message'].toString());
+        // debugPrint(e.response?.data['message'].toString());
       } else {
         state = AsyncValue.error(e.message.toString(), e.stackTrace);
-        debugPrint(e.message.toString());
+        // debugPrint(e.message.toString());
       }
     }
   }

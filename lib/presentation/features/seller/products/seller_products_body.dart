@@ -261,8 +261,7 @@ class SellerProductCard extends ConsumerWidget {
                     children: [
                       IconButton(
                         onPressed: () {
-                          context.push("/seller/products/edit/$id",
-                              extra: data);
+                          context.push("/seller/products/edit/$id");
                         },
                         icon: const Icon(Icons.edit),
                       ),

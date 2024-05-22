@@ -197,7 +197,7 @@ class _SellerServicesBodyState extends ConsumerState<SellerServicesBody> {
   }
 }
 
-class SellerServiceCard extends StatelessWidget {
+class SellerServiceCard extends ConsumerWidget {
   final String id;
   final Map<String, dynamic> data;
   final String name;
@@ -218,7 +218,7 @@ class SellerServiceCard extends StatelessWidget {
       required this.data});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
       child: Column(
@@ -230,6 +230,8 @@ class SellerServiceCard extends StatelessWidget {
                   : Image(
                       image: NetworkImage(image ?? ""),
                       height: 150,
+                      width: 160,
+                      fit: BoxFit.cover,
                     ),
               const SizedBox(width: 20),
               Column(
@@ -256,11 +258,19 @@ class SellerServiceCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          context.push("/seller/services/edit/$id");
+                        },
                         icon: const Icon(Icons.edit),
                       ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          ref.read(getSellerDeleteServiceProvider(id));
+
+                          //calls search api with the filter strings
+                          ref.invalidate(getSellerServicesProvider(
+                              "?${mapToSearchString(ref.watch(sellerServiceSearchprovider).toJson())}"));
+                        },
                         icon: const Icon(Icons.delete),
                       ),
                       IconButton(

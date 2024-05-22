@@ -3,6 +3,7 @@ import 'package:sondya_app/domain/models/checkout.dart';
 
 class ServiceDataModel {
   String? name;
+  String? tags;
   String? category;
   String? subCategory;
   String? briefDescription;
@@ -29,6 +30,7 @@ class ServiceDataModel {
 
   ServiceDataModel(
       {this.name,
+      this.tags,
       this.category,
       this.subCategory,
       this.briefDescription,
@@ -55,6 +57,7 @@ class ServiceDataModel {
 
   ServiceDataModel.fromJson(Map<String, dynamic> json) {
     name = json['name'];
+    tags = json['tags'];
     category = json['category'];
     subCategory = json['sub_category'];
     briefDescription = json['brief_description'];
@@ -85,6 +88,7 @@ class ServiceDataModel {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['name'] = name;
+    data['tags'] = tags;
     data['category'] = category;
     data['sub_category'] = subCategory;
     data['brief_description'] = briefDescription;
