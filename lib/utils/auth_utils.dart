@@ -21,7 +21,12 @@ Map<String, dynamic> getNecessaryAuthData(Map<String, dynamic> response) {
 
 // check if user is authenticated
 bool isAuthenticated() {
-  final AuthInfo obj = boxAuth.get(EnvironmentStorageConfig.authSession);
+  final AuthInfo? obj = boxAuth.get(EnvironmentStorageConfig.authSession);
+
+  // Check if obj is null
+  if (obj == null) {
+    return false;
+  }
 
   // check if obj is empty
   if (obj.toJson().isEmpty) {

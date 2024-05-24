@@ -26,6 +26,8 @@ void main() async {
   boxForWishList = await Hive.openBox<WishListType>(wishlistBoxString);
   boxForShipment =
       await Hive.openBox<ShippingDestinationType>(shipmentBoxString);
+  boxIsSeller = await Hive.openBox<bool>(isSellerString);
+  boxHasInitializedApp = await Hive.openBox<bool>(hasInitializedAppString);
 
   runApp(
     const ProviderScope(

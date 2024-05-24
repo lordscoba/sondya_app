@@ -1,4 +1,5 @@
 import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sondya_app/data/local/cart.dart';
@@ -172,7 +173,9 @@ class _EstimatedShippingAndTaxBodyState
           );
         },
         error: (error, stackTrace) => Text(error.toString()),
-        loading: () => const CircularProgressIndicator(),
+        loading: () => const CupertinoActivityIndicator(
+          radius: 50,
+        ),
       ),
     );
   }

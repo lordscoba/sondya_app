@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sondya_app/data/remote/home.dart';
 import 'package:sondya_app/presentation/widgets/product_service_container.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
@@ -32,15 +33,16 @@ class _HomeProductsListState extends ConsumerState<HomeProductsList> {
                 onPressed: () async {
                   SondyaSelectWidget()
                       .showBottomSheetApi<AsyncValue<Map<String, dynamic>>>(
-                          options: getProductCategory,
-                          context: context,
-                          onItemSelected: (value) {
-                            setState(() {
-                              _selectedCategory = value;
-                              _queryString = "?search=$value";
-                            });
-                            // user.country = value.toString();
-                          });
+                    options: getProductCategory,
+                    context: context,
+                    onItemSelected: (value) {
+                      setState(() {
+                        _selectedCategory = value;
+                        _queryString = "?search=$value";
+                      });
+                      // user.country = value.toString();
+                    },
+                  );
                 },
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -61,7 +63,9 @@ class _HomeProductsListState extends ConsumerState<HomeProductsList> {
                 ),
               ),
               TextButton(
-                onPressed: () async {},
+                onPressed: () async {
+                  context.push("/product/search");
+                },
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -162,7 +166,9 @@ class _HomeServicesListState extends ConsumerState<HomeServicesList> {
                 ),
               ),
               TextButton(
-                onPressed: () async {},
+                onPressed: () {
+                  context.push("/service/search");
+                },
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

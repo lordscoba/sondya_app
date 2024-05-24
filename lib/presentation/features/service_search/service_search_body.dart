@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sondya_app/data/remote/search.dart';
 import 'package:sondya_app/domain/models/home.dart';
 import 'package:sondya_app/domain/providers/home.provider.dart';
@@ -89,8 +90,8 @@ class _ServiceSearchBodyState extends ConsumerState<ServiceSearchBody> {
     return SingleChildScrollView(
       child: Center(
         child: Container(
-          // height: 710,
-          height: MediaQuery.of(context).size.height - 230,
+          // height: 600,
+          height: MediaQuery.of(context).size.height - 210,
           width: double.infinity,
           padding: const EdgeInsets.all(10),
           child: Column(
@@ -98,6 +99,19 @@ class _ServiceSearchBodyState extends ConsumerState<ServiceSearchBody> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
+              context.canPop()
+                  ? Row(
+                      children: [
+                        IconButton(
+                            iconSize: 30,
+                            onPressed: () {
+                              context.pop();
+                            },
+                            icon: const Icon(Icons.arrow_back))
+                      ],
+                    )
+                  : const SizedBox(),
+              const SizedBox(height: 5),
               TextFormField(
                 decoration: const InputDecoration(
                   hintText: " Enter your search",
@@ -219,6 +233,7 @@ class _ServiceSearchBodyState extends ConsumerState<ServiceSearchBody> {
               SizedBox(
                 height: searchData.isEmpty ? 1 : 50,
                 child: ListView.builder(
+                  // shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
                   itemCount: searchData.length,
                   itemBuilder: (context, index) {
@@ -269,16 +284,18 @@ class _ServiceSearchBodyState extends ConsumerState<ServiceSearchBody> {
               ),
               Expanded(
                 child: GridView.builder(
+                  shrinkWrap: true,
                   controller: _scrollController,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2, // You can adjust this as needed
                     crossAxisSpacing: 6.0,
                     mainAxisSpacing: 6.0,
+                    childAspectRatio: 0.7,
                   ),
                   itemCount: allItems.isNotEmpty ? allItems.length : 1,
                   itemBuilder: (context, index) {
                     if (allItems.isNotEmpty) {
-                      return ProductContainer(
+                      return ServiceContainer(
                         id: allItems[index]["_id"],
                         productName: allItems[index]["name"],
                         productPrice:

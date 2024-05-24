@@ -20,6 +20,7 @@ import 'package:sondya_app/presentation/pages/product_checkout_status_screen.dar
 import 'package:sondya_app/presentation/pages/product_details_screen.dart';
 import 'package:sondya_app/presentation/pages/product_search_screen.dart';
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_add_account_screen.dart';
+import 'package:sondya_app/presentation/pages/sellerDashboard/seller_inbox_screen.dart';
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_order_deliver_work_screen.dart';
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_order_review_terms_screen.dart';
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_order_update_location_screen.dart';
@@ -85,14 +86,15 @@ GoRouter goRouterFunc(WidgetRef ref) {
       BuildContext context, GoRouterState state) async {
     if (!isAuthenticated()) {
       return '/login';
-    } else {
-      return null;
     }
+    return null;
   }
 
+  // print(isSellerSession());
+
   return GoRouter(
-    initialLocation: '/service/order/history',
-    // initialLocation: '/seller/products/add',
+    initialLocation: "/",
+    // initialLocation: "/seller/products",
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(
@@ -343,6 +345,13 @@ GoRouter goRouterFunc(WidgetRef ref) {
             id: id,
           );
         },
+        redirect: authRedirectStrict,
+      ),
+
+      // seller inbox
+      GoRoute(
+        path: '/seller/inbox',
+        builder: (context, state) => const SellerInboxScreen(),
         redirect: authRedirectStrict,
       ),
 

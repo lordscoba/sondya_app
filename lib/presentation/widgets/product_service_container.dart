@@ -36,6 +36,7 @@ class _ProductContainerState extends ConsumerState<ProductContainer> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onDoubleTap: _detailsPage,
+      onLongPress: _detailsPage,
       child: Container(
         width: 190,
         height: 250,
@@ -124,7 +125,7 @@ class _ProductContainerState extends ConsumerState<ProductContainer> {
   }
 }
 
-class ServiceContainer extends StatelessWidget {
+class ServiceContainer extends ConsumerStatefulWidget {
   final String id;
   final String productName;
   final double productPrice;
@@ -137,39 +138,92 @@ class ServiceContainer extends StatelessWidget {
       required this.id});
 
   @override
+  ConsumerState<ServiceContainer> createState() => _ServiceContainerState();
+}
+
+class _ServiceContainerState extends ConsumerState<ServiceContainer> {
+  var isFavorite = false;
+
+  void _detailsPage() {
+    context.push(
+        "/service/details/${widget.id}/${sondyaSlugify(widget.productName)}");
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(5),
-      width: 190,
-      height: 190,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (productImage == "")
-            Image(
-              image: AssetImage(productImage),
-              fit: BoxFit.contain,
-              height: 120,
-              width: double.infinity,
-            )
-          else
-            Image(
-              image: NetworkImage(productImage),
-              fit: BoxFit.contain,
-              height: 120,
-              width: double.infinity,
+    return GestureDetector(
+      onDoubleTap: _detailsPage,
+      onLongPress: _detailsPage,
+      child: Container(
+        padding: const EdgeInsets.all(5),
+        width: 190,
+        height: 250,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.productImage == "")
+              Image(
+                image: AssetImage(widget.productImage),
+                fit: BoxFit.contain,
+                height: 120,
+                width: double.infinity,
+              )
+            else
+              Image(
+                image: NetworkImage(widget.productImage),
+                fit: BoxFit.contain,
+                height: 120,
+                width: double.infinity,
+              ),
+            Text(
+              widget.productName,
+              style: GoogleFonts.playfairDisplay(
+                  fontSize: 15, fontWeight: FontWeight.w500),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
-          Text(
-            productName,
-            style: GoogleFonts.playfairDisplay(
-                fontSize: 15, fontWeight: FontWeight.w500),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
-          ),
-          PriceFormatWidget(price: productPrice),
-        ],
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                PriceFormatWidget(price: widget.productPrice),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isFavorite = !isFavorite;
+                      if (isFavorite) {
+                        ref.read(addToWishlistProvider.notifier).addToWishlist(
+                            widget.id, "service", widget.productName);
+                      } else {
+                        ref
+                            .read(removeFromWishlistProvider.notifier)
+                            .removeFromWishlist(widget.id, "service");
+                      }
+                    });
+                  },
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_outline,
+                    size: 15,
+                    color: const Color(0xFFEDB842),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            SizedBox(
+              height: 40,
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _detailsPage,
+                child: const Text("Order"),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
