@@ -47,6 +47,12 @@ class ProductOrderDetailsBody extends StatelessWidget {
               ),
               child: Column(
                 children: [
+                  const SizedBox(height: 20.0),
+                  SelectableText(
+                    "Order ID: ${data["order_id"]}",
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  const SizedBox(height: 20.0),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: Row(
@@ -111,15 +117,22 @@ class ProductOrderDetailsBody extends StatelessWidget {
                             DataCell(
                               PriceFormatWidget(
                                   color: Colors.black87,
-                                  price: data["checkout_items"]["current_price"]
-                                          .toDouble() ??
-                                      0.0),
+                                  price: data["checkout_items"]
+                                              ["current_price"] !=
+                                          null
+                                      ? data["checkout_items"]["current_price"]
+                                              .toDouble() ??
+                                          0.0
+                                      : 0.0),
                             ),
                             DataCell(PriceFormatWidget(
                                 color: Colors.black87,
-                                price: data["checkout_items"]["sub_total"]
-                                        .toDouble() ??
-                                    0.0)),
+                                price:
+                                    data["checkout_items"]["sub_total"] != null
+                                        ? data["checkout_items"]["sub_total"]
+                                                .toDouble() ??
+                                            0.0
+                                        : 0.0)),
                           ],
                         ),
                         DataRow(
@@ -131,9 +144,11 @@ class ProductOrderDetailsBody extends StatelessWidget {
                                 style: TextStyle(fontWeight: FontWeight.bold))),
                             DataCell(PriceFormatWidget(
                                 color: Colors.black87,
-                                price:
-                                    data["checkout_items"]["tax"].toDouble() ??
-                                        0.0)),
+                                price: data["checkout_items"]["tex"] != null
+                                    ? data["checkout_items"]["tax"]
+                                            .toDouble() ??
+                                        0.0
+                                    : 0.0)),
                           ],
                         ),
                         DataRow(
@@ -145,9 +160,12 @@ class ProductOrderDetailsBody extends StatelessWidget {
                                 style: TextStyle(fontWeight: FontWeight.bold))),
                             DataCell(PriceFormatWidget(
                                 color: Colors.black87,
-                                price: data["checkout_items"]["shipping_fee"]
-                                        .toDouble() ??
-                                    0.0)),
+                                price: data["checkout_items"]["shipping_fee"] !=
+                                        null
+                                    ? data["checkout_items"]["shipping_fee"]
+                                            .toDouble() ??
+                                        0.0
+                                    : 0.0)),
                           ],
                         ),
                         DataRow(
@@ -161,9 +179,12 @@ class ProductOrderDetailsBody extends StatelessWidget {
                               PriceFormatWidget(
                                   color: Colors.black87,
                                   prefix: "-",
-                                  price: data["checkout_items"]["discount"]
-                                          .toDouble() ??
-                                      0.0),
+                                  price:
+                                      data["checkout_items"]["discount"] != null
+                                          ? data["checkout_items"]["discount"]
+                                                  .toDouble() ??
+                                              0.0
+                                          : 0.0),
                             ),
                           ],
                         ),
@@ -178,9 +199,13 @@ class ProductOrderDetailsBody extends StatelessWidget {
                               PriceFormatWidget(
                                   color: Colors.black87,
                                   prefix: "-",
-                                  price: data["checkout_items"]["total_price"]
-                                          .toDouble() ??
-                                      0.0),
+                                  price: data["checkout_items"]
+                                              ["current_price"] !=
+                                          null
+                                      ? data["checkout_items"]["total_price"]
+                                              .toDouble() ??
+                                          0.0
+                                      : 0.0),
                             ),
                           ],
                         ),
@@ -276,7 +301,7 @@ class ProductOrderDetailsBody extends StatelessWidget {
                       const Icon(Icons.card_membership,
                           color: Color(0xFFEDB842)),
                       const SizedBox(width: 10),
-                      Text("Order ID: ${data["order_id"]}"),
+                      SelectableText("Order ID: ${data["order_id"]}"),
                     ],
                   ),
                   const SizedBox(height: 10.0),
@@ -324,7 +349,65 @@ class ProductOrderDetailsBody extends StatelessWidget {
                 updatedAt: data["updatedAt"],
                 createdAt: data["createdAt"],
               ),
-            )
+            ),
+            const Divider(),
+            const SizedBox(height: 30.0),
+            const Text(
+              "Current Locations",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20.0),
+            // data Table here
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const <DataColumn>[
+                  DataColumn(
+                    label: Text(
+                      'Country',
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'State',
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'City',
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Zip Code',
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Order Status',
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                ],
+                rows: data["order_location"].isEmpty
+                    ? const <DataRow>[]
+                    : data["order_location"].map<DataRow>((e) {
+                        return DataRow(
+                          cells: <DataCell>[
+                            DataCell(Text(e["country"])),
+                            DataCell(Text(e["state"])),
+                            DataCell(Text(e["city"])),
+                            DataCell(Text(e["zip_code"])),
+                            DataCell(Text(e["order_status"])),
+                          ],
+                        );
+                      }).toList(),
+              ),
+            ),
           ],
         ),
       ),

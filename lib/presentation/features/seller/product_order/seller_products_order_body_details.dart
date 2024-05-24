@@ -42,9 +42,7 @@ class SellerProductsOrderDetailsBody extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       context.push(
-                        '/seller/order/update/location/${data["_id"]}',
-                        extra: data,
-                      );
+                          '/seller/order/update/location/${data["_id"] ?? ""}');
                     },
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
@@ -65,9 +63,7 @@ class SellerProductsOrderDetailsBody extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       context.push(
-                        '/seller/order/update/status/${data["_id"]}',
-                        extra: data,
-                      );
+                          '/seller/order/update/status/${data["_id"] ?? ""}');
                     },
                     child: const Row(
                       children: [
@@ -110,7 +106,7 @@ class SellerProductsOrderDetailsBody extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Order ${data["order_id"]}",
+                        "Order ${data["order_id"] ?? ""}",
                         style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 20),
                       ),
@@ -121,7 +117,7 @@ class SellerProductsOrderDetailsBody extends StatelessWidget {
                           color: const Color(0xFFEDB842).withOpacity(0.3),
                         ),
                         child: Text(
-                          data["order_status"],
+                          data["order_status"] ?? "",
                           style: const TextStyle(color: Color(0xFFEDB842)),
                         ),
                       ),
@@ -133,7 +129,8 @@ class SellerProductsOrderDetailsBody extends StatelessWidget {
                       const Icon(Icons.calendar_month,
                           color: Color(0xFFEDB842)),
                       const SizedBox(width: 10),
-                      Text("Added: ${sondyaFormattedDate(data["createdAt"])}"),
+                      Text(
+                          "Added: ${sondyaFormattedDate(data["createdAt"] ?? "")}"),
                     ],
                   ),
                   const SizedBox(height: 10.0),
@@ -141,7 +138,7 @@ class SellerProductsOrderDetailsBody extends StatelessWidget {
                     children: [
                       const Icon(Icons.payment, color: Color(0xFFEDB842)),
                       const SizedBox(width: 10),
-                      Text("Order Status: ${data["order_status"]}"),
+                      Text("Order Status: ${data["order_status"] ?? ""}"),
                     ],
                   ),
                   const SizedBox(height: 10.0),
@@ -150,7 +147,7 @@ class SellerProductsOrderDetailsBody extends StatelessWidget {
                       const Icon(Icons.location_on, color: Color(0xFFEDB842)),
                       const SizedBox(width: 10),
                       Text(
-                          "Shipping to: ${data["shipping_destination"]["city"]}, ${data["shipping_destination"]["state"]}, ${data["shipping_destination"]["country"]}"),
+                          "Shipping to: ${data["shipping_destination"]["city"] ?? ""}, ${data["shipping_destination"]["state"] ?? ""}, ${data["shipping_destination"]["country"] ?? ""}"),
                     ],
                   )
                 ],
@@ -186,7 +183,7 @@ class SellerProductsOrderDetailsBody extends StatelessWidget {
                     children: [
                       const Icon(Icons.receipt, color: Color(0xFFEDB842)),
                       const SizedBox(width: 10),
-                      Text("Invoice: ${data["payment_id"]}"),
+                      Text("Invoice: ${data["payment_id"] ?? ""}"),
                     ],
                   ),
                   const SizedBox(height: 10.0),
@@ -195,7 +192,7 @@ class SellerProductsOrderDetailsBody extends StatelessWidget {
                       const Icon(Icons.local_shipping,
                           color: Color(0xFFEDB842)),
                       const SizedBox(width: 10),
-                      Text("Order ID: ${data["order_id"]}"),
+                      Text("Order ID: ${data["order_id"] ?? ""}"),
                     ],
                   ),
                   const SizedBox(height: 10.0),
@@ -203,7 +200,7 @@ class SellerProductsOrderDetailsBody extends StatelessWidget {
                     children: [
                       const Icon(Icons.payment, color: Color(0xFFEDB842)),
                       const SizedBox(width: 10),
-                      Text("Payment Status: ${data["payment_status"]}"),
+                      Text("Payment Status: ${data["payment_status"] ?? ""}"),
                     ],
                   )
                 ],
@@ -390,7 +387,7 @@ class SellerProductsOrderDetailsBody extends StatelessWidget {
                                 Text(data["checkout_items"]["name"] ?? "")),
                             DataCell(Text(data["checkout_items"]["_id"] ?? "")),
                             DataCell(Text(
-                                '${data["checkout_items"]["order_quantity"].toString()} pcs')),
+                                '${data["checkout_items"]["order_quantity"] ?? "".toString()} pcs')),
                             DataCell(
                               PriceFormatWidget(
                                   color: Colors.black87,
@@ -493,11 +490,69 @@ class SellerProductsOrderDetailsBody extends StatelessWidget {
                 ],
               ),
               child: OrderStatusWidget(
-                orderStatus: data["order_status"],
-                updatedAt: data["updatedAt"],
-                createdAt: data["createdAt"],
+                orderStatus: data["order_status"] ?? "",
+                updatedAt: data["updatedAt"] ?? "",
+                createdAt: data["createdAt"] ?? "",
               ),
-            )
+            ),
+            const Divider(),
+            const SizedBox(height: 30.0),
+            const Text(
+              "Current Locations",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20.0),
+            // data Table here
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const <DataColumn>[
+                  DataColumn(
+                    label: Text(
+                      'Country',
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'State',
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'City',
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Zip Code',
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      'Order Status',
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                ],
+                rows: data["order_location"].isEmpty
+                    ? const <DataRow>[]
+                    : data["order_location"].map<DataRow>((e) {
+                        return DataRow(
+                          cells: <DataCell>[
+                            DataCell(Text(e["country"] ?? "")),
+                            DataCell(Text(e["state"] ?? "")),
+                            DataCell(Text(e["city"] ?? "")),
+                            DataCell(Text(e["zip_code"] ?? "")),
+                            DataCell(Text(e["order_status"] ?? "")),
+                          ],
+                        );
+                      }).toList(),
+              ),
+            ),
           ],
         ),
       ),

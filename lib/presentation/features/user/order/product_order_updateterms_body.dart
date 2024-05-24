@@ -2,24 +2,24 @@ import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sondya_app/data/remote/seller.order.dart';
-import 'package:sondya_app/domain/providers/seller.orders.provider.dart';
+import 'package:sondya_app/data/remote/user.order.dart';
+import 'package:sondya_app/domain/providers/user.order.provider.dart';
 import 'package:sondya_app/presentation/widgets/select_widget.dart';
 import 'package:sondya_app/presentation/widgets/success_error_message.dart';
 import 'package:sondya_app/presentation/widgets/threebounce_loader.dart';
 import 'package:sondya_app/utils/input_validations.dart';
 
-class SellerOrderReviewTermsBody extends ConsumerStatefulWidget {
+class UserOrderReviewTermsBody extends ConsumerStatefulWidget {
   final String id;
-  const SellerOrderReviewTermsBody({super.key, required this.id});
+  const UserOrderReviewTermsBody({super.key, required this.id});
 
   @override
-  ConsumerState<SellerOrderReviewTermsBody> createState() =>
-      _SellerOrderReviewTermsBodyState();
+  ConsumerState<UserOrderReviewTermsBody> createState() =>
+      _UserOrderReviewTermsBodyState();
 }
 
-class _SellerOrderReviewTermsBodyState
-    extends ConsumerState<SellerOrderReviewTermsBody> {
+class _UserOrderReviewTermsBodyState
+    extends ConsumerState<UserOrderReviewTermsBody> {
   final _formKey = GlobalKey<FormState>();
   var _selectedTimeType = "Select Time Type";
 
@@ -29,10 +29,10 @@ class _SellerOrderReviewTermsBodyState
   @override
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, dynamic>> checkState =
-        ref.watch(updateSellerServiceOrderTermsProvider);
+        ref.watch(updateUserServiceOrderTermsProvider);
 
     final sellerOrderData =
-        ref.watch(getSellerServiceOrdersDetailsProvider(widget.id));
+        ref.watch(getUserServiceOrdersDetailsDetailsProvider(widget.id));
     return SingleChildScrollView(
       child: SizedBox(
         height: MediaQuery.of(context).size.height * 0.8,
@@ -212,13 +212,13 @@ class _SellerOrderReviewTermsBodyState
                                             rejectClicked = true;
                                           });
                                           data["checkout_items"]["terms"]
-                                              ["acceptedBySeller"] = false;
+                                              ["acceptedByBuyer"] = false;
                                           data["checkout_items"]["terms"]
-                                              ["rejectedBySeller"] = true;
+                                              ["rejectedByBuyer"] = true;
 
                                           ref
                                               .read(
-                                                  updateSellerServiceOrderTermsProvider
+                                                  updateUserServiceOrderTermsProvider
                                                       .notifier)
                                               .updateOrder(
                                                   data["checkout_items"]
@@ -227,7 +227,7 @@ class _SellerOrderReviewTermsBodyState
 
                                           // ignore: unused_result
                                           ref.refresh(
-                                              getSellerServiceOrdersDetailsProvider(
+                                              getUserServiceOrdersDetailsDetailsProvider(
                                                   widget.id));
                                         } else {
                                           AnimatedSnackBar.rectangle(
@@ -258,13 +258,13 @@ class _SellerOrderReviewTermsBodyState
                                             acceptClicked = true;
                                           });
                                           data["checkout_items"]["terms"]
-                                              ["acceptedBySeller"] = true;
+                                              ["acceptedByBuyer"] = true;
                                           data["checkout_items"]["terms"]
-                                              ["rejectedBySeller"] = false;
+                                              ["rejectedByBuyer"] = false;
 
                                           ref
                                               .read(
-                                                  updateSellerServiceOrderTermsProvider
+                                                  updateUserServiceOrderTermsProvider
                                                       .notifier)
                                               .updateOrder(
                                                   data["checkout_items"]
@@ -273,7 +273,7 @@ class _SellerOrderReviewTermsBodyState
 
                                           // ignore: unused_result
                                           ref.refresh(
-                                              getSellerServiceOrdersDetailsProvider(
+                                              getUserServiceOrdersDetailsDetailsProvider(
                                                   widget.id));
                                         } else {
                                           AnimatedSnackBar.rectangle(

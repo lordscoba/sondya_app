@@ -14,12 +14,6 @@ class TrackOrderDetailsBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final getOrderDetails = ref.watch(getTrackOrderDetailsProvider(id));
 
-    // getOrderDetails.whenData(
-    //   (value) {
-    //     print(value);
-    //   },
-    // );
-
     return SingleChildScrollView(
       child: Center(
         child: Container(

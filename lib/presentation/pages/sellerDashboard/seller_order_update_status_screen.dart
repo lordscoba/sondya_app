@@ -5,10 +5,8 @@ import 'package:sondya_app/presentation/layout/top_bar.dart';
 import 'package:sondya_app/presentation/layout/user_drawer.dart';
 
 class SellerOrderUpdateStatusScreen extends StatelessWidget {
-  final Map<String, dynamic> data;
   final String id;
-  const SellerOrderUpdateStatusScreen(
-      {super.key, required this.data, required this.id});
+  const SellerOrderUpdateStatusScreen({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +15,6 @@ class SellerOrderUpdateStatusScreen extends StatelessWidget {
       drawer: sonyaUserDrawer(context),
       body: SellerOrderUpdateStatusBody(
         id: id,
-        data: data,
       ),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );

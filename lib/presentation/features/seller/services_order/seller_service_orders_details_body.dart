@@ -59,7 +59,7 @@ class SellerServiceOrdersDetailsBody extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         context.push(
-                          '/seller/order/review/terms/${data["_id"]}',
+                          '/seller/order/review/terms/${data["order_id"]}',
                           extra: data,
                         );
                       },
@@ -79,7 +79,7 @@ class SellerServiceOrdersDetailsBody extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         context.push(
-                          '/seller/order/deliver/work/${data["_id"]}',
+                          '/seller/order/deliver/work/${data["order_id"]}',
                           extra: data,
                         );
                       },

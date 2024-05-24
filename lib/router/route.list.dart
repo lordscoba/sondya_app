@@ -56,6 +56,7 @@ import 'package:sondya_app/presentation/pages/userDashboard/kyc_email_screen.dar
 import 'package:sondya_app/presentation/pages/userDashboard/kyc_personal_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/product_order_details_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/product_order_history_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/product_order_review_terms_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/referral_sceen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/service_order_details_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/service_order_history_screen.dart';
@@ -90,7 +91,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
-    initialLocation: '/seller/withdrawals',
+    initialLocation: '/service/order/history',
     // initialLocation: '/seller/products/add',
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
@@ -318,7 +319,16 @@ GoRouter goRouterFunc(WidgetRef ref) {
         },
         redirect: authRedirectStrict,
       ),
-
+      GoRoute(
+        path: '/user/service/order/review/terms/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return UserOrderReviewTermsScreen(
+            id: id,
+          );
+        },
+        redirect: authRedirectStrict,
+      ),
       // track route
       GoRoute(
         path: '/track/order',
@@ -436,10 +446,8 @@ GoRouter goRouterFunc(WidgetRef ref) {
         path: '/seller/order/update/location/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
-          final extra = state.extra! as Map<String, dynamic>;
           return SellerOrderUpdateLocationScreen(
             id: id,
-            data: extra,
           );
         },
         redirect: authRedirectStrict,
@@ -448,10 +456,8 @@ GoRouter goRouterFunc(WidgetRef ref) {
         path: '/seller/order/update/status/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
-          final extra = state.extra! as Map<String, dynamic>;
           return SellerOrderUpdateStatusScreen(
             id: id,
-            data: extra,
           );
         },
         redirect: authRedirectStrict,
@@ -479,9 +485,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
         path: '/seller/order/review/terms/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
-          final extra = state.extra! as Map<String, dynamic>;
           return SellerOrderReviewTermsScreen(
-            data: extra,
             id: id,
           );
         },
@@ -491,9 +495,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
         path: '/seller/order/deliver/work/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
-          final extra = state.extra! as Map<String, dynamic>;
           return SellerOrderDeliverWorkScreen(
-            data: extra,
             id: id,
           );
         },
