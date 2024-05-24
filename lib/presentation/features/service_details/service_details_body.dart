@@ -38,16 +38,19 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      IconButton(
-                          iconSize: 30,
-                          onPressed: () {
-                            context.pop();
-                          },
-                          icon: const Icon(Icons.arrow_back))
-                    ],
-                  ),
+                  context.canPop()
+                      ? Row(
+                          children: [
+                            IconButton(
+                              iconSize: 30,
+                              onPressed: () {
+                                context.pop();
+                              },
+                              icon: const Icon(Icons.arrow_back),
+                            )
+                          ],
+                        )
+                      : Container(),
                   Text(
                     data["data"]["name"],
                     style: const TextStyle(

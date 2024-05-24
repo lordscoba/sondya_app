@@ -68,11 +68,12 @@ class RemoveFromWishlistNotifier
 }
 
 final getWishlistDataProvider =
-    FutureProvider.autoDispose<List<dynamic>>((ref) async {
+    FutureProvider.autoDispose<List<WishListType>>((ref) async {
   try {
     // get boxForWishList data list
+    // final list = WishListType.fromJson(boxForWishList.values.toList());
     final list = boxForWishList.values.toList();
-    return list;
+    return list as List<WishListType>;
   } on Error catch (e) {
     return throw Exception("Failed to fetch map data error: ${e.toString()}");
   }

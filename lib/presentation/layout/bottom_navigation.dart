@@ -6,17 +6,18 @@ Widget sondyaBottomNavigationBar(BuildContext context) {
     items: <BottomNavigationBarItem>[
       BottomNavigationBarItem(
         icon: IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              context.go('/search');
-            }),
+          icon: const Icon(Icons.search),
+          onPressed: () {
+            context.push('/product/search');
+          },
+        ),
         label: 'Search',
       ),
       BottomNavigationBarItem(
         icon: IconButton(
             icon: const Icon(Icons.home),
             onPressed: () {
-              context.go('/');
+              context.push('/');
             }),
         label: 'Home',
       ),
@@ -24,7 +25,7 @@ Widget sondyaBottomNavigationBar(BuildContext context) {
         icon: IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              context.go('/settings');
+              context.push('/settings');
             }),
         label: 'Settings',
       ),

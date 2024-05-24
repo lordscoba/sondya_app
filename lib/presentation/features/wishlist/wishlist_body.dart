@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,33 +17,41 @@ class WishlistBody extends ConsumerWidget {
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
-            Row(
-              children: [
-                IconButton(
-                    iconSize: 30,
-                    onPressed: () {
-                      context.pop();
-                    },
-                    icon: const Icon(Icons.arrow_back))
-              ],
-            ),
+            context.canPop()
+                ? Row(
+                    children: [
+                      IconButton(
+                          iconSize: 30,
+                          onPressed: () {
+                            context.pop();
+                          },
+                          icon: const Icon(Icons.arrow_back))
+                    ],
+                  )
+                : const SizedBox(),
             getWishList.when(
               data: (data) {
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: data.length,
-                  itemBuilder: (context, index) {
-                    return WishListItem(
-                      id: data[index].id,
-                      category: data[index].category,
-                      name: data[index].name,
-                      index: index,
-                    );
-                  },
+                return SizedBox(
+                  height: MediaQuery.of(context).size.height - 250,
+                  child: ListView.builder(
+                    // shrinkWrap: true,
+                    itemCount: data.length,
+                    itemBuilder: (context, index) {
+                      // print(data[index].toJson());
+                      return WishListItem(
+                        id: data[index].id,
+                        category: data[index].category,
+                        name: data[index].name!,
+                        index: index,
+                      );
+                    },
+                  ),
                 );
               },
               error: (error, stackTrace) => Text(error.toString()),
-              loading: () => const CircularProgressIndicator(),
+              loading: () => const CupertinoActivityIndicator(
+                radius: 50,
+              ),
             ),
           ],
         ));
@@ -68,8 +77,15 @@ class WishListItem extends ConsumerStatefulWidget {
 class _WishListItemState extends ConsumerState<WishListItem> {
   @override
   Widget build(BuildContext context) {
-    final getProductDetails = ref.watch(getProductDetailsProvider(
-        (id: widget.id, name: sondyaSlugify(widget.name))));
+    AsyncValue<Map<String, dynamic>> getProductDetails;
+    if (widget.category == "product") {
+      getProductDetails = ref.watch(getProductDetailsProvider(
+          (id: widget.id, name: sondyaSlugify(widget.name))));
+    } else {
+      getProductDetails = ref.watch(getServiceDetailsProvider(
+          (id: widget.id, name: sondyaSlugify(widget.name))));
+    }
+
     return Container(
       padding: const EdgeInsets.all(10),
       margin: const EdgeInsets.all(10),
@@ -82,67 +98,100 @@ class _WishListItemState extends ConsumerState<WishListItem> {
       ),
       child: getProductDetails.when(
         data: (data) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 100,
-                child: Image(
-                  image: NetworkImage(data["data"]["image"][0]["url"] ?? ""),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              SizedBox(
-                width: 230,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          return data["data"] == null
+              ? Column(
                   children: [
-                    Text(
-                      data["data"]["name"] ?? "",
-                      style: const TextStyle(
-                          fontSize: 17, fontWeight: FontWeight.bold),
-                    ),
+                    Text(widget.name),
                     const Text(
-                      "\$998.00",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      data["data"]["description"] ?? "",
-                    ),
-                    TextButton(
-                      style: ButtonStyle(
-                        textStyle: MaterialStateProperty.all<TextStyle>(
-                          const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.bold),
-                        ),
-                        foregroundColor: MaterialStateProperty.all<Color>(
-                            const Color(0xFFEDB842)),
-                      ),
+                        "This item has been removed from server, please remove from wishlist",
+                        textAlign: TextAlign.center),
+                    IconButton(
                       onPressed: () {
-                        context.push(
-                            "/product/details/${widget.id}/${sondyaSlugify(widget.name)}");
+                        ref
+                            .read(removeFromWishlistProvider.notifier)
+                            .removeFromWishlist(widget.id, "product");
+                        // ignore: unused_result
+                        ref.refresh(getWishlistDataProvider);
                       },
-                      child: const Text("View Details"),
+                      icon: const Icon(Icons.delete),
                     ),
                   ],
-                ),
-              ),
-              IconButton(
-                  onPressed: () async {
-                    ref
-                        .read(removeFromWishlistProvider.notifier)
-                        .removeFromWishlist(widget.id, "product");
-                    // ignore: unused_result
-                    ref.refresh(getWishlistDataProvider);
-                  },
-                  icon: const Icon(Icons.delete)),
-            ],
-          );
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 100,
+                      child: data["data"]["image"] == null ||
+                              data["data"]["image"].isEmpty
+                          ? Container()
+                          : Image(
+                              image: NetworkImage(
+                                  data["data"]["image"][0]["url"] ?? ""),
+                              fit: BoxFit.cover,
+                              height: 130,
+                            ),
+                    ),
+                    SizedBox(
+                      width: 230,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            data["data"]["name"] ?? "",
+                            style: const TextStyle(
+                                fontSize: 17, fontWeight: FontWeight.bold),
+                          ),
+                          const Text(
+                            "\$998.00",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            data["data"]["description"] ?? "",
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          TextButton(
+                            style: ButtonStyle(
+                              textStyle: MaterialStateProperty.all<TextStyle>(
+                                const TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.bold),
+                              ),
+                              foregroundColor: MaterialStateProperty.all<Color>(
+                                  const Color(0xFFEDB842)),
+                            ),
+                            onPressed: () {
+                              if (widget.category == "product") {
+                                context.push(
+                                    "/product/details/${widget.id}/${sondyaSlugify(widget.name)}");
+                              } else {
+                                context.push(
+                                    "/service/details/${widget.id}/${sondyaSlugify(widget.name)}");
+                              }
+                            },
+                            child: const Text("View Details"),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                        onPressed: () async {
+                          ref
+                              .read(removeFromWishlistProvider.notifier)
+                              .removeFromWishlist(widget.id, "product");
+                          // ignore: unused_result
+                          ref.refresh(getWishlistDataProvider);
+                        },
+                        icon: const Icon(Icons.delete)),
+                  ],
+                );
         },
         error: (error, stackTrace) => Text(error.toString()),
-        loading: () => const CircularProgressIndicator(),
+        loading: () => const CupertinoActivityIndicator(
+          radius: 20,
+        ),
       ),
     );
   }

@@ -1,55 +1,52 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sondya_app/domain/providers/isSeller.provider.dart';
 import 'package:sondya_app/presentation/features/user/settings/change_password_body.dart';
 import 'package:sondya_app/presentation/features/user/settings/edit_company_details.dart';
 import 'package:sondya_app/presentation/features/user/settings/edit_personal_details_body.dart';
 import 'package:sondya_app/presentation/features/user/settings/edit_socials_body.dart';
 import 'package:sondya_app/presentation/features/user/settings/logout.dart';
+import 'package:sondya_app/utils/is_seller.dart';
 import 'package:sondya_app/utils/url_launcher.dart';
 
-class SettingsBody extends StatelessWidget {
+class SettingsBody extends ConsumerStatefulWidget {
   const SettingsBody({super.key});
 
-  // Future<Map<String, dynamic>> getLocalAuth() async {
-  //   Box<Map<String, dynamic>> authSessionBox = Hive.box(authBox);
-  //   if (authSessionBox.isEmpty) {
-  //     return {};
-  //   } else {
-  //     return authSessionBox.get(EnvironmentStorageConfig.authSession) ?? {};
-  //   }
-  // }
+  @override
+  ConsumerState<SettingsBody> createState() => _SettingsBodyState();
+}
 
-  // Future<Map<String, dynamic>> getLocalAuth() async {
-  //   Box<Map<String, dynamic>> authSessionBox = Hive.box(authBox);
-  //   if (authSessionBox.isEmpty) {
-  //     return {};
-  //   } else {
-  //     Map<String, dynamic>? authData =
-  //         authSessionBox.get(EnvironmentStorageConfig.authSession);
-  //     return authData ?? {};
-  //   }
-  // }
+class _SettingsBodyState extends ConsumerState<SettingsBody> {
+  bool _isSwitched = false;
 
-  // Future<Map<String, dynamic>> getLocalAuth() async {
-  //   Box<Map<String, dynamic>> authSessionBox = Hive.box(authBox);
-  //   final authData = authSessionBox.get(EnvironmentStorageConfig.authSession);
-  //   return authData?.cast<String, dynamic>() ??
-  //       {}; // Cast and return empty map if null
-  // }
+  @override
+  void initState() {
+    super.initState();
+    _isSwitched = isSellerSession();
+  }
+
+  void _toggleSwitch(bool value) {
+    if (mounted) {
+      setState(() {
+        _isSwitched = value;
+        if (value == true) {
+          context.push("/seller/products");
+          ref.read(isSellerProvider.notifier).update1(value);
+        } else {
+          context.push("/");
+          ref.read(isSellerProvider.notifier).update1(value);
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // final Box<Map<String, dynamic>> authSessionBox = Hive.box(authBox);
-    // final Map<String, dynamic> authData =
-    //     authSessionBox.get(EnvironmentStorageConfig.authSession) ?? {};
-    // debugPrint(authSessionBox.toString());
-    // get the login data from hive authBox
-    // final Map<String, dynamic> authData = authSessionBox
-    //     .get(EnvironmentStorageConfig.authSession) as Map<String, dynamic>;
-    // print(getLocalAuth());
     return SingleChildScrollView(
       child: Container(
-        height: 930,
+        height: 1080,
         width: double.infinity,
         color: const Color(0xFFF5F5F5),
         child: Column(
@@ -62,12 +59,14 @@ class SettingsBody extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.arrow_back),
-                  ),
+                  context.canPop()
+                      ? IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.arrow_back),
+                        )
+                      : const SizedBox(),
                   const SizedBox(
                     width: 10,
                   ),
@@ -78,6 +77,32 @@ class SettingsBody extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF5C5566),
                     ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Container(
+              color: const Color(0xFFFFFFFF),
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Switch to Seller Mode",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF5C5566),
+                    ),
+                  ),
+                  CupertinoSwitch(
+                    value: _isSwitched,
+                    onChanged: _toggleSwitch,
+                    activeColor: const Color(0xFF91DF8F),
                   ),
                 ],
               ),
@@ -157,37 +182,10 @@ class SettingsBody extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            // SettingsTile(
-            //   icon: Icons.person_pin_circle_outlined,
-            //   title: "Billing Address",
-            //   iconColor: const Color(0xFFFFC749),
-            //   onTap: () {
-            //     // context.push("/login");
-            //     showGeneralDialog(
-            //       context: context,
-            //       transitionDuration: const Duration(
-            //           milliseconds: 100), // Adjust animation duration
-            //       transitionBuilder: (context, a1, a2, widget) {
-            //         return FadeTransition(
-            //           opacity:
-            //               CurvedAnimation(parent: a1, curve: Curves.easeIn),
-            //           child: widget,
-            //         );
-            //       },
-            //       barrierLabel: MaterialLocalizations.of(context)
-            //           .modalBarrierDismissLabel, // Optional accessibility label
-            //       pageBuilder: (context, animation1, animation2) {
-            //         return const EditPersonalDetailsBody();
-            //       },
-            //     );
-            //   },
-            //   bottomBorder: true,
-            // ),
             SettingsTile(
               icon: Icons.archive,
               title: "Edit Socials",
               onTap: () {
-                // context.push("/login");
                 showGeneralDialog(
                   context: context,
                   transitionDuration: const Duration(
@@ -218,6 +216,15 @@ class SettingsBody extends StatelessWidget {
               bottomBorder: true,
             ),
             SettingsTile(
+              icon: Icons.payment,
+              title: "My Payments",
+              iconColor: const Color(0xFFFFC749),
+              onTap: () {
+                context.push("/user/payments");
+              },
+              bottomBorder: true,
+            ),
+            SettingsTile(
               icon: Icons.cases_outlined,
               title: "Company Details",
               onTap: () {
@@ -242,13 +249,6 @@ class SettingsBody extends StatelessWidget {
               },
               bottomBorder: true,
             ),
-            // SettingsTile(
-            //   icon: Icons.verified,
-            //   title: "Verify Account",
-            //   onTap: () {
-            //     context.push("/login");
-            //   },
-            // ),
             const SizedBox(
               height: 20,
             ),

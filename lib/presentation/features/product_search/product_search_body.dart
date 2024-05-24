@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sondya_app/data/remote/search.dart';
 import 'package:sondya_app/domain/models/home.dart';
 import 'package:sondya_app/domain/providers/home.provider.dart';
@@ -100,6 +101,19 @@ class _ProductSearchBodyState extends ConsumerState<ProductSearchBody> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
+              context.canPop()
+                  ? Row(
+                      children: [
+                        IconButton(
+                            iconSize: 30,
+                            onPressed: () {
+                              context.pop();
+                            },
+                            icon: const Icon(Icons.arrow_back))
+                      ],
+                    )
+                  : const SizedBox(),
+              const SizedBox(height: 5),
               TextFormField(
                 decoration: const InputDecoration(
                   hintText: " Enter your search",
@@ -278,6 +292,7 @@ class _ProductSearchBodyState extends ConsumerState<ProductSearchBody> {
                     crossAxisCount: 2, // You can adjust this as needed
                     crossAxisSpacing: 6.0,
                     mainAxisSpacing: 6.0,
+                    childAspectRatio: 0.7,
                   ),
                   itemCount: allItems.isNotEmpty ? allItems.length : 1,
                   itemBuilder: (context, index) {

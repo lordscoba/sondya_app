@@ -40,6 +40,7 @@ class _LogoutBodyState extends ConsumerState<LogoutBody> {
                   children: [
                     SizedBox(
                       width: 150,
+                      height: 60,
                       child: OutlinedButton(
                         onPressed: () {
                           Navigator.pop(context);
@@ -59,7 +60,7 @@ class _LogoutBodyState extends ConsumerState<LogoutBody> {
                           await Future.delayed(const Duration(seconds: 3));
 
                           // ignore: use_build_context_synchronously
-                          context.go('/home');
+                          context.go('/');
                         },
                         child: checkState.isLoading
                             ? sondyaThreeBounceLoader(color: Colors.white)
