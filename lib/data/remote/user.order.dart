@@ -98,7 +98,7 @@ final getUserServiceOrdersDetailsDetailsProvider = FutureProvider.family
         .get(EnvironmentUserServiceOrderConfig.getServiceOrderById + id);
     // debugPrint(response.data.toString());
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return response.data["data"]["data"] as Map<String, dynamic>;
+      return response.data["data"] as Map<String, dynamic>;
     } else {
       throw Exception('Failed to fetch map data');
     }
@@ -112,3 +112,41 @@ final getUserServiceOrdersDetailsDetailsProvider = FutureProvider.family
     }
   }
 });
+
+class UpdateUserServiceOrderTermsNotifier
+    extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
+  UpdateUserServiceOrderTermsNotifier() : super(const AsyncValue.data({}));
+
+  Future<void> updateOrder(data, String id) async {
+    try {
+      // Set loading state
+      state = const AsyncValue.loading();
+
+      // initialize dio and add interceptors
+      final dio = Dio();
+      dio.interceptors.add(const AuthInterceptor());
+
+      // // get auth user id
+      // AuthInfo localAuth = await getLocalAuth();
+      // String userId = localAuth.id;
+
+      // Make the PUT request
+      final response = await dio.put(
+        EnvironmentUserServiceOrderConfig.updateTerms + id,
+        data: data,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        state = AsyncValue.data(response.data as Map<String, dynamic>);
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        state = AsyncValue.error(e.response?.data['message'], e.stackTrace);
+        // debugPrint(e.response?.data['message'].toString());
+      } else {
+        state = AsyncValue.error(e.message.toString(), e.stackTrace);
+        // debugPrint(e.message.toString());
+      }
+    }
+  }
+}

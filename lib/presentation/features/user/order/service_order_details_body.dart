@@ -13,19 +13,36 @@ class ServiceOrderDetailsBody extends StatelessWidget {
     return SingleChildScrollView(
       child: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                  icon: const Icon(Icons.arrow_back),
-                ),
-              ],
+            context.canPop()
+                ? Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        icon: const Icon(Icons.arrow_back),
+                      ),
+                    ],
+                  )
+                : Container(),
+            const SizedBox(height: 10.0),
+            Container(
+              margin: const EdgeInsets.all(10.0),
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  context.push(
+                    "/user/service/order/review/terms/${data["order_id"]}",
+                  );
+                },
+                child: const Text("Update Terms"),
+              ),
             ),
+            const SizedBox(height: 10.0),
             Container(
               margin: const EdgeInsets.all(8.0),
               padding: const EdgeInsets.all(8.0),
@@ -138,17 +155,23 @@ class ServiceOrderDetailsBody extends StatelessWidget {
                             DataCell(
                               PriceFormatWidget(
                                   color: Colors.black87,
-                                  price: data["checkout_items"]["terms"]
-                                              ["amount"]
-                                          .toDouble() ??
-                                      0.0),
+                                  price:
+                                      data["checkout_items"]["amount"] != null
+                                          ? data["checkout_items"]["terms"]
+                                                      ["amount"]
+                                                  .toDouble() ??
+                                              0.0
+                                          : 0.0),
                             ),
                             DataCell(
                               PriceFormatWidget(
                                   color: Colors.black87,
-                                  price: data["checkout_items"]["amount"]
-                                          .toDouble() ??
-                                      0.0),
+                                  price:
+                                      data["checkout_items"]["amount"] != null
+                                          ? data["checkout_items"]["amount"]
+                                                  .toDouble() ??
+                                              0.0
+                                          : 0.0),
                             ),
                           ],
                         ),

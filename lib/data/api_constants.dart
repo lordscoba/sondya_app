@@ -150,7 +150,7 @@ class EnvironmentSellerProductOrderConfig {
   static const String getProductOrdersById =
       '$baseUrl/seller/order/product/details/'; // GET :id
   static const String updateProductOrders =
-      '$baseUrl/seller/order/products/update'; // POST :getProductOrder Type
+      '$baseUrl/seller/order/products/update'; // PUT :getProductOrder Type
   static const String deleteProductOrdersById =
       '$baseUrl/seller/order/products/'; // GET :id
 }
