@@ -1,16 +1,22 @@
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sondya_app/data/remote/home.dart';
+import 'package:sondya_app/data/remote/reviews.dart';
+import 'package:sondya_app/domain/models/reviews.dart';
+import 'package:sondya_app/domain/providers/review.provider.dart';
 import 'package:sondya_app/presentation/widgets/ratings_widget.dart';
+import 'package:sondya_app/presentation/widgets/success_error_message.dart';
 import 'package:sondya_app/presentation/widgets/threebounce_loader.dart';
+import 'package:sondya_app/utils/auth_utils.dart';
+import 'package:sondya_app/utils/input_validations.dart';
 
 class ReviewSection extends ConsumerStatefulWidget {
-  final String userId;
+  final String? userId;
   final String productId;
   final String category;
-  const ReviewSection(
-    this.userId, {
+  const ReviewSection({
     super.key,
+    this.userId,
     required this.productId,
     required this.category,
   });
@@ -20,19 +26,21 @@ class ReviewSection extends ConsumerStatefulWidget {
 }
 
 class _ReviewSectionState extends ConsumerState<ReviewSection> {
-  int limit;
-  int page;
-  String search;
-  int createRating;
-  _ReviewSectionState()
-      : limit = 5,
-        page = 1,
-        search = "",
-        createRating = 0;
+  late int limit;
+  late int page;
+  late String search;
+
+  @override
+  void initState() {
+    super.initState();
+    limit = 5;
+    page = 1;
+    search = "";
+  }
 
   @override
   Widget build(BuildContext context) {
-    // debugPrint(widget.productId);
+    debugPrint(widget.productId);
     final getProductRatingStat = ref.watch(getReviewStatsProvider(
         (category: widget.category, id: widget.productId)));
     final getRatingList = ref.watch(getReviewListProvider((
@@ -55,17 +63,18 @@ class _ReviewSectionState extends ConsumerState<ReviewSection> {
         ),
         getProductRatingStat.when(
           data: (data) {
-            // debugPrint(data.toString());
+            // print(data);
             return Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                    "${data["data"]["totalReviews"]} reviews for this ${widget.category}",
+                    "${data["data"]["totalReviews"] ?? 0} reviews for this ${widget.category}",
                     style: const TextStyle(fontSize: 16)),
                 SondyaStarRating(
-                    averageRating:
-                        (data["data"]["averageRating"] as int).toDouble()),
+                    averageRating: data["data"]["averageRating"].toDouble()),
+                Text("(${data["data"]["averageRating"].toDouble().toString()})",
+                    style: const TextStyle(fontSize: 16)),
               ],
             );
           },
@@ -75,7 +84,7 @@ class _ReviewSectionState extends ConsumerState<ReviewSection> {
         const SizedBox(
           height: 10,
         ),
-        TextFormField(
+        TextField(
           decoration: InputDecoration(
             suffixIcon: Container(
               decoration: const BoxDecoration(
@@ -115,103 +124,9 @@ class _ReviewSectionState extends ConsumerState<ReviewSection> {
               width: 1, // Border width
             ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Write a review",
-                style: TextStyle(fontSize: 20),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        createRating = 1;
-                      });
-                    },
-                    icon: createRating >= 1
-                        ? const Icon(Icons.star)
-                        : const Icon(Icons.star_border),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        createRating = 2;
-                      });
-                    },
-                    icon: createRating >= 2
-                        ? const Icon(Icons.star)
-                        : const Icon(Icons.star_border),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        createRating = 3;
-                      });
-                    },
-                    icon: createRating >= 3
-                        ? const Icon(Icons.star)
-                        : const Icon(Icons.star_border),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        createRating = 4;
-                      });
-                    },
-                    icon: createRating >= 4
-                        ? const Icon(Icons.star)
-                        : const Icon(Icons.star_border),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        createRating = 5;
-                      });
-                    },
-                    icon: createRating >= 5
-                        ? const Icon(Icons.star)
-                        : const Icon(Icons.star_border),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const TextField(
-                maxLines: 6, // Allows unlimited lines
-                keyboardType: TextInputType.multiline, // Adjust keyboard type
-                decoration: InputDecoration(
-                  hintText: "Enter your text here...",
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              SizedBox(
-                height: 45,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text("Publish Review"),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Icon(Icons.arrow_forward),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          child: CreateReviewWidget(
+            category: widget.category,
+            id: widget.productId,
           ),
         ),
         const SizedBox(
@@ -223,6 +138,7 @@ class _ReviewSectionState extends ConsumerState<ReviewSection> {
         ),
         getRatingList.when(
           data: (data) {
+            // print(data);
             return SizedBox(
               height: data["data"].length <= 0
                   ? 50.00
@@ -232,10 +148,13 @@ class _ReviewSectionState extends ConsumerState<ReviewSection> {
                 shrinkWrap: true,
                 itemCount: data["data"].length > 0 ? data["data"].length : 1,
                 itemBuilder: (context, index) {
-                  if (data["data"].isNotEmpty || data["data"].length > 0) {
+                  if (data["data"] != null && data["data"].isNotEmpty) {
                     return ReviewSectionTile(
-                      imageString: data["data"][index]["user_id"]["image"][0]
-                          ["url"],
+                      imageString: data["data"][index]["user_id"]["image"] !=
+                                  null &&
+                              data["data"][index]["user_id"]["image"].isNotEmpty
+                          ? data["data"][index]["user_id"]["image"][0]["url"]
+                          : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
                       emailUsername: data["data"][index]["user_id"]["username"]
                               .isEmpty
                           ? data["data"][index]["user_id"]["email"]
@@ -285,6 +204,216 @@ class _ReviewSectionState extends ConsumerState<ReviewSection> {
   }
 }
 
+class CreateReviewWidget extends ConsumerStatefulWidget {
+  final String id;
+  final String category;
+  final int limit;
+  final int page;
+  final String search;
+  const CreateReviewWidget(
+      {super.key,
+      required this.id,
+      required this.category,
+      this.limit = 5,
+      this.page = 1,
+      this.search = ""});
+
+  @override
+  ConsumerState<CreateReviewWidget> createState() => _CreateReviewWidgetState();
+}
+
+class _CreateReviewWidgetState extends ConsumerState<CreateReviewWidget> {
+  late int createRating;
+
+  late CreateReviewType review;
+
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    review = CreateReviewType();
+    createRating = 0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AsyncValue<Map<String, dynamic>> checkState =
+        ref.watch(createReviewProvider);
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          checkState.when(
+            data: (data) {
+              return sondyaDisplaySuccessMessage(context, data["message"]);
+            },
+            loading: () => const SizedBox(),
+            error: (error, stackTrace) {
+              return sondyaDisplayErrorMessage(error.toString(), context);
+            },
+          ),
+          const Text(
+            "Write a review",
+            style: TextStyle(fontSize: 20),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    createRating = 1;
+                  });
+                },
+                icon: createRating >= 1
+                    ? const Icon(Icons.star)
+                    : const Icon(Icons.star_border),
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    createRating = 2;
+                  });
+                },
+                icon: createRating >= 2
+                    ? const Icon(Icons.star)
+                    : const Icon(Icons.star_border),
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    createRating = 3;
+                  });
+                },
+                icon: createRating >= 3
+                    ? const Icon(Icons.star)
+                    : const Icon(Icons.star_border),
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    createRating = 4;
+                  });
+                },
+                icon: createRating >= 4
+                    ? const Icon(Icons.star)
+                    : const Icon(Icons.star_border),
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    createRating = 5;
+                  });
+                },
+                icon: createRating >= 5
+                    ? const Icon(Icons.star)
+                    : const Icon(Icons.star_border),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          TextFormField(
+            validator: isInputEmpty,
+            maxLines: 6, // Allows unlimited lines
+            keyboardType: TextInputType.multiline, // Adjust keyboard type
+            decoration: const InputDecoration(
+              hintText: "Enter your text here...",
+            ),
+            onChanged: (value) {
+              review.review = value;
+            },
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          SizedBox(
+            height: 45,
+            child: ElevatedButton(
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState?.save();
+
+                  if (createRating == 0) {
+                    AnimatedSnackBar.rectangle(
+                      'Error',
+                      "Please select a rating",
+                      type: AnimatedSnackBarType.warning,
+                      brightness: Brightness.light,
+                    ).show(
+                      context,
+                    );
+                  } else if (!isAuthenticated()) {
+                    AnimatedSnackBar.rectangle(
+                      'Error',
+                      "You have to be logged in to post reviews",
+                      type: AnimatedSnackBarType.warning,
+                      brightness: Brightness.light,
+                    ).show(context);
+                  } else {
+                    review.rating = createRating;
+                    if (widget.category == "service") {
+                      review.serviceId = widget.id;
+                    } else {
+                      review.productId = widget.id;
+                    }
+
+                    ref
+                        .read(createReviewProvider.notifier)
+                        .createReview(review.toJson());
+
+                    // ignore: unused_result
+                    ref.refresh(getReviewStatsProvider(
+                        (category: widget.category, id: widget.id)));
+
+                    // ignore: unused_result
+                    ref.refresh(getReviewListProvider((
+                      category: widget.category,
+                      id: widget.id,
+                      limit: widget.limit,
+                      page: widget.page,
+                      search: widget.search
+                    )));
+                  }
+                } else {
+                  AnimatedSnackBar.rectangle(
+                    'Error',
+                    "Please fill all the fields",
+                    type: AnimatedSnackBarType.warning,
+                    brightness: Brightness.light,
+                  ).show(
+                    context,
+                  );
+                }
+              },
+              child: checkState.isLoading
+                  ? sondyaThreeBounceLoader(color: Colors.white)
+                  : const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text("Publish Review"),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Icon(Icons.arrow_forward),
+                      ],
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class ReviewSectionTile extends StatelessWidget {
   final String imageString;
   final String emailUsername;
@@ -318,6 +447,7 @@ class ReviewSectionTile extends StatelessWidget {
                     : const AssetImage("assets/images/review_placeholder.png")
                         as ImageProvider,
                 height: 50,
+                width: 50,
                 fit: BoxFit.cover,
               ),
               const SizedBox(
@@ -332,8 +462,15 @@ class ReviewSectionTile extends StatelessWidget {
                     emailUsername,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  const Text("No country"),
-                  SondyaStarRating(averageRating: rating.toDouble()),
+                  Row(
+                    children: [
+                      SondyaStarRating(averageRating: rating.toDouble()),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Text("(${rating.toDouble().toString()})"),
+                    ],
+                  ),
                   SizedBox(
                     width: 200,
                     child: Text(review),

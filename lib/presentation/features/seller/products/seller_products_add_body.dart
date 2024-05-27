@@ -36,18 +36,20 @@ class _SellerProductsAddBodyState extends ConsumerState<SellerProductsAddBody> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                  icon: const Icon(Icons.arrow_back),
-                ),
-              ],
-            ),
+            context.canPop()
+                ? Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        icon: const Icon(Icons.arrow_back),
+                      ),
+                    ],
+                  )
+                : const SizedBox(),
             const SizedBox(height: 20.0),
             Container(
               margin: const EdgeInsets.all(8.0),

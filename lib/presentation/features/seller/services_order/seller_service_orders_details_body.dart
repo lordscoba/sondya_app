@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sondya_app/presentation/features/service_details/service_details_body.dart';
+import 'package:sondya_app/presentation/features/service_details/seller_chat_box.dart';
 import 'package:sondya_app/presentation/features/user/order/service_order_details_body.dart';
 import 'package:sondya_app/presentation/widgets/price_formatter.dart';
 

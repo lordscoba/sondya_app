@@ -94,7 +94,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
 
   return GoRouter(
     initialLocation: "/",
-    // initialLocation: "/seller/products",
+    // initialLocation: "/product/details/656d5da6d9b350a9a62cb480/shoe-making",
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(
@@ -142,6 +142,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
             name: name,
           );
         },
+        redirect: authRedirectStrict,
       ),
 
       // Auth routes
