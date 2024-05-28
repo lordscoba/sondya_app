@@ -10,6 +10,12 @@ const String wsBaseUrl = 'ws://localhost:8989/api/v1';
 // const String baseUrl = 'http://10.0.2.2:8989/api/v1';
 // const String wsBaseUrl = 'ws://10.0.2.2:8989/api/v1';
 
+class EnvironmentWebSocketConfig {
+  static const String groupchat = '$wsBaseUrl/ws/group/chat';
+  static const String personal = '$wsBaseUrl/ws/personal/chat';
+  static const String notifications = '$wsBaseUrl/ws/notifications';
+}
+
 class EnvironmentAuthConfig {
   // authentication
   static const String login = '$baseUrl/login'; // POST
@@ -37,12 +43,20 @@ class EnvironmentHomeConfig {
   static const String servicesSearch = '$baseUrl/user/services'; // GET
 
   // for reviews
-
   static const String createReview = '$baseUrl/user/review'; // POST
   static const String getReviewStat =
       '$baseUrl/user/review/stat/'; // GET: :category/:id
   static const String listReviews =
       '$baseUrl/user/review/list/'; // GET: :category/:id
+}
+
+class EnvironmentChatConfig {
+  static const String getChats = '$baseUrl/chats/'; // GET :user_id
+  static const String getChat =
+      '$baseUrl/chat'; // GET :query - sender_id and receiver_id
+  static const String getMessages =
+      '$baseUrl/chat/messages'; // GET :query - sender_id and receiver_id
+  static const String sendMessage = '$baseUrl/chat/send/message'; // POST
 }
 
 class EnvironmentKycConfig {

@@ -93,7 +93,8 @@ GoRouter goRouterFunc(WidgetRef ref) {
   // print(isSellerSession());
 
   return GoRouter(
-    initialLocation: "/",
+    initialLocation: "/inbox",
+    // initialLocation: "/inbox/chat/1",
     // initialLocation: "/product/details/656d5da6d9b350a9a62cb480/shoe-making",
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
@@ -194,8 +195,13 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/inbox/chat',
-        builder: (context, state) => const InboxChatScreen(),
+        path: '/inbox/chat/:chat_id/:user_id',
+        builder: (context, state) {
+          final chatId = state.pathParameters['chat_id']!;
+          final userId = state.pathParameters['user_id']!;
+          final extra = state.extra! as Map<String, dynamic>;
+          return InboxChatScreen(chatId: chatId, userId: userId, data: extra);
+        },
         redirect: authRedirectStrict,
       ),
 
