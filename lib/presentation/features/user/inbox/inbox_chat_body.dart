@@ -1,22 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sondya_app/data/extra_constants.dart';
 
 class InboxChatBody extends ConsumerStatefulWidget {
-  const InboxChatBody({super.key});
+  final String userId;
+  final String chatId;
+  final Map<String, dynamic> data;
+  const InboxChatBody(
+      {super.key,
+      required this.userId,
+      required this.chatId,
+      required this.data});
 
   @override
   ConsumerState<InboxChatBody> createState() => _InboxChatBodyState();
 }
 
 class _InboxChatBodyState extends ConsumerState<InboxChatBody> {
+  late Map<String, dynamic> chatSender;
   @override
   void initState() {
     super.initState();
     // Initialize the variable in initState
+    chatSender = widget.data;
   }
 
   @override
   Widget build(BuildContext context) {
+    print(widget.data);
+    print(widget.chatId);
+    print(widget.userId);
     return SingleChildScrollView(
       child: Center(
         child: Container(
@@ -25,18 +39,20 @@ class _InboxChatBodyState extends ConsumerState<InboxChatBody> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.arrow_back),
-                  ),
-                ],
-              ),
+              context.canPop()
+                  ? Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.arrow_back),
+                        ),
+                      ],
+                    )
+                  : const SizedBox(),
               const SizedBox(height: 20.0),
               const Text(
                 "Inbox",
@@ -66,15 +82,30 @@ class _InboxChatBodyState extends ConsumerState<InboxChatBody> {
                           topEnd: Radius.circular(10),
                         ),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(Icons.person),
-                          SizedBox(width: 10.0),
+                          // const Icon(Icons.person),
+                          Container(
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                    widget.data["image"] != null &&
+                                            widget.data["image"].length > 0
+                                        ? widget.data["image"][0]["url"]
+                                        : networkImagePlaceholder),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10.0),
                           Column(
                             children: [
-                              Text("User Name"),
-                              Row(
+                              Text(chatSender["username"] ?? "Unknown"),
+                              const Row(
                                 children: [
                                   Icon(Icons.circle,
                                       color: Colors.green, size: 10),
@@ -84,8 +115,8 @@ class _InboxChatBodyState extends ConsumerState<InboxChatBody> {
                               ),
                             ],
                           ),
-                          Spacer(),
-                          Icon(Icons.delete),
+                          const Spacer(),
+                          const Icon(Icons.delete),
                         ],
                       ),
                     ),
