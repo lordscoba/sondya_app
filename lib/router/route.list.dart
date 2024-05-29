@@ -93,9 +93,9 @@ GoRouter goRouterFunc(WidgetRef ref) {
   // print(isSellerSession());
 
   return GoRouter(
-    initialLocation: "/inbox",
+    initialLocation: "/service/order/history",
     // initialLocation: "/inbox/chat/1",
-    // initialLocation: "/product/details/656d5da6d9b350a9a62cb480/shoe-making",
+    // initialLocation: "/service/details/65578ed950e2b74cef80b8e3/shoe-making",
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(

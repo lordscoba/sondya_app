@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sondya_app/data/local/storedValue.dart';
+import 'package:sondya_app/presentation/features/service_details/seller_chat_box.dart';
 import 'package:sondya_app/presentation/features/user/order/product_order_details_body.dart';
 import 'package:sondya_app/presentation/widgets/price_formatter.dart';
 import 'package:sondya_app/utils/dateTime_to_string.dart';
 
-class ServiceOrderDetailsBody extends StatelessWidget {
+class ServiceOrderDetailsBody extends ConsumerWidget {
   final Map<String, dynamic> data;
   const ServiceOrderDetailsBody({super.key, required this.data});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final myData = ref.watch(storedAuthValueProvider);
     return SingleChildScrollView(
       child: Center(
         child: Column(
@@ -288,6 +292,23 @@ class ServiceOrderDetailsBody extends StatelessWidget {
                   )
                 ],
               ),
+            ),
+            myData.when(
+              data: (data1) {
+                var buyer = data1.toJson();
+                buyer.remove("type");
+                buyer.remove("token");
+                buyer.remove("email_verified");
+                buyer.remove("kyc_completed");
+                buyer.remove("kyc_completed");
+                return SellerChatBox(
+                  sellerData: data["checkout_items"]["owner"],
+                  buyerData: buyer,
+                  serviceId: data["checkout_items"]["_id"] ?? '',
+                );
+              },
+              error: (error, stackTrace) => Text(error.toString()),
+              loading: () => const SizedBox(),
             ),
             Container(
               margin: const EdgeInsets.all(8.0),

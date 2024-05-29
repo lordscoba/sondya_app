@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sondya_app/data/local/storedValue.dart';
 import 'package:sondya_app/data/remote/home.dart';
 import 'package:sondya_app/data/remote/reviews.dart';
 import 'package:sondya_app/presentation/features/product_details/review_section.dart';
@@ -27,6 +28,8 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
         .watch(getServiceDetailsProvider((id: widget.id, name: widget.name)));
     final getServiceRatingStat =
         ref.watch(getReviewStatsProvider((category: "service", id: widget.id)));
+
+    final myData = ref.watch(storedAuthValueProvider);
     return RefreshIndicator(
       onRefresh: () async {
         // ignore: unused_result
@@ -421,7 +424,23 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
                           ],
                         ),
                       ),
-                      const SellerChatBox(),
+                      myData.when(
+                        data: (data1) {
+                          var buyer = data1.toJson();
+                          buyer.remove("type");
+                          buyer.remove("token");
+                          buyer.remove("email_verified");
+                          buyer.remove("kyc_completed");
+                          buyer.remove("kyc_completed");
+                          return SellerChatBox(
+                            sellerData: data["data"]["owner"],
+                            buyerData: buyer,
+                            serviceId: data["data"]["_id"] ?? '',
+                          );
+                        },
+                        error: (error, stackTrace) => Text(error.toString()),
+                        loading: () => const SizedBox(),
+                      ),
                       const Divider(),
                       const SizedBox(
                         height: 20,

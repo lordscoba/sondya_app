@@ -18,12 +18,6 @@ class _InboxBodyState extends ConsumerState<InboxBody> {
   List<dynamic> userChats = [];
 
   @override
-  void initState() {
-    super.initState();
-    // Initialize the variable in initState
-  }
-
-  @override
   Widget build(BuildContext context) {
     final getChats = ref.watch(getChatsProvider);
     // final getWebChats = ref.watch(chatWebSocketProvider);
@@ -33,40 +27,6 @@ class _InboxBodyState extends ConsumerState<InboxBody> {
     //     print(data);
     //     // userChats = [...data];
     //   },
-    // );
-
-    // getChats.whenData(
-    //   (data) {
-    //     // print(data);
-    //     setState(() async {
-    //       userChats = [...data];
-
-    //       // get auth user id
-    //       AuthInfo localAuth = await getLocalAuth();
-    //       String userId = localAuth.id;
-
-    //       for (var element in userChats) {
-    //         if (element["user1"]["_id"] != userId) {
-    //           print(element["user1"]["_id"]);
-    //           chatReceiver.add(element["user1"]);
-    //         } else {
-    //           chatReceiver.add(element["user2"]);
-    //         }
-
-    //         // print(chatReceiver);
-    //       }
-    //     });
-    //   },
-    // );
-
-    // getChats.when(
-    //   data: (data) {
-    //     print(data);
-    //   },
-    //   error: (error, stackTrace) {
-    //     print(error);
-    //   },
-    //   loading: () {},
     // );
     return SingleChildScrollView(
       child: RefreshIndicator(
@@ -108,10 +68,10 @@ class _InboxBodyState extends ConsumerState<InboxBody> {
                   ),
                 ),
                 const SizedBox(height: 20.0),
-                const Text("No Conversations Yet..."),
+                const Text("Chats"),
                 const SizedBox(height: 20.0),
                 Container(
-                  height: 400,
+                  height: MediaQuery.of(context).size.height - 450,
                   padding: const EdgeInsets.all(10.0),
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -150,9 +110,9 @@ class _InboxBodyState extends ConsumerState<InboxBody> {
                                     : message["user2"],
                             name:
                                 "${chatReceiver[index]["first_name"]} ${chatReceiver[index]["last_name"]}",
-                            message: message["messages"].last["message"],
+                            message: message["messages"].first["message"],
                             time: sondyaTimeAgo(
-                                message["messages"].last["updatedAt"]),
+                                message["messages"].first["updatedAt"]),
                             image: chatReceiver[index]["image"] != null &&
                                     chatReceiver[index]["image"].length > 0
                                 ? chatReceiver[index]["image"][0]["url"]
