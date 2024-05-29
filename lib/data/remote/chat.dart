@@ -66,7 +66,7 @@ final getChatProvider = FutureProvider.autoDispose
 });
 
 final getMessagesProvider = FutureProvider.autoDispose
-    .family<Map<String, dynamic>, ChatParameters>((ref, arguments) async {
+    .family<List<dynamic>, ChatParameters>((ref, arguments) async {
   try {
     final dio = Dio();
     dio.interceptors.add(const AuthInterceptor());
@@ -78,9 +78,10 @@ final getMessagesProvider = FutureProvider.autoDispose
     final response = await dio.get(
         "${EnvironmentChatConfig.getMessages}?sender_id=${arguments.senderId}&receiver_id=${arguments.receiverId}");
 
-    // debugPrint(response.data.toString());
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return response.data["data"] as Map<String, dynamic>;
+      // debugPrint(response.data["data"].toString());
+
+      return response.data["data"] as List<dynamic>;
     } else {
       throw Exception('Failed to fetch map data');
     }

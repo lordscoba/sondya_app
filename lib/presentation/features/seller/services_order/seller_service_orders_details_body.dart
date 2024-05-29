@@ -10,7 +10,8 @@ class SellerServiceOrdersDetailsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // print(data);
+    print(data["buyer"]);
+    print(data["checkout_items"]["owner"]);
     return SingleChildScrollView(
       child: Center(
         child: Padding(
@@ -218,7 +219,11 @@ class SellerServiceOrdersDetailsBody extends StatelessWidget {
                   ],
                 ),
               ),
-              const SellerChatBox(),
+              SellerChatBox(
+                buyerData: data["buyer"],
+                sellerData: data["checkout_items"]["owner"],
+                serviceId: data["checkout_items"]["_id"],
+              ),
               Container(
                 margin: const EdgeInsets.all(8.0),
                 padding: const EdgeInsets.symmetric(
