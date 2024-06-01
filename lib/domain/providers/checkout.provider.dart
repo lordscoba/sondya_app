@@ -34,3 +34,14 @@ final productOrderDataprovider = StateProvider<CreateProductOrderType>(
 );
 
 final ispaymentDone = StateProvider<bool>((ref) => false);
+
+final checkoutServiceDataprovider = StateProvider<Map<String, dynamic>>(
+  (ref) => {},
+  // (ref) => {
+  //   "status": "successful",
+  //   "success": true,
+  //   "transaction_id": 5060256,
+  //   "tx_ref": "sondya-4fc69a15-587f-44df-baf3-7791c983632f"
+  // },
+);
+final ispaymentServiceDone = StateProvider<bool>((ref) => false);

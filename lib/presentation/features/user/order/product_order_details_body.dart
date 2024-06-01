@@ -14,18 +14,20 @@ class ProductOrderDetailsBody extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                  icon: const Icon(Icons.arrow_back),
-                ),
-              ],
-            ),
+            context.canPop()
+                ? Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        icon: const Icon(Icons.arrow_back),
+                      ),
+                    ],
+                  )
+                : Container(),
             // data Table here
             Container(
               margin: const EdgeInsets.all(8.0),

@@ -40,12 +40,13 @@ class _ResetPasswordBodyState extends ConsumerState<ResetPasswordBody> {
   @override
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, dynamic>> checkState =
-        ref.watch(authUserProvider);
+        ref.watch(resetPasswordUserProvider);
     return SingleChildScrollView(
       child: Center(
-        child: SizedBox(
-          height: 650,
-          width: 380,
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
           child: Form(
             key: _formKey,
             child: Column(
@@ -57,7 +58,7 @@ class _ResetPasswordBodyState extends ConsumerState<ResetPasswordBody> {
                 checkState.when(
                     data: (data) {
                       if (data.isNotEmpty) {
-                        ref.invalidate(authUserProvider);
+                        // ref.invalidate(authUserProvider);
                         WidgetsBinding.instance.addPostFrameCallback(
                             (_) => context.push('/login'));
                       }
@@ -66,7 +67,7 @@ class _ResetPasswordBodyState extends ConsumerState<ResetPasswordBody> {
                     },
                     loading: () => const SizedBox(),
                     error: (error, stackTrace) {
-                      ref.invalidate(authUserProvider);
+                      // ref.invalidate(authUserProvider);
                       return sondyaDisplayErrorMessage(
                           error.toString(), context);
                     }),
@@ -127,7 +128,9 @@ class _ResetPasswordBodyState extends ConsumerState<ResetPasswordBody> {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState?.save();
 
-                      await ref.read(authUserProvider.notifier).resetPassword(
+                      await ref
+                          .read(resetPasswordUserProvider.notifier)
+                          .resetPassword(
                             user.toJson(),
                             widget.email,
                           );

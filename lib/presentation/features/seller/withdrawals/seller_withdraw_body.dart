@@ -144,6 +144,7 @@ class _SellerWithdrawBodyState extends ConsumerState<SellerWithdrawBody> {
                   width: double.infinity,
                   child: getSellerWithdrawalsGetBalance.when(
                     data: (data) {
+                      print(data["bank_account"]);
                       return Column(children: [
                         if (_selectedMode == "bank")
                           ...data["bank_account"]
@@ -152,6 +153,7 @@ class _SellerWithdrawBodyState extends ConsumerState<SellerWithdrawBody> {
                               .map<Widget>((entry) {
                             int index = entry.key;
                             Map<String, dynamic> option = entry.value;
+
                             return RadioListTile<String>(
                               title: Column(
                                 children: [
@@ -214,7 +216,9 @@ class _SellerWithdrawBodyState extends ConsumerState<SellerWithdrawBody> {
                         if (data["payoneer_account"].isEmpty &&
                             data["bank_account"].isEmpty &&
                             data["paypal_account"].isEmpty)
-                          const Text("No accound")
+                          const Text(
+                            "No accounts found, add account at withdrawal page",
+                          ),
                       ]);
                     },
                     error: (error, stackTrace) => Text(error.toString()),

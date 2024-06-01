@@ -121,6 +121,43 @@ final verifyCheckoutPaymentProvider = FutureProvider.autoDispose
   }
 });
 
+typedef ServicePaymentParameters = ({String txRef, dynamic data1});
+
+final verifyCheckoutServicePaymentProvider = FutureProvider.autoDispose
+    .family<Map<String, dynamic>, ServicePaymentParameters>(
+        (ref, servicePaymentParameters) async {
+  try {
+    final dio = Dio();
+    dio.interceptors.add(const AuthInterceptor());
+
+    final response = await dio.get(EnvironmentUserPaymentConfig.verifyPayment +
+        servicePaymentParameters.txRef);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      // if (response.data["data"]["data"]["status"] == "successful") {
+      final response2 = await dio.post(
+        EnvironmentUserServiceOrderConfig.updateServiceOrder,
+        data: servicePaymentParameters.data1,
+      );
+
+      if (response2.statusCode == 200 || response2.statusCode == 201) {}
+      //   return response.data;
+      // }
+      return response.data;
+    } else {
+      throw Exception('Failed to fetch map data');
+    }
+  } on DioException catch (e) {
+    if (e.response != null) {
+      // debugPrint(e.response?.data.toString());
+      return e.response?.data;
+    } else {
+      // debugPrint(e.message.toString());
+      return throw Exception("Failed to fetch map data error: ${e.message}");
+    }
+  }
+});
+
 final getCheckoutProductDetailsProvider = FutureProvider.autoDispose
     .family<Map<String, dynamic>, ItemDetailsParameters>(
         (ref, arguments) async {

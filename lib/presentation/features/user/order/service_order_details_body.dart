@@ -46,6 +46,18 @@ class ServiceOrderDetailsBody extends ConsumerWidget {
                 child: const Text("Update Terms"),
               ),
             ),
+            if (data["payment_method"] != "COMPLETED")
+              Container(
+                margin: const EdgeInsets.all(10.0),
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.push(
+                        "/service/checkout/${data["seller"]["id"]}/${data["checkout_items"]["_id"]}");
+                  },
+                  child: const Text("Proceed to Payment"),
+                ),
+              ),
             const SizedBox(height: 10.0),
             Container(
               margin: const EdgeInsets.all(8.0),
@@ -159,23 +171,26 @@ class ServiceOrderDetailsBody extends ConsumerWidget {
                             DataCell(
                               PriceFormatWidget(
                                   color: Colors.black87,
-                                  price:
-                                      data["checkout_items"]["amount"] != null
-                                          ? data["checkout_items"]["terms"]
-                                                      ["amount"]
-                                                  .toDouble() ??
-                                              0.0
-                                          : 0.0),
+                                  price: data["checkout_items"]["terms"]
+                                              ["amount"] !=
+                                          null
+                                      ? data["checkout_items"]["terms"]
+                                                  ["amount"]
+                                              .toDouble() ??
+                                          0.0
+                                      : 0.0),
                             ),
                             DataCell(
                               PriceFormatWidget(
                                   color: Colors.black87,
-                                  price:
-                                      data["checkout_items"]["amount"] != null
-                                          ? data["checkout_items"]["amount"]
-                                                  .toDouble() ??
-                                              0.0
-                                          : 0.0),
+                                  price: data["checkout_items"]["terms"]
+                                              ["amount"] !=
+                                          null
+                                      ? data["checkout_items"]["terms"]
+                                                  ["amount"]
+                                              .toDouble() ??
+                                          0.0
+                                      : 0.0),
                             ),
                           ],
                         ),

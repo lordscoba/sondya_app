@@ -1,4 +1,5 @@
 import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -44,7 +45,7 @@ class _KycContactInfoBodyState extends ConsumerState<KycContactInfoBody> {
         child: Container(
           // height: 1200,
           width: double.infinity,
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: profileData.when(
             data: (data) {
               return Form(
@@ -209,7 +210,11 @@ class _KycContactInfoBodyState extends ConsumerState<KycContactInfoBody> {
               return Text(error.toString());
             },
             loading: () {
-              return const CircularProgressIndicator();
+              return const Center(
+                child: CupertinoActivityIndicator(
+                  radius: 50,
+                ),
+              );
             },
           ),
         ),

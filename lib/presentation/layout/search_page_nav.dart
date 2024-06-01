@@ -18,7 +18,7 @@ class _SearchPageNavbarState extends ConsumerState<SearchPageNavbar> {
   String _selectedString = 'Products';
 
   void Function(int?)? _handleRadioValueChanged(value) {
-    if (_selectedValue == 0) {
+    if (value == 0) {
       setState(() {
         _selectedValue = value!;
         _selectedString = "Products";

@@ -21,6 +21,7 @@ Map<String, dynamic> getNecessaryAuthData(Map<String, dynamic> response) {
 
 // check if user is authenticated
 bool isAuthenticated() {
+  // boxAuth = await Hive.openBox<AuthInfo>(authBoxString);
   final AuthInfo? obj = boxAuth.get(EnvironmentStorageConfig.authSession);
 
   // Check if obj is null

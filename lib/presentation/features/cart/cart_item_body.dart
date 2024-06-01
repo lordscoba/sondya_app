@@ -61,74 +61,79 @@ class _CartItemState extends ConsumerState<CartItem> {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Image(
-                    image: NetworkImage(
-                      data['data']["image"][0]["url"] == ""
-                          ? "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                          : data['data']["image"][0]["url"],
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.3,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Image(
+                      image: NetworkImage(
+                        data['data']["image"][0]["url"] == ""
+                            ? "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                            : data['data']["image"][0]["url"],
+                      ),
+                      width: 100,
+                      fit: BoxFit.cover,
                     ),
-                    width: 100,
-                    fit: BoxFit.cover,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      ref
-                          .read(removeFromCartProvider.notifier)
-                          .removeFromCart(widget.id!);
-                      // ignore: unused_result
-                      ref.refresh(totalingProvider);
-                      // ignore: unused_result
-                      ref.refresh(getCartDataProvider);
-                      // ignore: unused_result
-                      ref.refresh(getTotalCartProvider);
-                    },
-                    child: const Text(
-                      "Remove",
-                      style: TextStyle(
-                          color: Color(0xFFEDB842),
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
+                    GestureDetector(
+                      onTap: () {
+                        ref
+                            .read(removeFromCartProvider.notifier)
+                            .removeFromCart(widget.id!);
+                        // ignore: unused_result
+                        ref.refresh(totalingProvider);
+                        // ignore: unused_result
+                        ref.refresh(getCartDataProvider);
+                        // ignore: unused_result
+                        ref.refresh(getTotalCartProvider);
+                      },
+                      child: const Text(
+                        "Remove",
+                        style: TextStyle(
+                            color: Color(0xFFEDB842),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 250,
-                    child: Text(
-                      data['data']['name'],
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w400, fontSize: 16),
+              const SizedBox(width: 8.0),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 250,
+                      child: Text(
+                        data['data']['name'],
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w400, fontSize: 16),
+                      ),
                     ),
-                  ),
-                  Row(
-                    children: [
-                      Text("Tax: \$1,", style: textStyleTax),
-                      Text("Shipping: \$2,", style: textStyleTax),
-                      Text("Discount: \$3", style: textStyleTax),
-                    ],
-                  ),
-                  PriceFormatWidget(
-                    price: data['data']['current_price'].toDouble(),
-                    fontSize: 20,
-                  ),
-                  PriceFormatWidget(
-                    price: data['data']['current_price'].toDouble(),
-                    priceMultiple: widget.quantity!,
-                    prefix: "Subtotal: ",
-                    fontSize: 16,
-                    fontFamily: GoogleFonts.openSans().fontFamily,
-                    color: Colors.black87,
-                  ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: SizedBox(
+                    Wrap(
+                      spacing: 5,
+                      runSpacing: 5,
+                      children: [
+                        Text("Tax: \$1,", style: textStyleTax),
+                        Text("Shipping: \$2,", style: textStyleTax),
+                        Text("Discount: \$3", style: textStyleTax),
+                      ],
+                    ),
+                    PriceFormatWidget(
+                      price: data['data']['current_price'].toDouble(),
+                      fontSize: 20,
+                    ),
+                    PriceFormatWidget(
+                      price: data['data']['current_price'].toDouble(),
+                      priceMultiple: widget.quantity!,
+                      prefix: "Subtotal: ",
+                      fontSize: 16,
+                      fontFamily: GoogleFonts.openSans().fontFamily,
+                      color: Colors.black87,
+                    ),
+                    SizedBox(
                       width: 150,
                       height: 40,
                       child: TextField(
@@ -241,9 +246,9 @@ class _CartItemState extends ConsumerState<CartItem> {
                         ),
                         keyboardType: TextInputType.number,
                       ),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ],
           );

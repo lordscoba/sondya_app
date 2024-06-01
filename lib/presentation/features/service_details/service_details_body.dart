@@ -5,12 +5,16 @@ import 'package:go_router/go_router.dart';
 import 'package:sondya_app/data/local/storedValue.dart';
 import 'package:sondya_app/data/remote/home.dart';
 import 'package:sondya_app/data/remote/reviews.dart';
+import 'package:sondya_app/domain/providers/user.order.provider.dart';
+import 'package:sondya_app/domain/providers/wishlist.provider.dart';
 import 'package:sondya_app/presentation/features/product_details/review_section.dart';
 import 'package:sondya_app/presentation/features/service_details/seller_chat_box.dart';
 import 'package:sondya_app/presentation/widgets/picture_slider.dart';
 import 'package:sondya_app/presentation/widgets/price_formatter.dart';
 import 'package:sondya_app/presentation/widgets/ratings_widget.dart';
+import 'package:sondya_app/presentation/widgets/success_error_message.dart';
 import 'package:sondya_app/presentation/widgets/threebounce_loader.dart';
+import 'package:sondya_app/utils/parse_string.dart';
 
 class ServiceDetailsBody extends ConsumerStatefulWidget {
   final String id;
@@ -22,6 +26,35 @@ class ServiceDetailsBody extends ConsumerStatefulWidget {
 }
 
 class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
+  final ScrollController _scrollController = ScrollController();
+
+  late Map<String, dynamic> createOrderData;
+
+  bool serviceOrdered = false;
+  @override
+  void initState() {
+    super.initState();
+    createOrderData = {
+      "order_status": "IN PROGRESS",
+      "payment_status": "",
+      "payment_method": "",
+      "seller": {},
+      "buyer": {},
+      "checkout_items": {},
+      "order_id": "",
+    };
+  }
+
+  void _scrollToSection(double position) {
+    _scrollController.animateTo(
+      position,
+      duration: const Duration(seconds: 1),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  var isFavorite = false;
+
   @override
   Widget build(BuildContext context) {
     final getServiceDetails = ref
@@ -30,6 +63,11 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
         ref.watch(getReviewStatsProvider((category: "service", id: widget.id)));
 
     final myData = ref.watch(storedAuthValueProvider);
+
+    final AsyncValue<Map<String, dynamic>> checkState1 =
+        ref.watch(createUserServiceOrderProvider);
+
+    // final checkServiceOrder = ref.watch(checkUserServiceOrderProvider);
     return RefreshIndicator(
       onRefresh: () async {
         // ignore: unused_result
@@ -40,6 +78,7 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
             getReviewStatsProvider((category: "service", id: widget.id)));
       },
       child: SingleChildScrollView(
+        controller: _scrollController,
         physics: const BouncingScrollPhysics(),
         child: Center(
           child: ConstrainedBox(
@@ -49,6 +88,12 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
               padding: const EdgeInsets.all(10),
               child: getServiceDetails.when(
                 data: (data) {
+                  // var checkData = {
+                  //   "seller_id": data["data"]["owner"]["username"],
+                  //   "service_id": data["data"]["_id"]
+                  // };
+                  // final checkServiceOrder =
+                  //     ref.watch(checkUserServiceOrderProvider(checkData));
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -67,6 +112,24 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
                               ],
                             )
                           : Container(),
+                      checkState1.when(
+                        data: (data) {
+                          return sondyaDisplaySuccessMessage(
+                              context, data["message"]);
+                        },
+                        loading: () => const SizedBox(),
+                        error: (error, stackTrace) {
+                          // debugPrint(error.toString());
+                          if (error.toString() ==
+                              "Error: service order already exists") {
+                            setState(() {
+                              serviceOrdered = true;
+                            });
+                          }
+                          return sondyaDisplayErrorMessage(
+                              error.toString(), context);
+                        },
+                      ),
                       Text(
                         data["data"]["name"],
                         style: const TextStyle(
@@ -186,25 +249,87 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
                             const SizedBox(
                               height: 12,
                             ),
-                            ElevatedButton(
-                              onPressed: () {},
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text("Continue"),
-                                  Icon(Icons.arrow_forward),
-                                ],
-                              ),
-                            ),
+                            serviceOrdered
+                                ? ElevatedButton(
+                                    onPressed: () {
+                                      context.push(
+                                          '/service/checkout/${data["data"]["owner"]["id"]}/${data["data"]["_id"]}');
+                                    },
+                                    child: const Text("Continue "),
+                                  )
+                                : ElevatedButton(
+                                    onPressed: () {
+                                      createOrderData["seller"] =
+                                          data["data"]["owner"];
+                                      createOrderData["checkout_items"] =
+                                          data["data"];
+                                      createOrderData["seller"] =
+                                          data["data"]["owner"];
+                                      createOrderData["checkout_items"]
+                                          ["terms"] = {
+                                        "amount": data["data"]["current_price"]
+                                                .toDouble() ??
+                                            0.0,
+                                        "duration": parseDuration(
+                                            data["data"]["duration"]),
+                                        "durationUnit": "hours",
+                                        "acceptedByBuyer": false,
+                                        "acceptedBySeller": false,
+                                        "rejectedByBuyer": true,
+                                        "rejectedBySeller": true,
+                                      };
+                                      // print(
+                                      // createOrderData["checkout_items"]["terms"]);
+                                      // debugPrint(createOrderData.toString());
+
+                                      ref
+                                          .read(createUserServiceOrderProvider
+                                              .notifier)
+                                          .createOrder(
+                                              createOrderData, widget.id);
+                                    },
+                                    child: checkState1.isLoading
+                                        ? sondyaThreeBounceLoader(
+                                            color: Colors.white)
+                                        : const Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text("Order Service "),
+                                              Icon(Icons.arrow_forward),
+                                            ],
+                                          ),
+                                  ),
                             const SizedBox(
                               height: 5,
                             ),
                             Row(
                               children: [
                                 IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(
-                                      Icons.favorite_border_outlined),
+                                  onPressed: () {
+                                    setState(() {
+                                      isFavorite = !isFavorite;
+                                      if (isFavorite) {
+                                        ref
+                                            .read(
+                                                addToWishlistProvider.notifier)
+                                            .addToWishlist(widget.id, "service",
+                                                widget.name);
+                                      } else {
+                                        ref
+                                            .read(removeFromWishlistProvider
+                                                .notifier)
+                                            .removeFromWishlist(
+                                                widget.id, "service");
+                                      }
+                                    });
+                                  },
+                                  icon: Icon(
+                                    isFavorite
+                                        ? Icons.favorite
+                                        : Icons.favorite_outline,
+                                    size: 15,
+                                    color: const Color(0xFFEDB842),
+                                  ),
                                 ),
                                 const Text("Add to Wishlist"),
                               ],
@@ -213,7 +338,9 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
                               height: 5,
                             ),
                             OutlinedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  _scrollToSection(1400);
+                                },
                                 child: const Text("Contact Seller")),
                           ],
                         ),

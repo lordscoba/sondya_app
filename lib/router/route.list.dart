@@ -62,6 +62,7 @@ import 'package:sondya_app/presentation/pages/userDashboard/referral_sceen.dart'
 import 'package:sondya_app/presentation/pages/userDashboard/service_order_details_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/service_order_history_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/settings_screen.dart';
+import 'package:sondya_app/presentation/pages/userDashboard/theme_mode_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/track_order_details_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/track_order_screen.dart';
 import 'package:sondya_app/presentation/pages/userDashboard/user_payments_details_screen.dart';
@@ -74,28 +75,39 @@ GoRouter goRouterFunc(WidgetRef ref) {
   FutureOr<String?> paymentDoneRedirectStrict(
       BuildContext context, GoRouterState state) async {
     if (!isAuthenticated()) {
+      // ref.watch(isAuthenticatedTemp.notifier).state = false;
       return '/login';
     }
     if (ref.watch(ispaymentDone.notifier).state == true) {
       return '/product/checkout/status';
     }
+    // ref.watch(isAuthenticatedTemp.notifier).state = true;
     return null;
   }
 
   FutureOr<String?> authRedirectStrict(
       BuildContext context, GoRouterState state) async {
     if (!isAuthenticated()) {
+      // ref.watch(isAuthenticatedTemp.notifier).state = false;
       return '/login';
     }
+    // ref.watch(isAuthenticatedTemp.notifier).state = true;
     return null;
   }
 
-  // print(isSellerSession());
+  FutureOr<String?> authRedirectAuthPage(
+      BuildContext context, GoRouterState state) async {
+    if (isAuthenticated()) {
+      // ref.watch(isAuthenticatedTemp.notifier).state = true;
+      return '/';
+    }
+    // ref.watch(isAuthenticatedTemp.notifier).state = false;
+    return null;
+  }
 
   return GoRouter(
-    initialLocation: "/service/order/history",
-    // initialLocation: "/inbox/chat/1",
-    // initialLocation: "/service/details/65578ed950e2b74cef80b8e3/shoe-making",
+    initialLocation: "/cart",
+    // initialLocation: hasInitializedAppSession() ? '/' : "/splash",
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(
@@ -150,14 +162,17 @@ GoRouter goRouterFunc(WidgetRef ref) {
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
+        redirect: authRedirectAuthPage,
       ),
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
+        redirect: authRedirectAuthPage,
       ),
       GoRoute(
         path: '/forgotPassword',
         builder: (context, state) => const ForgotPasswordScreen(),
+        redirect: authRedirectAuthPage,
       ),
       GoRoute(
         path: '/resetPassword/:email',
@@ -165,6 +180,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
           final email = state.pathParameters['email']!;
           return ResetPasswordScreen(email: email);
         },
+        redirect: authRedirectAuthPage,
       ),
       GoRoute(
         path: '/verificationCode/:email',
@@ -172,10 +188,12 @@ GoRouter goRouterFunc(WidgetRef ref) {
           final email = state.pathParameters['email']!;
           return VerificationCodeScreen(email: email);
         },
+        redirect: authRedirectAuthPage,
       ),
       GoRoute(
         path: '/registerSuccess',
         builder: (context, state) => const RegisterSuccessScreen(),
+        redirect: authRedirectAuthPage,
       ),
 
       // settings route
@@ -202,6 +220,11 @@ GoRouter goRouterFunc(WidgetRef ref) {
           final extra = state.extra! as Map<String, dynamic>;
           return InboxChatScreen(chatId: chatId, userId: userId, data: extra);
         },
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/theme/mode',
+        builder: (context, state) => const ThemeModeScreen(),
         redirect: authRedirectStrict,
       ),
 
@@ -257,15 +280,24 @@ GoRouter goRouterFunc(WidgetRef ref) {
 
       // service checkout route
       GoRoute(
-        path: '/service/checkout',
-        builder: (context, state) => const ServiceCheckoutScreen(),
+        path: '/service/checkout/:seller_id/:service_id',
+        builder: (context, state) {
+          final sellerId = state.pathParameters['seller_id']!;
+          final serviceId = state.pathParameters['service_id']!;
+          return ServiceCheckoutScreen(
+            sellerId: sellerId,
+            serviceId: serviceId,
+          );
+        },
         redirect: authRedirectStrict,
       ),
 
       // service checkout route
       GoRoute(
         path: '/product/checkout/status',
-        builder: (context, state) => const ProductCheckoutStatusScreen(),
+        builder: (context, state) {
+          return const ProductCheckoutStatusScreen();
+        },
         redirect: authRedirectStrict,
       ),
 

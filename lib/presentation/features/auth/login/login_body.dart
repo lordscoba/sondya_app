@@ -31,12 +31,13 @@ class _LoginBodyState extends ConsumerState<LoginBody> {
   @override
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, dynamic>> checkState =
-        ref.watch(authUserProvider);
+        ref.watch(loginUserProvider);
     return SingleChildScrollView(
       child: Center(
-        child: SizedBox(
-          height: 650,
-          width: 380,
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
           child: Form(
             key: _formKey,
             child: Column(
@@ -48,9 +49,12 @@ class _LoginBodyState extends ConsumerState<LoginBody> {
                 checkState.when(
                   data: (data) {
                     if (data.isNotEmpty) {
-                      ref.invalidate(authUserProvider);
-                      WidgetsBinding.instance
-                          .addPostFrameCallback((_) => context.push('/'));
+                      // ref.invalidate(authUserProvider);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        ref.watch(isAuthenticatedTemp.notifier).state = true;
+                        // context.canPop() ? context.pop() :
+                        context.go('/');
+                      });
                     }
                     return sondyaDisplaySuccessMessage(
                         context, data["message"]);
@@ -105,7 +109,7 @@ class _LoginBodyState extends ConsumerState<LoginBody> {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState?.save();
 
-                      await ref.read(authUserProvider.notifier).loginUser(
+                      await ref.read(loginUserProvider.notifier).loginUser(
                             user.toJson(),
                           );
                     } else {
@@ -123,11 +127,40 @@ class _LoginBodyState extends ConsumerState<LoginBody> {
                       ? sondyaThreeBounceLoader(color: Colors.white)
                       : const Text("Login"),
                 ),
-                TextButton(
-                  onPressed: () {
-                    context.push('/forgotPassword');
-                  },
-                  child: const Text("Forgot Password?"),
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        const Text("Don't have an account?"),
+                        const SizedBox(width: 10.0),
+                        SizedBox(
+                          height: 40,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              context.push('/register');
+                            },
+                            child: const Text("Register"),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10.0),
+                    Row(
+                      children: [
+                        const Text("Forgot Password?"),
+                        const SizedBox(width: 10.0),
+                        SizedBox(
+                          height: 40,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              context.push('/forgotPassword');
+                            },
+                            child: const Text("Forgot Password?"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
                 const AuthFooterImages(),
               ],

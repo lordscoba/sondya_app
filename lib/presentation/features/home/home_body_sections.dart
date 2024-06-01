@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -82,26 +83,40 @@ class _HomeProductsListState extends ConsumerState<HomeProductsList> {
           ),
           getProducts.when(
             data: (data) {
-              return Wrap(
-                spacing: 5,
-                runSpacing: 5,
-                children: [
-                  if (data["data"]["data"] != null &&
-                      data["data"]["data"] is List &&
-                      data["data"]["data"].isNotEmpty)
-                    for (var item in data["data"]["data"].take(4).toList())
-                      ProductContainer(
-                        id: item["_id"],
-                        productName: item["name"],
-                        productPrice: item["current_price"].toDouble(),
-                        productImage: item["image"][0]["url"],
-                      )
-                  else
-                    const Text("No products found"),
-                ],
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // You can adjust this as needed
+                  crossAxisSpacing: 6.0,
+                  mainAxisSpacing: 6.0,
+                  childAspectRatio: 0.7,
+                ),
+                itemCount: data["data"]["data"].length > 4 ? 4 : 1,
+                itemBuilder: (context, index) {
+                  // return const Text("hy");
+                  if (data["data"]["data"].isNotEmpty) {
+                    return ProductContainer(
+                      id: data["data"]["data"][index]["_id"],
+                      productName: data["data"]["data"][index]["name"],
+                      productPrice: data["data"]["data"][index]["current_price"]
+                          .toDouble(),
+                      productImage: data["data"]["data"][index]["image"][0]
+                          ["url"],
+                    );
+                  } else {
+                    return const SizedBox(
+                      child: Center(child: Text("No products found")),
+                    );
+                  }
+                },
               );
             },
-            loading: () => const CircularProgressIndicator(),
+            loading: () => const Center(
+              child: CupertinoActivityIndicator(
+                radius: 30, // Adjust the size of the indicator as needed
+              ),
+            ),
             error: (error, stackTrace) => Text(error.toString()),
           ),
         ],
@@ -185,26 +200,40 @@ class _HomeServicesListState extends ConsumerState<HomeServicesList> {
           ),
           getServices.when(
             data: (data) {
-              return Wrap(
-                spacing: 5,
-                runSpacing: 5,
-                children: [
-                  if (data["data"]["data"] != null &&
-                      data["data"]["data"] is List &&
-                      data["data"]["data"].isNotEmpty)
-                    for (var item in data["data"]["data"].take(4).toList())
-                      ServiceContainer(
-                        id: item["_id"],
-                        productName: item["name"],
-                        productPrice: item["current_price"].toDouble(),
-                        productImage: item["image"][0]["url"],
-                      )
-                  else
-                    const Text("No products found"),
-                ],
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // You can adjust this as needed
+                  crossAxisSpacing: 6.0,
+                  mainAxisSpacing: 6.0,
+                  childAspectRatio: 0.7,
+                ),
+                itemCount: data["data"]["data"].length > 4 ? 4 : 1,
+                itemBuilder: (context, index) {
+                  // return const Text("hy");
+                  if (data["data"]["data"].isNotEmpty) {
+                    return ServiceContainer(
+                      id: data["data"]["data"][index]["_id"],
+                      productName: data["data"]["data"][index]["name"],
+                      productPrice: data["data"]["data"][index]["current_price"]
+                          .toDouble(),
+                      productImage: data["data"]["data"][index]["image"][0]
+                          ["url"],
+                    );
+                  } else {
+                    return const SizedBox(
+                      child: Center(child: Text("No products found")),
+                    );
+                  }
+                },
               );
             },
-            loading: () => const CircularProgressIndicator(),
+            loading: () => const Center(
+              child: CupertinoActivityIndicator(
+                radius: 30, // Adjust the size of the indicator as needed
+              ),
+            ),
             error: (error, stackTrace) => Text(error.toString()),
           ),
         ],

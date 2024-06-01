@@ -50,7 +50,11 @@ class SellerServiceOrdersBody extends ConsumerWidget {
             const Divider(),
             getServiceOrder.when(
               data: (data) {
-                return ListView.separated(
+                // ignore: unnecessary_null_comparison
+                if (data == null || data.isEmpty) {
+                  return const Center(child: Text("No Orders Found"));
+                } else {
+                  return ListView.separated(
                     itemCount: data.length,
                     shrinkWrap: true,
                     separatorBuilder: (context, index) =>
@@ -119,12 +123,16 @@ class SellerServiceOrdersBody extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                              "buyer email:${data[index]["buyer"]["email"] ?? ""}"),
+                            "buyer email:${data[index]["buyer"]["email"] ?? ""}",
+                          ),
                           Text(
-                              "buyer username:${data[index]["buyer"]["username"] ?? ""}"),
+                            "buyer username:${data[index]["buyer"]["username"] ?? ""}",
+                          ),
                         ],
                       );
-                    });
+                    },
+                  );
+                }
               },
               error: (error, stackTrace) => Text(error.toString()),
               loading: () => const Center(

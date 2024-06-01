@@ -1,11 +1,11 @@
 //  hosted base url
-// const String baseUrl = 'https://sondya-backend.adaptable.app/api/v1';
-// const String wsBaseUrl = 'wss://sondya-backend.adaptable.app/api/v1';
+const String baseUrl = 'https://sondya-backend.adaptable.app/api/v1';
+const String wsBaseUrl = 'wss://sondya-backend.adaptable.app/api/v1';
 
 // local base url
 
-const String baseUrl = 'http://localhost:8989/api/v1';
-const String wsBaseUrl = 'ws://localhost:8989/api/v1';
+// const String baseUrl = 'http://localhost:8989/api/v1';
+// const String wsBaseUrl = 'ws://localhost:8989/api/v1';
 
 // const String baseUrl = 'http://10.0.2.2:8989/api/v1';
 // const String wsBaseUrl = 'ws://10.0.2.2:8989/api/v1';
@@ -135,6 +135,8 @@ class EnvironmentUserServiceOrderConfig {
       '$baseUrl/user/order/services/updateterms/'; // PUT: order_id
   static const String updateServiceOrder =
       '$baseUrl/user/order/services/update/'; // PUT: order_id
+  static const String checkServiceOrder =
+      '$baseUrl/user/order/services/check'; // GET
 }
 
 class EnvironmentTrackOrderConfig {

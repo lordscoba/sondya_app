@@ -36,12 +36,13 @@ class _ForgotPasswordBodyState extends ConsumerState<ForgotPasswordBody> {
   @override
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, dynamic>> checkState =
-        ref.watch(authUserProvider);
+        ref.watch(forgotPasswordUserProvider);
     return SingleChildScrollView(
       child: Center(
-        child: SizedBox(
-          height: 650,
-          width: 380,
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
           child: Form(
             key: _formKey,
             child: Column(
@@ -53,7 +54,7 @@ class _ForgotPasswordBodyState extends ConsumerState<ForgotPasswordBody> {
                 checkState.when(
                   data: (data) {
                     if (data.isNotEmpty) {
-                      ref.invalidate(authUserProvider);
+                      // ref.invalidate(authUserProvider);
                       WidgetsBinding.instance.addPostFrameCallback((_) =>
                           context.push('/verificationCode/${user.email}'));
                     }
@@ -62,7 +63,7 @@ class _ForgotPasswordBodyState extends ConsumerState<ForgotPasswordBody> {
                   },
                   loading: () => const SizedBox(),
                   error: (error, stackTrace) {
-                    ref.invalidate(authUserProvider);
+                    // ref.invalidate(authUserProvider);
                     return sondyaDisplayErrorMessage(error.toString(), context);
                   },
                 ),
@@ -91,7 +92,9 @@ class _ForgotPasswordBodyState extends ConsumerState<ForgotPasswordBody> {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState?.save();
 
-                      await ref.read(authUserProvider.notifier).forgotPassword(
+                      await ref
+                          .read(forgotPasswordUserProvider.notifier)
+                          .forgotPassword(
                             user.toJson(),
                           );
                     } else {

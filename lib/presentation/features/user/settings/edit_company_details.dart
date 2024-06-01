@@ -86,7 +86,9 @@ class _EditCompanyDetailsBodyState
                           labelText: 'Company Name',
                         ),
                         validator: isInputEmpty,
-                        initialValue: data['company_details']['company_name'],
+                        initialValue: data['company_details'] == null
+                            ? ''
+                            : data['company_details']['company_name'] ?? '',
                         onSaved: (value) {
                           // user.email = value!;
                           companyDetails["company_name"] = value;
@@ -98,8 +100,9 @@ class _EditCompanyDetailsBodyState
                           hintText: " Enter your Company Website",
                           labelText: 'Company Website',
                         ),
-                        initialValue: data['company_details']
-                            ['company_website'],
+                        initialValue: data['company_details'] == null
+                            ? ''
+                            : data['company_details']['company_website'] ?? '',
                         validator: isInputEmpty,
                         onSaved: (value) {
                           // user.email = value!;
@@ -112,7 +115,9 @@ class _EditCompanyDetailsBodyState
                           hintText: " Enter your Company Email",
                           labelText: 'Company Email',
                         ),
-                        initialValue: data['company_details']['company_email'],
+                        initialValue: data['company_details'] == null
+                            ? ''
+                            : data['company_details']['company_email'] ?? '',
                         validator: isInputEmpty,
                         onSaved: (value) {
                           // user.email = value!;
@@ -125,8 +130,10 @@ class _EditCompanyDetailsBodyState
                           hintText: " Enter your Contact Person Name",
                           labelText: 'Company Person name',
                         ),
-                        initialValue: data['company_details']
-                            ['contact_person_name'],
+                        initialValue: data['company_details'] == null
+                            ? ''
+                            : data['company_details']['contact_person_name'] ??
+                                '',
                         validator: isInputEmpty,
                         onSaved: (value) {
                           // user.email = value!;
@@ -139,8 +146,11 @@ class _EditCompanyDetailsBodyState
                           hintText: " Enter your Contact Person Number",
                           labelText: 'Contact Person Number',
                         ),
-                        initialValue: data['company_details']
-                            ['contact_person_number'],
+                        initialValue: data['company_details'] == null
+                            ? ''
+                            : data['company_details']
+                                    ['contact_person_number'] ??
+                                '',
                         validator: isInputEmpty,
                         onSaved: (value) {
                           // user.email = value!;

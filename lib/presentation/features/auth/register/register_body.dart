@@ -36,12 +36,13 @@ class _RegisterBodyState extends ConsumerState<RegisterBody> {
   @override
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, dynamic>> checkState =
-        ref.watch(authUserProvider);
+        ref.watch(createUserProvider);
     return SingleChildScrollView(
       child: Center(
-        child: SizedBox(
-          height: 850,
-          width: 380,
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
           child: Form(
             key: _formKey,
             child: Column(
@@ -187,7 +188,7 @@ class _RegisterBodyState extends ConsumerState<RegisterBody> {
                     if (_formKey.currentState!.validate() && _isChecked) {
                       _formKey.currentState?.save();
 
-                      await ref.read(authUserProvider.notifier).createUser(
+                      await ref.read(createUserProvider.notifier).createUser(
                             user.toJson(),
                           );
                     } else if (!_isChecked) {

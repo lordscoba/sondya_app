@@ -52,52 +52,60 @@ class UserPaymentsBody extends ConsumerWidget {
             const Divider(),
             getPayments.when(
               data: (data) {
-                return ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: data.length,
-                  itemBuilder: (context, index) {
-                    // print(data[index]);
-                    return ListTile(
-                      leading:
-                          Text(data[index]["payment_id"], style: leadStyle),
-                      title: Text(sondyaFormattedDate(data[index]["createdAt"]),
-                          style: titleStyle),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          PriceFormatWidget(
-                            price: data[index]["total_amount"] == null
-                                ? 0.0
-                                : data[index]["total_amount"].toDouble() ?? 0.0,
-                            fontSize: 16,
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              context.push(
-                                "/user/payment/details/${data[index]["_id"]}",
-                              );
-                            },
-                            child: Text(
-                              "View",
-                              style: trailStyle,
+                // ignore: unnecessary_null_comparison
+                if (data == null || data.isEmpty) {
+                  return const Center(child: Text("No Payments Found"));
+                } else {
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: data.length,
+                    itemBuilder: (context, index) {
+                      // print(data[index]);
+                      return ListTile(
+                        leading:
+                            Text(data[index]["payment_id"], style: leadStyle),
+                        title: Text(
+                            sondyaFormattedDate(data[index]["createdAt"]),
+                            style: titleStyle),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            PriceFormatWidget(
+                              price: data[index]["total_amount"] == null
+                                  ? 0.0
+                                  : data[index]["total_amount"].toDouble() ??
+                                      0.0,
+                              fontSize: 16,
                             ),
-                          ),
-                        ],
-                      ),
-                      subtitle: Text(
-                        data[index]["payment_status"] ?? "",
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: data[index]["payment_status"] == "successful"
-                                ? Colors.green
-                                : const Color(0xFFFA8232)),
-                      ),
-                    );
-                  },
-                  separatorBuilder: (context, index) {
-                    return const SizedBox(height: 20.0);
-                  },
-                );
+                            TextButton(
+                              onPressed: () {
+                                context.push(
+                                  "/user/payment/details/${data[index]["_id"]}",
+                                );
+                              },
+                              child: Text(
+                                "View",
+                                style: trailStyle,
+                              ),
+                            ),
+                          ],
+                        ),
+                        subtitle: Text(
+                          data[index]["payment_status"] ?? "",
+                          style: TextStyle(
+                              fontSize: 15,
+                              color:
+                                  data[index]["payment_status"] == "successful"
+                                      ? Colors.green
+                                      : const Color(0xFFFA8232)),
+                        ),
+                      );
+                    },
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(height: 20.0);
+                    },
+                  );
+                }
               },
               error: (error, stackTrace) => Text(error.toString()),
               loading: () => const Center(
