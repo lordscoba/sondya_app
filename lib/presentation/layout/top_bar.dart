@@ -82,9 +82,10 @@ class SondyaTopBar extends ConsumerWidget implements PreferredSizeWidget {
                           child: Text(
                             totalCartNum.toString(),
                             style: const TextStyle(
-                                fontSize: 10,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700),
+                              fontSize: 10,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ),

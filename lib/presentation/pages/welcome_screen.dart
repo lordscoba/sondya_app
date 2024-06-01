@@ -12,7 +12,7 @@ class WelcomeScreen extends StatelessWidget {
           Image.asset(
             'assets/images/welcome_bg.png', // Replace with your image path
             fit: BoxFit.fill,
-            height: 700,
+            height: MediaQuery.of(context).size.height * 0.73,
             width: double.infinity,
           ),
           const WelcomeBody()

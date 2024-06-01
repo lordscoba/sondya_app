@@ -68,7 +68,7 @@ class HomeToGroupChat extends StatelessWidget {
               'assets/images/people_and_friends.png',
             ),
             fit: BoxFit.contain,
-            height: 200,
+            height: MediaQuery.of(context).size.height * 0.2,
             width: MediaQuery.of(context).size.width * 0.45,
           ),
         ],

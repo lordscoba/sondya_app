@@ -37,7 +37,7 @@ class _KycCodeVerificationBodyState
         child: Container(
           // height: 1200,
           width: double.infinity,
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
           child: Form(
             key: _formKey,
             child: Column(

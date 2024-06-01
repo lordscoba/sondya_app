@@ -171,7 +171,7 @@ class _SellerServicesBodyState extends ConsumerState<SellerServicesBody> {
                 } else if (getProducts.hasValue && allItems.isEmpty) {
                   return const SizedBox(
                     height: 100, // Adjust the height as needed
-                    child: Center(child: Text("No products found")),
+                    child: Center(child: Text("No services found")),
                   );
                 } else {
                   return const SizedBox(

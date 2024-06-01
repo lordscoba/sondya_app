@@ -5,12 +5,14 @@ class CollapsibleWidget extends StatefulWidget {
   final Widget child;
   final bool isVisible;
   final double padding;
+  final bool startColumn;
   const CollapsibleWidget(
       {super.key,
       required this.title,
       required this.child,
       this.isVisible = false,
-      this.padding = 16});
+      this.padding = 16,
+      this.startColumn = false});
 
   @override
   State<CollapsibleWidget> createState() => _CollapsibleWidgetState();
@@ -29,7 +31,9 @@ class _CollapsibleWidgetState extends State<CollapsibleWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      // crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: widget.startColumn
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.center,
       children: [
         ListTile(
           title: Row(

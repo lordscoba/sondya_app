@@ -41,6 +41,17 @@ class _UserOrderReviewTermsBodyState
             padding: const EdgeInsets.all(10.0),
             child: sellerOrderData.when(
               data: (data) {
+                // print(data["checkout_items"]["terms"]);
+                // //         data["checkout_items"]["terms"]["acceptedBySeller"] ==
+                // //     true &&
+                // // data["checkout_items"]["terms"]
+                // //         ["acceptedByBuyer"] ==
+                // //     true
+                // print(data["checkout_items"]["terms"]["acceptedBySeller"]);
+                // print(data["checkout_items"]["terms"]["acceptedByBuyer"]);
+                print(data["checkout_items"]["terms"]["acceptedBySeller"] &&
+                    data["checkout_items"]["terms"]["acceptedByBuyer"]);
+
                 if (data["checkout_items"]["terms"]["durationUnit"]
                         .isNotEmpty &&
                     _selectedTimeType == "Select Time Type") {
@@ -54,18 +65,20 @@ class _UserOrderReviewTermsBodyState
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              context.pop();
-                            },
-                            icon: const Icon(Icons.arrow_back),
-                          ),
-                        ],
-                      ),
+                      context.canPop()
+                          ? Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    context.pop();
+                                  },
+                                  icon: const Icon(Icons.arrow_back),
+                                ),
+                              ],
+                            )
+                          : Container(),
                       checkState.when(
                         data: (data) {
                           if (data["data"] != null && data["data"].isNotEmpty) {
@@ -194,7 +207,37 @@ class _UserOrderReviewTermsBodyState
                       const SizedBox(height: 10),
                       data["checkout_items"]["terms"]["acceptedBySeller"] &&
                               data["checkout_items"]["terms"]["acceptedByBuyer"]
-                          ? Row(
+                          ? SizedBox(
+                              width: double.infinity,
+                              child: Column(
+                                children: [
+                                  const Text(
+                                    "You and seller have accepted the terms and amount to be paid.",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.green,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  if (data["payment_method"] != "COMPLETED")
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          if (mounted) {
+                                            context.push(
+                                                "/service/checkout/${data["seller"]["id"]}/${data["checkout_items"]["_id"]}");
+                                          }
+                                        },
+                                        child: const Text("Proceed to Payment"),
+                                      ),
+                                    )
+                                ],
+                              ),
+                            )
+                          : Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 SizedBox(
@@ -294,17 +337,7 @@ class _UserOrderReviewTermsBodyState
                                   ),
                                 ),
                               ],
-                            )
-                          : const SizedBox(
-                              width: double.infinity,
-                              child: Text(
-                                "You and seller have accepted the terms and amount to be paid.",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.green,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold),
-                              )),
+                            ),
                     ],
                   ),
                 );

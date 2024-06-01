@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -86,7 +87,11 @@ class _ProductCheckoutItemState extends ConsumerState<ProductCheckoutItem> {
           );
         },
         error: (error, stackTrace) => Text(error.toString()),
-        loading: () => const CircularProgressIndicator(),
+        loading: () => const Center(
+          child: CupertinoActivityIndicator(
+            radius: 50,
+          ),
+        ),
       ),
     );
   }

@@ -40,19 +40,21 @@ class _ProductCheckoutBodyState extends ConsumerState<ProductCheckoutBody> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.arrow_back),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20.0),
+              context.canPop()
+                  ? Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.arrow_back),
+                        ),
+                      ],
+                    )
+                  : const SizedBox(),
+              const SizedBox(height: 10.0),
               const Text(
                 "Product Checkout",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),

@@ -4,18 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:sondya_app/domain/providers/auth.provider.dart';
 import 'package:sondya_app/presentation/widgets/threebounce_loader.dart';
 
-class LogoutBody extends ConsumerStatefulWidget {
+class LogoutBody extends ConsumerWidget {
   const LogoutBody({super.key});
 
   @override
-  ConsumerState<LogoutBody> createState() => _LogoutBodyState();
-}
-
-class _LogoutBodyState extends ConsumerState<LogoutBody> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<Map<String, dynamic>> checkState =
-        ref.watch(authUserProvider);
+        ref.watch(logoutUserProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Logout"),
@@ -54,13 +49,16 @@ class _LogoutBodyState extends ConsumerState<LogoutBody> {
                       height: 60,
                       child: ElevatedButton(
                         onPressed: () async {
-                          await ref.read(authUserProvider.notifier).logout();
+                          await ref
+                              .read(logoutUserProvider.notifier)
+                              .logout(ref);
 
                           // delay 3 seconds before going to home
-                          await Future.delayed(const Duration(seconds: 3));
+                          await Future.delayed(
+                              const Duration(milliseconds: 500));
 
                           // ignore: use_build_context_synchronously
-                          context.go('/');
+                          context.pop();
                         },
                         child: checkState.isLoading
                             ? sondyaThreeBounceLoader(color: Colors.white)

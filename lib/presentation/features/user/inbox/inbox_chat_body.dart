@@ -98,69 +98,66 @@ class _InboxChatBodyState extends ConsumerState<InboxChatBody> {
               ),
               const SizedBox(height: 20.0),
               Container(
-                height: MediaQuery.of(context).size.height - 370,
+                height: MediaQuery.of(context).size.height * 0.6,
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: Colors.grey,
                   ),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height - 370,
-                  width: double.infinity,
-                  child: Column(
-                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10.0),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.grey,
-                          ),
-                          borderRadius: const BorderRadiusDirectional.only(
-                            topStart: Radius.circular(10),
-                            topEnd: Radius.circular(10),
-                          ),
+                child: Column(
+                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              height: 50,
-                              width: 50,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                      widget.data["image"] != null &&
-                                              widget.data["image"].length > 0
-                                          ? widget.data["image"][0]["url"]
-                                          : networkImagePlaceholder),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10.0),
-                            Column(
-                              children: [
-                                Text(chatSender["username"] ?? "Unknown"),
-                                const Row(
-                                  children: [
-                                    Icon(Icons.circle,
-                                        color: Colors.green, size: 10),
-                                    SizedBox(width: 5.0),
-                                    Text("Active now"),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                            const Icon(Icons.delete),
-                          ],
+                        borderRadius: const BorderRadiusDirectional.only(
+                          topStart: Radius.circular(10),
+                          topEnd: Radius.circular(10),
                         ),
                       ),
-                      const Spacer(),
-                      Padding(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                    widget.data["image"] != null &&
+                                            widget.data["image"].length > 0
+                                        ? widget.data["image"][0]["url"]
+                                        : networkImagePlaceholder),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10.0),
+                          Column(
+                            children: [
+                              Text(chatSender["username"] ?? "Unknown"),
+                              const Row(
+                                children: [
+                                  Icon(Icons.circle,
+                                      color: Colors.green, size: 10),
+                                  SizedBox(width: 5.0),
+                                  Text("Active now"),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          const Icon(Icons.delete),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 5.0),
                         child: getChats.when(
@@ -220,55 +217,55 @@ class _InboxChatBodyState extends ConsumerState<InboxChatBody> {
                           ),
                         ),
                       ),
-                      TextField(
-                        decoration: InputDecoration(
-                          hintText: "Type your message...",
-                          suffixIcon: chatMessage.messageText != null &&
-                                  chatMessage.messageText != ""
-                              ? IconButton(
-                                  onPressed: () {
-                                    if (chatMessage.messageText != null &&
-                                        chatMessage.messageText != "") {
-                                      // print(chatMessage.toJson());
-                                      ref
-                                          .read(postMessagesProvider.notifier)
-                                          .postMessages(chatMessage.toJson());
+                    ),
+                    TextField(
+                      decoration: InputDecoration(
+                        hintText: "Type your message...",
+                        suffixIcon: chatMessage.messageText != null &&
+                                chatMessage.messageText != ""
+                            ? IconButton(
+                                onPressed: () {
+                                  if (chatMessage.messageText != null &&
+                                      chatMessage.messageText != "") {
+                                    // print(chatMessage.toJson());
+                                    ref
+                                        .read(postMessagesProvider.notifier)
+                                        .postMessages(chatMessage.toJson());
 
-                                      // ignore: unused_result
-                                      ref.refresh(getMessagesProvider((
-                                        receiverId: widget.data["_id"],
-                                        senderId: widget.userId
-                                      )));
-                                    }
-                                  },
-                                  icon: checkState.isLoading
-                                      ? const Icon(Icons.bar_chart)
-                                      : const Icon(Icons.send),
-                                )
-                              : IconButton(
-                                  onPressed: () {
-                                    AnimatedSnackBar.rectangle(
-                                      'Error',
-                                      "Attachment coming soon",
-                                      type: AnimatedSnackBarType.warning,
-                                      brightness: Brightness.light,
-                                    ).show(
-                                      context,
-                                    );
-                                  },
-                                  icon: const Icon(Icons.attach_file_outlined),
-                                ),
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            chatMessage.messageText = value;
-                            chatMessage.senderId = widget.userId;
-                            chatMessage.receiverId = chatSender["_id"];
-                          });
-                        },
+                                    // ignore: unused_result
+                                    ref.refresh(getMessagesProvider((
+                                      receiverId: widget.data["_id"],
+                                      senderId: widget.userId
+                                    )));
+                                  }
+                                },
+                                icon: checkState.isLoading
+                                    ? const Icon(Icons.bar_chart)
+                                    : const Icon(Icons.send),
+                              )
+                            : IconButton(
+                                onPressed: () {
+                                  AnimatedSnackBar.rectangle(
+                                    'Error',
+                                    "Attachment coming soon",
+                                    type: AnimatedSnackBarType.warning,
+                                    brightness: Brightness.light,
+                                  ).show(
+                                    context,
+                                  );
+                                },
+                                icon: const Icon(Icons.attach_file_outlined),
+                              ),
                       ),
-                    ],
-                  ),
+                      onChanged: (value) {
+                        setState(() {
+                          chatMessage.messageText = value;
+                          chatMessage.senderId = widget.userId;
+                          chatMessage.receiverId = chatSender["_id"];
+                        });
+                      },
+                    ),
+                  ],
                 ),
               )
             ],

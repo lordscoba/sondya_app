@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sondya_app/domain/models/onboarding_pages_models.dart';
+import 'package:sondya_app/domain/providers/hasInit.provider.dart';
 
-class OnboardingDialog extends StatefulWidget {
+class OnboardingDialog extends ConsumerStatefulWidget {
   final List<OnboardingPageType> pages;
 
   const OnboardingDialog(this.pages, {super.key});
 
   @override
-  State<OnboardingDialog> createState() => _OnboardingDialogState();
+  ConsumerState<OnboardingDialog> createState() => _OnboardingDialogState();
 }
 
-class _OnboardingDialogState extends State<OnboardingDialog> {
+class _OnboardingDialogState extends ConsumerState<OnboardingDialog> {
   int currentIndex = 0;
 
   @override
@@ -39,7 +41,8 @@ class _OnboardingDialogState extends State<OnboardingDialog> {
           actions: [
             TextButton(
               onPressed: () {
-                context.push('/welcome');
+                ref.read(hasInitAppProvider.notifier).update1(true);
+                context.push('/');
               },
               child: Text(
                 "Skip",
@@ -60,11 +63,11 @@ class _OnboardingDialogState extends State<OnboardingDialog> {
                   Image(
                     image: AssetImage(widget.pages[currentIndex].image),
                     fit: BoxFit.cover,
-                    height: 400,
-                    width: double.infinity,
+                    height: MediaQuery.of(context).size.height * 0.4,
+                    width: MediaQuery.of(context).size.width,
                   ),
                   SizedBox(
-                    width: 275,
+                    width: MediaQuery.of(context).size.width * 0.6,
                     child: Text(
                       textAlign: TextAlign.center,
                       widget.pages[currentIndex].title,
@@ -76,7 +79,7 @@ class _OnboardingDialogState extends State<OnboardingDialog> {
                     ),
                   ),
                   SizedBox(
-                    width: 275,
+                    width: MediaQuery.of(context).size.width * 0.75,
                     child: Text(
                       widget.pages[currentIndex].description,
                       textAlign: TextAlign.center,
@@ -97,7 +100,8 @@ class _OnboardingDialogState extends State<OnboardingDialog> {
                             currentIndex++;
                           });
                         } else {
-                          context.push('/welcome');
+                          ref.read(hasInitAppProvider.notifier).update1(true);
+                          context.push('/');
                         }
                       },
                       child: Stack(

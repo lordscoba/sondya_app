@@ -6,3 +6,8 @@ final updateUserServiceOrderTermsProvider = StateNotifierProvider.autoDispose<
     AsyncValue<Map<String, dynamic>>>((ref) {
   return UpdateUserServiceOrderTermsNotifier();
 });
+
+final createUserServiceOrderProvider = StateNotifierProvider.autoDispose<
+    CreateUserServiceOrderNotifier, AsyncValue<Map<String, dynamic>>>((ref) {
+  return CreateUserServiceOrderNotifier();
+});

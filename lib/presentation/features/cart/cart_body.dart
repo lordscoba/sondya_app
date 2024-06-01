@@ -51,7 +51,7 @@ class _CartBodyState extends ConsumerState<CartBody> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20.0),
+              const SizedBox(height: 10.0),
               const Text(
                 "Cart",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -201,8 +201,10 @@ class _CartBodyState extends ConsumerState<CartBody> {
                           );
                         },
                         error: (error, stackTrace) => Text(error.toString()),
-                        loading: () => const CupertinoActivityIndicator(
-                          radius: 50,
+                        loading: () => const Center(
+                          child: CupertinoActivityIndicator(
+                            radius: 50,
+                          ),
                         ),
                       ),
                     ),

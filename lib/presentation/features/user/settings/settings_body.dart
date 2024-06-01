@@ -265,10 +265,10 @@ class _SettingsBodyState extends ConsumerState<SettingsBody> {
             ),
             SettingsTile(
               icon: Icons.mode,
-              title: "Dark Mode(System Default)",
+              title: "Theme Mode",
               iconColor: const Color(0xFFFFC749),
               onTap: () {
-                context.push("/home");
+                context.push("/theme/mode");
               },
               bottomBorder: true,
             ),

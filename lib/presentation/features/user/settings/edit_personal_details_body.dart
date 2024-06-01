@@ -95,7 +95,8 @@ class _EditPersonalDetailsBodyState
                     ),
                     const SizedBox(height: 20.0),
                     ProfilePicsSelector(
-                      savedNetworkImage: data["image"][0]["url"],
+                      savedNetworkImage:
+                          data["image"].isEmpty ? "" : data["image"][0]["url"],
                       onSetImage: (value) async {
                         // Save the image
                         setState(() {

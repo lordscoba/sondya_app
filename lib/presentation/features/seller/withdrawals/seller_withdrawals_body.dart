@@ -228,54 +228,72 @@ class SellerWithdrawalsBody extends ConsumerWidget {
               const SizedBox(height: 10.0),
               getSellerWithdrawalsGetBalance.when(
                 data: (data) {
-                  return SizedBox(
-                    height: 200,
-                    child: ListView(
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        Row(
-                          children: data["bank_account"].isNotEmpty
-                              ? data["bank_account"].map<Widget>((e) {
-                                  return Row(
-                                    children: [
-                                      BankAccountDetails(data: e),
-                                      const SizedBox(width: 10),
-                                    ],
-                                  );
-                                }).toList()
-                              : [],
+                  // print(data);
+
+                  if (data["bank_account"].isEmpty &&
+                      data["paypal_account"].isEmpty &&
+                      data["payoneer_account"].isEmpty) {
+                    return Center(
+                        child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      child: const Text(
+                        "No Accounts Found, Click Add Account to add new account.",
+                        style: TextStyle(
+                          fontSize: 20,
                         ),
-                        const SizedBox(width: 10),
-                        Row(
-                          children: data["paypal_account"].isNotEmpty
-                              ? data["paypal_account"].map<Widget>((e) {
-                                  return Row(
-                                    children: [
-                                      PaypalAccountDetails(data: e),
-                                      const SizedBox(width: 10),
-                                    ],
-                                  );
-                                }).toList()
-                              : <Widget>[],
-                        ),
-                        const SizedBox(width: 10),
-                        Row(
-                          children: data["payoneer_account"].isNotEmpty
-                              ? data["payoneer_account"].map<Widget>((e) {
-                                  return Row(
-                                    children: [
-                                      PayoneerAccountDetails(data: e),
-                                      const SizedBox(width: 10),
-                                    ],
-                                  );
-                                }).toList()
-                              : <Widget>[],
-                        ),
-                        const SizedBox(width: 10),
-                      ],
-                    ),
-                  );
+                        textAlign: TextAlign.center,
+                      ),
+                    ));
+                  } else {
+                    return SizedBox(
+                      height: 200,
+                      child: ListView(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          Row(
+                            children: data["bank_account"].isNotEmpty
+                                ? data["bank_account"].map<Widget>((e) {
+                                    return Row(
+                                      children: [
+                                        BankAccountDetails(data: e),
+                                        const SizedBox(width: 10),
+                                      ],
+                                    );
+                                  }).toList()
+                                : [],
+                          ),
+                          const SizedBox(width: 10),
+                          Row(
+                            children: data["paypal_account"].isNotEmpty
+                                ? data["paypal_account"].map<Widget>((e) {
+                                    return Row(
+                                      children: [
+                                        PaypalAccountDetails(data: e),
+                                        const SizedBox(width: 10),
+                                      ],
+                                    );
+                                  }).toList()
+                                : <Widget>[],
+                          ),
+                          const SizedBox(width: 10),
+                          Row(
+                            children: data["payoneer_account"].isNotEmpty
+                                ? data["payoneer_account"].map<Widget>((e) {
+                                    return Row(
+                                      children: [
+                                        PayoneerAccountDetails(data: e),
+                                        const SizedBox(width: 10),
+                                      ],
+                                    );
+                                  }).toList()
+                                : <Widget>[],
+                          ),
+                          const SizedBox(width: 10),
+                        ],
+                      ),
+                    );
+                  }
                 },
                 error: (error, stackTrace) => Text(error.toString()),
                 loading: () => const Center(
@@ -292,143 +310,150 @@ class SellerWithdrawalsBody extends ConsumerWidget {
               const SizedBox(height: 10.0),
               getSellerWithdrawals.when(
                 data: (data) {
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      columns: const <DataColumn>[
-                        DataColumn(
-                          label: Text(
-                            'S/N',
-                            style: TextStyle(fontWeight: FontWeight.w700),
+                  // ignore: unnecessary_null_comparison
+                  if (data == null || data.isEmpty) {
+                    return const Center(child: Text("No Withdrawals Found"));
+                  } else {
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: const <DataColumn>[
+                          DataColumn(
+                            label: Text(
+                              'S/N',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'Order date',
-                            style: TextStyle(fontWeight: FontWeight.w700),
+                          DataColumn(
+                            label: Text(
+                              'Order date',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'Sellers Name',
-                            style: TextStyle(fontWeight: FontWeight.w700),
+                          DataColumn(
+                            label: Text(
+                              'Sellers Name',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'Account Details',
-                            style: TextStyle(fontWeight: FontWeight.w700),
+                          DataColumn(
+                            label: Text(
+                              'Account Details',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'Amount',
-                            style: TextStyle(fontWeight: FontWeight.w700),
+                          DataColumn(
+                            label: Text(
+                              'Amount',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'Withdrawal Mode',
-                            style: TextStyle(fontWeight: FontWeight.w700),
+                          DataColumn(
+                            label: Text(
+                              'Withdrawal Mode',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'Status',
-                            style: TextStyle(fontWeight: FontWeight.w700),
+                          DataColumn(
+                            label: Text(
+                              'Status',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'Action',
-                            style: TextStyle(fontWeight: FontWeight.w700),
+                          DataColumn(
+                            label: Text(
+                              'Action',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
                           ),
-                        ),
-                      ],
-                      rows: data.isNotEmpty
-                          ? data.asMap().entries.map<DataRow>((entry) {
-                              int index = entry.key;
-                              Map<String, dynamic> data = entry.value;
-                              // print(data);
-                              return DataRow(cells: <DataCell>[
-                                DataCell(Text('${index + 1}')),
-                                DataCell(Text(
-                                    sondyaFormattedDate(data["createdAt"]))),
-                                DataCell(Text(data["user"]["email"] ?? "")),
-                                DataCell(
-                                  Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        data["withdrawal_mode"] == "bank"
-                                            ? Column(
-                                                children: [
-                                                  Text(
-                                                      "${data["withdrawal_account"]["account_name"].toString()}, ${data["withdrawal_account"]["bank_name"].toString()}"),
-                                                  Text(
-                                                      data["withdrawal_account"]
-                                                              ["account_number"]
-                                                          .toString()),
-                                                ],
-                                              )
-                                            : data["withdrawal_mode"] ==
-                                                    "payoneer"
-                                                ? Column(
-                                                    children: [
-                                                      Text(
-                                                          data["withdrawal_account"]
-                                                                  ["email"]
-                                                              .toString()),
-                                                    ],
-                                                  )
-                                                : Column(
-                                                    children: [
-                                                      Text(
-                                                          data["withdrawal_account"]
-                                                                  ["email"]
-                                                              .toString()),
-                                                    ],
-                                                  ),
-                                      ]),
-                                ),
-                                DataCell(PriceFormatWidget(
-                                  price: data["withdrawal_amount"].toDouble() ??
-                                      0.0,
-                                )),
-                                DataCell(Text(data["withdrawal_mode"] ?? "")),
-                                DataCell(Text(data["withdrawal_status"] ?? "")),
-                                DataCell(
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      IconButton(
-                                        onPressed: () {
-                                          context.push(
-                                              "/seller/withdrawal/details/${data["_id"]}");
-                                        },
-                                        icon: const Icon(Icons.visibility),
-                                      ),
-                                      IconButton(
-                                        onPressed: () {
-                                          ref.read(
-                                              getSellerwithdrawalDeleteProvider(
-                                                  data["_id"]));
-
-                                          // ignore: unused_result
-                                          ref.refresh(
-                                              getSellerWithdrawalsProvider);
-                                        },
-                                        icon: const Icon(Icons.delete),
-                                      ),
-                                    ],
+                        ],
+                        rows: data.isNotEmpty
+                            ? data.asMap().entries.map<DataRow>((entry) {
+                                int index = entry.key;
+                                Map<String, dynamic> data = entry.value;
+                                // print(data);
+                                return DataRow(cells: <DataCell>[
+                                  DataCell(Text('${index + 1}')),
+                                  DataCell(Text(
+                                      sondyaFormattedDate(data["createdAt"]))),
+                                  DataCell(Text(data["user"]["email"] ?? "")),
+                                  DataCell(
+                                    Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          data["withdrawal_mode"] == "bank"
+                                              ? Column(
+                                                  children: [
+                                                    Text(
+                                                        "${data["withdrawal_account"]["account_name"].toString()}, ${data["withdrawal_account"]["bank_name"].toString()}"),
+                                                    Text(data["withdrawal_account"]
+                                                            ["account_number"]
+                                                        .toString()),
+                                                  ],
+                                                )
+                                              : data["withdrawal_mode"] ==
+                                                      "payoneer"
+                                                  ? Column(
+                                                      children: [
+                                                        Text(
+                                                            data["withdrawal_account"]
+                                                                    ["email"]
+                                                                .toString()),
+                                                      ],
+                                                    )
+                                                  : Column(
+                                                      children: [
+                                                        Text(
+                                                            data["withdrawal_account"]
+                                                                    ["email"]
+                                                                .toString()),
+                                                      ],
+                                                    ),
+                                        ]),
                                   ),
-                                ),
-                              ]);
-                            }).toList()
-                          : <DataRow>[],
-                    ),
-                  );
+                                  DataCell(PriceFormatWidget(
+                                    price:
+                                        data["withdrawal_amount"].toDouble() ??
+                                            0.0,
+                                  )),
+                                  DataCell(Text(data["withdrawal_mode"] ?? "")),
+                                  DataCell(
+                                      Text(data["withdrawal_status"] ?? "")),
+                                  DataCell(
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            context.push(
+                                                "/seller/withdrawal/details/${data["_id"]}");
+                                          },
+                                          icon: const Icon(Icons.visibility),
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            ref.read(
+                                                getSellerwithdrawalDeleteProvider(
+                                                    data["_id"]));
+
+                                            // ignore: unused_result
+                                            ref.refresh(
+                                                getSellerWithdrawalsProvider);
+                                          },
+                                          icon: const Icon(Icons.delete),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ]);
+                              }).toList()
+                            : <DataRow>[],
+                      ),
+                    );
+                  }
                 },
                 error: (error, stackTrace) => Text(error.toString()),
                 loading: () => const Center(

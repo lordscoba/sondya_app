@@ -71,7 +71,7 @@ class _InboxBodyState extends ConsumerState<InboxBody> {
                 const Text("Chats"),
                 const SizedBox(height: 20.0),
                 Container(
-                  height: MediaQuery.of(context).size.height - 450,
+                  height: MediaQuery.of(context).size.height * 0.5,
                   padding: const EdgeInsets.all(10.0),
                   width: double.infinity,
                   decoration: BoxDecoration(

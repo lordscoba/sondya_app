@@ -74,12 +74,13 @@ class _VerificationCodeBodyState extends ConsumerState<VerificationCodeBody> {
   @override
   Widget build(BuildContext context) {
     final AsyncValue<Map<String, dynamic>> checkState =
-        ref.watch(authUserProvider);
+        ref.watch(verifyEmailUserProvider);
     return SingleChildScrollView(
       child: Center(
-        child: SizedBox(
-          height: 750,
-          width: 380,
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
           child: Form(
             key: _formKey,
             child: Column(
@@ -91,7 +92,7 @@ class _VerificationCodeBodyState extends ConsumerState<VerificationCodeBody> {
                 checkState.when(
                     data: (data) {
                       if (data.isNotEmpty) {
-                        ref.invalidate(authUserProvider);
+                        // ref.invalidate(authUserProvider);
                         WidgetsBinding.instance.addPostFrameCallback((_) =>
                             context.go('/resetPassword/${widget.email}'));
                       }
@@ -100,7 +101,7 @@ class _VerificationCodeBodyState extends ConsumerState<VerificationCodeBody> {
                     },
                     loading: () => const SizedBox(),
                     error: (error, stackTrace) {
-                      ref.invalidate(authUserProvider);
+                      // ref.invalidate(authUserProvider);
                       return sondyaDisplayErrorMessage(
                           error.toString(), context);
                     }),
@@ -158,7 +159,7 @@ class _VerificationCodeBodyState extends ConsumerState<VerificationCodeBody> {
                       user.code = inputs;
 
                       await ref
-                          .read(authUserProvider.notifier)
+                          .read(verifyEmailUserProvider.notifier)
                           .verifyEmail(user.toJson(), widget.email);
                     } else {
                       AnimatedSnackBar.rectangle(

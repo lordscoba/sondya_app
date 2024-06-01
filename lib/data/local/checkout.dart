@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterwave_standard/flutterwave.dart';
 import 'package:sondya_app/data/app_constants.dart';
 import 'package:sondya_app/data/hive_boxes.dart';
+import 'package:sondya_app/data/local/get_local_auth.dart';
 import 'package:sondya_app/data/storage_constants.dart';
 import 'package:sondya_app/domain/hive_models/auth/auth.dart';
 import 'package:sondya_app/domain/models/checkout.dart';
@@ -69,6 +70,51 @@ class InitializeFlutterwaveNotifier
       ref.watch(checkoutDataprovider.notifier).state = response.toJson();
 
       ref.watch(ispaymentDone.notifier).state = true;
+
+      state = AsyncValue.data(response.toJson());
+    } on Error catch (e) {
+      print(e.toString());
+      state = AsyncValue.error(e.toString(), StackTrace.current);
+    }
+  }
+
+  Future<void> initServicePayment(
+      PaymentRequestType data, BuildContext context) async {
+    try {
+      // Set loading state
+      state = const AsyncValue.loading();
+
+      final txRef = "sondya-${const Uuid().v4()}";
+
+      // get auth user id
+      AuthInfo localAuth = await getLocalAuth();
+
+      final Customer customer = Customer(
+        name: localAuth.username.isEmpty ? localAuth.email : localAuth.username,
+        phoneNumber: localAuth.phoneNumber,
+        email: localAuth.email,
+      );
+      // print(customer.toJson());
+
+      // ignore: use_build_context_synchronously
+      final Flutterwave flutterwave = Flutterwave(
+          context: context,
+          publicKey: flutterPublicKey,
+          currency: data.currency,
+          redirectUrl: data.redirectUrl,
+          txRef: txRef,
+          // amount: data.amount.toString(),
+          amount: "20",
+          customer: customer,
+          paymentOptions: "ussd, card, barter, payattitude",
+          customization: Customization(title: "My Payment"),
+          isTestMode: true);
+
+      final ChargeResponse response = await flutterwave.charge();
+
+      ref.watch(checkoutServiceDataprovider.notifier).state = response.toJson();
+
+      ref.watch(ispaymentServiceDone.notifier).state = true;
 
       state = AsyncValue.data(response.toJson());
     } on Error catch (e) {

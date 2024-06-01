@@ -92,8 +92,7 @@ class _ProductSearchBodyState extends ConsumerState<ProductSearchBody> {
     return SingleChildScrollView(
       child: Center(
         child: Container(
-          // height: 710,
-          height: MediaQuery.of(context).size.height - 230,
+          height: MediaQuery.of(context).size.height * 0.85,
           width: double.infinity,
           padding: const EdgeInsets.all(10),
           child: Column(
@@ -283,10 +282,12 @@ class _ProductSearchBodyState extends ConsumerState<ProductSearchBody> {
                 ),
               ),
               const SizedBox(
-                height: 10,
+                height: 3,
               ),
               Expanded(
                 child: GridView.builder(
+                  shrinkWrap: true,
+                  // physics: const NeverScrollableScrollPhysics(),
                   controller: _scrollController,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2, // You can adjust this as needed

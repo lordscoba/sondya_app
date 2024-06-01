@@ -12,12 +12,19 @@ class ForgotPasswordScreen extends StatelessWidget {
       data: buildAuthTheme(context),
       child: Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-            onPressed: () {
-              context.push("/home");
-            },
-            icon: const Icon(Icons.home),
-          ),
+          leading: context.canPop()
+              ? IconButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  icon: const Icon(Icons.arrow_back),
+                )
+              : IconButton(
+                  onPressed: () {
+                    context.push("/");
+                  },
+                  icon: const Icon(Icons.home),
+                ),
           title: const Text("Forgot Password"),
         ),
         body: const ForgotPasswordBody(),

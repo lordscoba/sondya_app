@@ -91,7 +91,7 @@ class _ServiceSearchBodyState extends ConsumerState<ServiceSearchBody> {
       child: Center(
         child: Container(
           // height: 600,
-          height: MediaQuery.of(context).size.height - 210,
+          height: MediaQuery.of(context).size.height * 0.85,
           width: double.infinity,
           padding: const EdgeInsets.all(10),
           child: Column(
@@ -280,7 +280,7 @@ class _ServiceSearchBodyState extends ConsumerState<ServiceSearchBody> {
                 ),
               ),
               const SizedBox(
-                height: 10,
+                height: 5,
               ),
               Expanded(
                 child: GridView.builder(
