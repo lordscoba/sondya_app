@@ -27,7 +27,7 @@ void main() async {
   Hive.registerAdapter(ShippingDestinationTypeAdapter());
 
   // Open local boxes
-  boxAuth = await Hive.openBox<AuthInfo>(authBoxString);
+  // boxAuth = await Hive.openBox<AuthInfo>(authBoxString);
   boxForCart = await Hive.openBox<ProductOrderType>(cartBoxString);
   boxForWishList = await Hive.openBox<WishListType>(wishlistBoxString);
   boxForShipment =

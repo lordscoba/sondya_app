@@ -23,103 +23,110 @@ class _HomeProductsListState extends ConsumerState<HomeProductsList> {
   Widget build(BuildContext context) {
     final getProductCategory = ref.watch(getProductCategoryProvider);
     final getProducts = ref.watch(gethomeProductsProvider(_queryString));
-    return Container(
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              TextButton(
-                onPressed: () async {
-                  SondyaSelectWidget()
-                      .showBottomSheetApi<AsyncValue<Map<String, dynamic>>>(
-                    options: getProductCategory,
-                    context: context,
-                    onItemSelected: (value) {
-                      setState(() {
-                        _selectedCategory = value;
-                        _queryString = "?search=$value";
-                      });
-                      // user.country = value.toString();
-                    },
-                  );
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 150,
-                      child: Text(
-                        _selectedCategory == ""
-                            ? "Select Products"
-                            : _selectedCategory,
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w400),
-                        overflow: TextOverflow.ellipsis,
+    return RefreshIndicator(
+      onRefresh: () async {
+        // ignore: unused_result
+        ref.refresh(gethomeProductsProvider(_queryString));
+      },
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () async {
+                    SondyaSelectWidget()
+                        .showBottomSheetApi<AsyncValue<Map<String, dynamic>>>(
+                      options: getProductCategory,
+                      context: context,
+                      onItemSelected: (value) {
+                        setState(() {
+                          _selectedCategory = value;
+                          _queryString = "?search=$value";
+                        });
+                        // user.country = value.toString();
+                      },
+                    );
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 150,
+                        child: Text(
+                          _selectedCategory == ""
+                              ? "Select Products"
+                              : _selectedCategory,
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w400),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                    const Icon(Icons.arrow_drop_down),
-                  ],
+                      const Icon(Icons.arrow_drop_down),
+                    ],
+                  ),
                 ),
-              ),
-              TextButton(
-                onPressed: () async {
-                  context.push("/product/search");
-                },
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "View more",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
-                    ),
-                    Icon(Icons.arrow_forward),
-                  ],
+                TextButton(
+                  onPressed: () async {
+                    context.push("/product/search");
+                  },
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "View more",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w400),
+                      ),
+                      Icon(Icons.arrow_forward),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          getProducts.when(
-            data: (data) {
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // You can adjust this as needed
-                  crossAxisSpacing: 6.0,
-                  mainAxisSpacing: 6.0,
-                  childAspectRatio: 0.7,
-                ),
-                itemCount: data["data"]["data"].length > 4 ? 4 : 1,
-                itemBuilder: (context, index) {
-                  // return const Text("hy");
-                  if (data["data"]["data"].isNotEmpty) {
-                    return ProductContainer(
-                      id: data["data"]["data"][index]["_id"],
-                      productName: data["data"]["data"][index]["name"],
-                      productPrice: data["data"]["data"][index]["current_price"]
-                          .toDouble(),
-                      productImage: data["data"]["data"][index]["image"][0]
-                          ["url"],
-                    );
-                  } else {
-                    return const SizedBox(
-                      child: Center(child: Text("No products found")),
-                    );
-                  }
-                },
-              );
-            },
-            loading: () => const Center(
-              child: CupertinoActivityIndicator(
-                radius: 30, // Adjust the size of the indicator as needed
-              ),
+              ],
             ),
-            error: (error, stackTrace) => Text(error.toString()),
-          ),
-        ],
+            getProducts.when(
+              data: (data) {
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // You can adjust this as needed
+                    crossAxisSpacing: 6.0,
+                    mainAxisSpacing: 6.0,
+                    childAspectRatio: 0.7,
+                  ),
+                  itemCount: data["data"]["data"].length > 4 ? 4 : 1,
+                  itemBuilder: (context, index) {
+                    // return const Text("hy");
+                    if (data["data"]["data"].isNotEmpty) {
+                      return ProductContainer(
+                        id: data["data"]["data"][index]["_id"],
+                        productName: data["data"]["data"][index]["name"],
+                        productPrice: data["data"]["data"][index]
+                                ["current_price"]
+                            .toDouble(),
+                        productImage: data["data"]["data"][index]["image"][0]
+                            ["url"],
+                      );
+                    } else {
+                      return const SizedBox(
+                        child: Center(child: Text("No products found")),
+                      );
+                    }
+                  },
+                );
+              },
+              loading: () => const Center(
+                child: CupertinoActivityIndicator(
+                  radius: 30, // Adjust the size of the indicator as needed
+                ),
+              ),
+              error: (error, stackTrace) => Text(error.toString()),
+            ),
+          ],
+        ),
       ),
     );
   }

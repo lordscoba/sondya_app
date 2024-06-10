@@ -82,42 +82,47 @@ class _SellerServicesAddBodyState extends ConsumerState<SellerServicesAddBody> {
                           error.toString(), context);
                     },
                   ),
-                  Row(
-                    children: [
-                      AddServModalButton(
-                        done: done.contains("1"),
-                        selected: current == "1",
-                        title: "Steps 01",
-                        subtitle: 'Basic Info',
-                        onTap: () {
-                          setState(() {
-                            current = "1";
-                          });
-                        },
-                      ),
-                      AddServModalButton(
-                        done: done.contains("2"),
-                        selected: current == "2",
-                        title: 'Steps 02',
-                        subtitle: 'Advance Info',
-                        onTap: () {
-                          setState(() {
-                            current = "2";
-                          });
-                        },
-                      ),
-                      AddServModalButton(
-                        done: done.contains("3"),
-                        selected: current == "3",
-                        title: 'Steps 03',
-                        subtitle: 'Post Service',
-                        onTap: () {
-                          setState(() {
-                            current = "3";
-                          });
-                        },
-                      ),
-                    ],
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    height: 100,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        AddServModalButton(
+                          done: done.contains("1"),
+                          selected: current == "1",
+                          title: "Steps 01",
+                          subtitle: 'Basic Info',
+                          onTap: () {
+                            setState(() {
+                              current = "1";
+                            });
+                          },
+                        ),
+                        AddServModalButton(
+                          done: done.contains("2"),
+                          selected: current == "2",
+                          title: 'Steps 02',
+                          subtitle: 'Advance Info',
+                          onTap: () {
+                            setState(() {
+                              current = "2";
+                            });
+                          },
+                        ),
+                        AddServModalButton(
+                          done: done.contains("3"),
+                          selected: current == "3",
+                          title: 'Steps 03',
+                          subtitle: 'Post Service',
+                          onTap: () {
+                            setState(() {
+                              current = "3";
+                            });
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(
                     height: 10,
@@ -294,7 +299,7 @@ class _AddServModalBody1State extends ConsumerState<AddServModalBody1> {
             getServiceCategory.when(
               data: (data) {
                 return SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.45,
+                  width: MediaQuery.of(context).size.width * 0.42,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -328,7 +333,7 @@ class _AddServModalBody1State extends ConsumerState<AddServModalBody1> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.22,
+                                width: MediaQuery.of(context).size.width * 0.16,
                                 child: Text(
                                   _selectedCategory,
                                   style: const TextStyle(fontSize: 12),
@@ -381,7 +386,7 @@ class _AddServModalBody1State extends ConsumerState<AddServModalBody1> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.42,
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
@@ -514,7 +519,7 @@ class _AddServModalBody2State extends ConsumerState<AddServModalBody2> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.42,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -543,7 +548,7 @@ class _AddServModalBody2State extends ConsumerState<AddServModalBody2> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.42,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -606,7 +611,7 @@ class _AddServModalBody2State extends ConsumerState<AddServModalBody2> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.42,
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
@@ -746,7 +751,7 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.42,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -767,7 +772,7 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.42,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -794,7 +799,7 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.42,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -815,7 +820,7 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.42,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -881,7 +886,7 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.42,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -907,7 +912,7 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.42,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -927,7 +932,7 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.42,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -962,7 +967,7 @@ class _AddServModalBody3State extends ConsumerState<AddServModalBody3> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.42,
               height: 50,
               child: ElevatedButton(
                 onPressed: () {

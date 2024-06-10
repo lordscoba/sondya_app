@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:sondya_app/data/api_constants.dart';
 import 'package:sondya_app/data/hive_boxes.dart';
 import 'package:sondya_app/data/storage_constants.dart';
@@ -210,8 +211,9 @@ class LoginUserNotifier
       if (response.statusCode == 200 || response.statusCode == 201) {
         state = AsyncValue.data(response.data as Map<String, dynamic>);
 
+        boxAuth = await Hive.openBox<AuthInfo>(authBoxString);
         // store the login data in hive authBox
-        boxAuth.clear();
+        await boxAuth.clear();
         AuthInfo userInfo =
             AuthInfo.fromJson(getNecessaryAuthData(response.data["data"]));
         boxAuth.put(EnvironmentStorageConfig.authSession, userInfo);
@@ -224,6 +226,9 @@ class LoginUserNotifier
         state = AsyncValue.error(e.message.toString(), e.stackTrace);
         // debugPrint(e.message.toString());
       }
+    } finally {
+      // Ensure the box is closed if it was opened
+      await boxAuth.close();
     }
   }
 }
@@ -323,19 +328,55 @@ class LogoutUserNotifier
   LogoutUserNotifier() : super(const AsyncValue.data({}));
 
   Future<void> logout(WidgetRef ref) async {
+    Box<AuthInfo>? boxAuth;
     try {
       // Set loading state
       state = const AsyncValue.loading();
 
+      // Open the Hive box
+      boxAuth = await Hive.openBox<AuthInfo>(authBoxString);
+
+      // Update the authentication state
       ref.watch(isAuthenticatedTemp.notifier).state = false;
 
-      // get box auth data and clear it
-      boxAuth.clear();
+      // Clear the box
+      await boxAuth.clear();
 
       // Set data to empty
       state = const AsyncValue.data({});
-    } on Exception catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, stackTrace) {
+      // Handle any errors
+      state = AsyncValue.error(e, stackTrace);
+    } finally {
+      // Ensure the box is closed if it was opened
+      await boxAuth?.close();
     }
   }
 }
+
+
+// class LogoutUserNotifier
+//     extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
+//   LogoutUserNotifier() : super(const AsyncValue.data({}));
+
+//   Future<void> logout(WidgetRef ref) async {
+//     try {
+//       // Set loading state
+//       state = const AsyncValue.loading();
+
+//       final boxAuth = await Hive.openBox<AuthInfo>(authBoxString);
+
+//       ref.watch(isAuthenticatedTemp.notifier).state = false;
+
+//       // get box auth data and clear it
+//       boxAuth.clear();
+
+//       // Set data to empty
+//       state = const AsyncValue.data({});
+//     } on Exception catch (e) {
+//       state = AsyncValue.error(e, StackTrace.current);
+//     } finally {
+//       boxAuth.close();
+//     }
+//   }
+// }

@@ -120,7 +120,6 @@ class _VariantItemState extends State<VariantItem> {
               TextField(
                 decoration: const InputDecoration(
                   hintText: " Enter Variation Type",
-                  labelText: 'Variation Type',
                 ),
                 controller: controller,
                 onChanged: (value) {
@@ -133,7 +132,7 @@ class _VariantItemState extends State<VariantItem> {
           ),
         ),
         SizedBox(
-          width: MediaQuery.of(context).size.width * 0.4,
+          width: MediaQuery.of(context).size.width * 0.35,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -189,35 +188,36 @@ class _VariantItemState extends State<VariantItem> {
                     ),
               const SizedBox(height: 10),
               TextField(
-                  decoration: const InputDecoration(
-                    hintText: " Enter Variation",
-                    labelText: 'Variation',
-                  ),
-                  controller: TextEditingController(text: newValues),
-                  onChanged: (value) {
-                    if (_debounce?.isActive ?? false) _debounce!.cancel();
-                    _debounce = Timer(const Duration(milliseconds: 500), () {
-                      if (value.isNotEmpty) {
-                        setState(() {
-                          newValues = value;
-                          if (values.isEmpty) {
-                            values.add(newValues);
-                          } else {
-                            values.last = newValues;
-                          }
-                          widget.onItemSelected(key, values);
-                        });
-                      }
-                    });
-                  }),
+                decoration: const InputDecoration(
+                  hintText: " Enter Variation",
+                ),
+                controller: TextEditingController(text: newValues),
+                onChanged: (value) {
+                  if (_debounce?.isActive ?? false) _debounce!.cancel();
+                  _debounce = Timer(const Duration(milliseconds: 500), () {
+                    if (value.isNotEmpty) {
+                      setState(() {
+                        newValues = value;
+                        if (values.isEmpty) {
+                          values.add(newValues);
+                        } else {
+                          values.last = newValues;
+                        }
+                        widget.onItemSelected(key, values);
+                      });
+                    }
+                  });
+                },
+              ),
             ],
           ),
         ),
         Container(
           width: MediaQuery.of(context).size.width * 0.1,
           decoration: BoxDecoration(
-              color: const Color(0xFFEDB842).withOpacity(0.33),
-              borderRadius: BorderRadius.circular(8)),
+            color: const Color(0xFFEDB842).withOpacity(0.33),
+            borderRadius: BorderRadius.circular(8),
+          ),
           child: IconButton(
             icon: const Icon(
               Icons.add,

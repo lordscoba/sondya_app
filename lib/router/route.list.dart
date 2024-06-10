@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sondya_app/domain/providers/auth.provider.dart';
 import 'package:sondya_app/domain/providers/checkout.provider.dart';
 import 'package:sondya_app/presentation/pages/auth/forgot_password_screen.dart';
 import 'package:sondya_app/presentation/pages/auth/login_screen.dart';
@@ -70,44 +71,48 @@ import 'package:sondya_app/presentation/pages/userDashboard/user_payments_screen
 import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 import 'package:sondya_app/presentation/pages/wishlist_screen.dart';
 import 'package:sondya_app/utils/auth_utils.dart';
+import 'package:sondya_app/utils/has_initialized_app.dart';
 
 GoRouter goRouterFunc(WidgetRef ref) {
   FutureOr<String?> paymentDoneRedirectStrict(
       BuildContext context, GoRouterState state) async {
-    if (!isAuthenticated()) {
-      // ref.watch(isAuthenticatedTemp.notifier).state = false;
+    final isAuth = await isAuthenticated();
+    if (!isAuth) {
+      ref.watch(isAuthenticatedTemp.notifier).state = false;
       return '/login';
     }
     if (ref.watch(ispaymentDone.notifier).state == true) {
       return '/product/checkout/status';
     }
-    // ref.watch(isAuthenticatedTemp.notifier).state = true;
+    ref.watch(isAuthenticatedTemp.notifier).state = true;
     return null;
   }
 
   FutureOr<String?> authRedirectStrict(
       BuildContext context, GoRouterState state) async {
-    if (!isAuthenticated()) {
-      // ref.watch(isAuthenticatedTemp.notifier).state = false;
+    final isAuth = await isAuthenticated();
+    if (!isAuth) {
+      ref.watch(isAuthenticatedTemp.notifier).state = false;
       return '/login';
     }
-    // ref.watch(isAuthenticatedTemp.notifier).state = true;
+    ref.watch(isAuthenticatedTemp.notifier).state = true;
     return null;
   }
 
   FutureOr<String?> authRedirectAuthPage(
       BuildContext context, GoRouterState state) async {
-    if (isAuthenticated()) {
-      // ref.watch(isAuthenticatedTemp.notifier).state = true;
+    final isAuth = await isAuthenticated();
+    if (isAuth) {
+      ref.watch(isAuthenticatedTemp.notifier).state = true;
       return '/';
     }
-    // ref.watch(isAuthenticatedTemp.notifier).state = false;
+    ref.watch(isAuthenticatedTemp.notifier).state = false;
     return null;
   }
 
   return GoRouter(
-    initialLocation: "/cart",
-    // initialLocation: hasInitializedAppSession() ? '/' : "/splash",
+    // initialLocation: "/splash",
+    initialLocation: hasInitializedAppSession() ? '/' : "/splash",
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(

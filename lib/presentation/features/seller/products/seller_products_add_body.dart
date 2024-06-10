@@ -86,42 +86,48 @@ class _SellerProductsAddBodyState extends ConsumerState<SellerProductsAddBody> {
                           error.toString(), context);
                     },
                   ),
-                  Row(
-                    children: [
-                      AddProdModalButton(
-                        done: done.contains("1"),
-                        selected: current == "1",
-                        title: "Steps 01",
-                        subtitle: 'Basic Info',
-                        onTap: () {
-                          setState(() {
-                            current = "1";
-                          });
-                        },
-                      ),
-                      AddProdModalButton(
-                        done: done.contains("2"),
-                        selected: current == "2",
-                        title: 'Steps 02',
-                        subtitle: 'Advance Info',
-                        onTap: () {
-                          setState(() {
-                            current = "2";
-                          });
-                        },
-                      ),
-                      AddProdModalButton(
-                        done: done.contains("3"),
-                        selected: current == "3",
-                        title: 'Steps 03',
-                        subtitle: 'Post Product',
-                        onTap: () {
-                          setState(() {
-                            current = "3";
-                          });
-                        },
-                      ),
-                    ],
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.93,
+                    height: 100,
+                    child: ListView(
+                      // shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        AddProdModalButton(
+                          done: done.contains("1"),
+                          selected: current == "1",
+                          title: "Steps 01",
+                          subtitle: 'Basic Info',
+                          onTap: () {
+                            setState(() {
+                              current = "1";
+                            });
+                          },
+                        ),
+                        AddProdModalButton(
+                          done: done.contains("2"),
+                          selected: current == "2",
+                          title: 'Steps 02',
+                          subtitle: 'Advanced Info',
+                          onTap: () {
+                            setState(() {
+                              current = "2";
+                            });
+                          },
+                        ),
+                        AddProdModalButton(
+                          done: done.contains("3"),
+                          selected: current == "3",
+                          title: 'Steps 03',
+                          subtitle: 'Post Product',
+                          onTap: () {
+                            setState(() {
+                              current = "3";
+                            });
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(
                     height: 10,
@@ -267,7 +273,7 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -314,7 +320,7 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
             getProductCategory.when(
               data: (data) {
                 return SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.45,
+                  width: MediaQuery.of(context).size.width * 0.43,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -348,7 +354,7 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.22,
+                                width: MediaQuery.of(context).size.width * 0.15,
                                 child: Text(
                                   _selectedCategory,
                                   style: const TextStyle(fontSize: 12),
@@ -378,7 +384,7 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -398,7 +404,7 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -423,7 +429,7 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -443,7 +449,7 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -468,7 +474,7 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -488,7 +494,7 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -528,7 +534,7 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               height: 50,
               child: OutlinedButton(
                 onPressed: () {},
@@ -536,7 +542,7 @@ class _AddModalBody1State extends ConsumerState<AddModalBody1> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
@@ -686,7 +692,7 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -715,7 +721,7 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -750,7 +756,7 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -779,7 +785,7 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -830,7 +836,7 @@ class _AddModalBody2State extends ConsumerState<AddModalBody2> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               height: 50,
               child: OutlinedButton(
                 onPressed: () {},
@@ -928,7 +934,7 @@ class _AddModalBody3State extends ConsumerState<AddModalBody3> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -949,7 +955,7 @@ class _AddModalBody3State extends ConsumerState<AddModalBody3> {
               ),
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1000,7 +1006,7 @@ class _AddModalBody3State extends ConsumerState<AddModalBody3> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
+              width: MediaQuery.of(context).size.width * 0.43,
               height: 50,
               child: OutlinedButton(
                 onPressed: () {},
@@ -1066,6 +1072,7 @@ class AddProdModalButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(5),
+        width: MediaQuery.of(context).size.width * 0.32,
         child: Column(
           children: [
             Row(
@@ -1087,10 +1094,17 @@ class AddProdModalButton extends StatelessWidget {
                     Text(
                       title,
                       style: const TextStyle(fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(color: Color(0xFF767E94)),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      child: Text(
+                        subtitle,
+                        style: const TextStyle(color: Color(0xFF767E94)),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 )

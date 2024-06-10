@@ -46,72 +46,70 @@ class _SearchPageNavbarState extends ConsumerState<SearchPageNavbar> {
         title: const Text("Search"),
       ),
       extendBody: true,
-      body: SingleChildScrollView(
-        child: Center(
-          child: SizedBox(
-            height: 650,
-            width: 380,
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  const SizedBox(
-                    height: 50,
+      body: Center(
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.6,
+          width: MediaQuery.of(context).size.width * 0.8,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                const SizedBox(
+                  height: 50,
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    hintText: " Enter search",
+                    labelText: 'Search',
+                    prefixIcon: Icon(Icons.search),
                   ),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: " Enter search",
-                      labelText: 'Search',
-                      prefixIcon: Icon(Icons.search),
+                  validator: isInputEmpty,
+                  onSaved: (value) {
+                    search.search = value!;
+                  },
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Text(_selectedString),
+                const SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Radio(
+                      value: 0,
+                      groupValue: _selectedValue,
+                      onChanged: _handleRadioValueChanged,
                     ),
-                    validator: isInputEmpty,
-                    onSaved: (value) {
-                      search.search = value!;
-                    },
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Text(_selectedString),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Radio(
-                        value: 0,
-                        groupValue: _selectedValue,
-                        onChanged: _handleRadioValueChanged,
-                      ),
-                      const Text("Product"),
-                      Radio(
-                        value: 1,
-                        groupValue: _selectedValue,
-                        onChanged: _handleRadioValueChanged,
-                      ),
-                      const Text("Service"),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      // context.push('/home');
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState?.save();
-                      }
-                    },
-                    child: const Text("Search"),
-                  ),
-                ],
-                // Your scrollable content here
-              ),
+                    const Text("Product"),
+                    Radio(
+                      value: 1,
+                      groupValue: _selectedValue,
+                      onChanged: _handleRadioValueChanged,
+                    ),
+                    const Text("Service"),
+                  ],
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    // context.push('/home');
+                    if (_formKey.currentState!.validate()) {
+                      _formKey.currentState?.save();
+                    }
+                  },
+                  child: const Text("Search"),
+                ),
+              ],
+              // Your scrollable content here
             ),
           ),
         ),

@@ -1,3 +1,4 @@
+import 'package:hive/hive.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:sondya_app/data/hive_boxes.dart';
 import 'package:sondya_app/data/storage_constants.dart';
@@ -19,30 +20,42 @@ Map<String, dynamic> getNecessaryAuthData(Map<String, dynamic> response) {
   return newMap;
 }
 
-// check if user is authenticated
-bool isAuthenticated() {
-  // boxAuth = await Hive.openBox<AuthInfo>(authBoxString);
-  final AuthInfo? obj = boxAuth.get(EnvironmentStorageConfig.authSession);
+Future<bool> isAuthenticated() async {
+  // Open the Hive box only once for performance optimization
+  boxAuth = await Hive.openBox<AuthInfo>(authBoxString);
 
-  // Check if obj is null
-  if (obj == null) {
+  try {
+    // Attempt to retrieve the AuthInfo object
+    final AuthInfo? obj =
+        await boxAuth.get(EnvironmentStorageConfig.authSession);
+
+    if (obj == null) {
+      return false;
+    }
+
+    // check if obj is empty
+    if (obj.toJson().isEmpty) {
+      return false;
+    }
+
+    //check if token is empty
+    if (obj.token.isEmpty) {
+      return false;
+    }
+
+    // check if token is expired
+    if (JwtDecoder.isExpired(obj.token)) {
+      return false;
+    }
+
+    return true;
+  } on HiveError catch (error) {
+    print(error);
     return false;
-  }
-
-  // check if obj is empty
-  if (obj.toJson().isEmpty) {
+  } catch (error) {
+    print(error);
     return false;
+  } finally {
+    await boxAuth.close();
   }
-
-  //check if token is empty
-  if (obj.token.isEmpty) {
-    return false;
-  }
-
-  // check if token is expired
-  if (JwtDecoder.isExpired(obj.token)) {
-    return false;
-  }
-
-  return true;
 }

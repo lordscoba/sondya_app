@@ -31,22 +31,29 @@ class WishlistBody extends ConsumerWidget {
                 : const SizedBox(),
             getWishList.when(
               data: (data) {
-                return SizedBox(
-                  height: MediaQuery.of(context).size.height - 250,
-                  child: ListView.builder(
-                    // shrinkWrap: true,
-                    itemCount: data.length,
-                    itemBuilder: (context, index) {
-                      // print(data[index].toJson());
-                      return WishListItem(
-                        id: data[index].id,
-                        category: data[index].category,
-                        name: data[index].name!,
-                        index: index,
-                      );
-                    },
-                  ),
-                );
+                // ignore: unnecessary_null_comparison
+                if (data == null || data.isEmpty) {
+                  return const Center(
+                    child: Text("No Wishlist Found"),
+                  );
+                } else {
+                  return SizedBox(
+                    height: MediaQuery.of(context).size.height - 250,
+                    child: ListView.builder(
+                      // shrinkWrap: true,
+                      itemCount: data.length,
+                      itemBuilder: (context, index) {
+                        // print(data[index].toJson());
+                        return WishListItem(
+                          id: data[index].id,
+                          category: data[index].category,
+                          name: data[index].name!,
+                          index: index,
+                        );
+                      },
+                    ),
+                  );
+                }
               },
               error: (error, stackTrace) => Text(error.toString()),
               loading: () => const CupertinoActivityIndicator(
@@ -102,9 +109,12 @@ class _WishListItemState extends ConsumerState<WishListItem> {
               ? Column(
                   children: [
                     Text(widget.name),
-                    const Text(
-                        "This item has been removed from server, please remove from wishlist",
-                        textAlign: TextAlign.center),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      child: const Text(
+                          "This item has been removed from server, please remove from wishlist",
+                          textAlign: TextAlign.center),
+                    ),
                     IconButton(
                       onPressed: () {
                         ref
@@ -122,7 +132,8 @@ class _WishListItemState extends ConsumerState<WishListItem> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                      width: 100,
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      height: 130,
                       child: data["data"]["image"] == null ||
                               data["data"]["image"].isEmpty
                           ? Container()
@@ -134,7 +145,7 @@ class _WishListItemState extends ConsumerState<WishListItem> {
                             ),
                     ),
                     SizedBox(
-                      width: 230,
+                      width: MediaQuery.of(context).size.width * 0.5,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -176,15 +187,18 @@ class _WishListItemState extends ConsumerState<WishListItem> {
                         ],
                       ),
                     ),
-                    IconButton(
-                        onPressed: () async {
-                          ref
-                              .read(removeFromWishlistProvider.notifier)
-                              .removeFromWishlist(widget.id, "product");
-                          // ignore: unused_result
-                          ref.refresh(getWishlistDataProvider);
-                        },
-                        icon: const Icon(Icons.delete)),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.07,
+                      child: IconButton(
+                          onPressed: () async {
+                            ref
+                                .read(removeFromWishlistProvider.notifier)
+                                .removeFromWishlist(widget.id, "product");
+                            // ignore: unused_result
+                            ref.refresh(getWishlistDataProvider);
+                          },
+                          icon: const Icon(Icons.delete)),
+                    ),
                   ],
                 );
         },

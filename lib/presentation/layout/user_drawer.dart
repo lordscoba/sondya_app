@@ -115,37 +115,56 @@ class LogoutDrawerWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     bool tempAuth = ref.watch(isAuthenticatedTemp);
-    print(tempAuth);
-    print(isAuthenticated());
-    return isAuthenticated() || tempAuth
-        ? ListTile(
-            leading: const Icon(Icons.logout_outlined),
-            title: const Text('logout'),
-            onTap: () {
-              showGeneralDialog(
-                context: context,
-                transitionDuration: const Duration(
-                    milliseconds: 100), // Adjust animation duration
-                transitionBuilder: (context, a1, a2, widget) {
-                  return FadeTransition(
-                    opacity: CurvedAnimation(parent: a1, curve: Curves.easeIn),
-                    child: widget,
-                  );
-                },
-                barrierLabel: MaterialLocalizations.of(context)
-                    .modalBarrierDismissLabel, // Optional accessibility label
-                pageBuilder: (context, animation1, animation2) {
-                  return const LogoutBody();
-                },
-              );
-            },
-          )
-        : ListTile(
-            leading: const Icon(Icons.login_outlined),
-            title: const Text('login/signup'),
-            onTap: () {
-              context.push("/login");
-            },
-          );
+    return FutureBuilder<bool>(
+      future: isAuthenticated(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (snapshot.hasData) {
+          bool isAuthenticated = snapshot.data!;
+
+          if (isAuthenticated || tempAuth) {
+            return ListTile(
+              leading: const Icon(Icons.logout_outlined),
+              title: const Text('logout'),
+              onTap: () {
+                // ignore: use_build_context_synchronously
+                Navigator.pop(context);
+
+                showGeneralDialog(
+                  context: context,
+                  transitionDuration: const Duration(
+                      milliseconds: 100), // Adjust animation duration
+                  transitionBuilder: (context, a1, a2, widget) {
+                    return FadeTransition(
+                      opacity:
+                          CurvedAnimation(parent: a1, curve: Curves.easeIn),
+                      child: widget,
+                    );
+                  },
+                  barrierLabel: MaterialLocalizations.of(context)
+                      .modalBarrierDismissLabel, // Optional accessibility label
+                  pageBuilder: (context, animation1, animation2) {
+                    return const LogoutBody();
+                  },
+                );
+              },
+            );
+          } else {
+            return ListTile(
+              leading: const Icon(Icons.login_outlined),
+              title: const Text('login/signup'),
+              onTap: () {
+                context.push("/login");
+              },
+            );
+          }
+        } else {
+          return const Center(child: Text('Unknown state'));
+        }
+      },
+    );
   }
 }

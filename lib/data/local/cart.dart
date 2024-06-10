@@ -306,7 +306,16 @@ final getShipmentDestinationdDataProvider =
   try {
     // get boxForCart data list
     final list = boxForShipment.get(0);
-    return list;
+
+    return list ??
+        ShippingDestinationType(
+            id: '0',
+            country: '',
+            state: '',
+            city: '',
+            address: '',
+            zipcode: '',
+            phoneNumber: '');
   } on Error catch (e) {
     return throw Exception("Failed to fetch map data error: ${e.toString()}");
   }
