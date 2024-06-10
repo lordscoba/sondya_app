@@ -91,25 +91,27 @@ class _SellerProductsBodyState extends ConsumerState<SellerProductsBody> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                  icon: const Icon(Icons.arrow_back),
-                ),
-              ],
-            ),
+            context.canPop()
+                ? Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        icon: const Icon(Icons.arrow_back),
+                      ),
+                    ],
+                  )
+                : const SizedBox(),
             const SizedBox(height: 20.0),
             Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 SizedBox(
-                  width: 200,
+                  width: MediaQuery.of(context).size.width * 0.46,
                   child: TextFormField(
                     decoration: const InputDecoration(
                       hintText: " Enter your search",
@@ -136,15 +138,22 @@ class _SellerProductsBodyState extends ConsumerState<SellerProductsBody> {
                   ),
                 ),
                 SizedBox(
-                  width: 200,
+                  width: MediaQuery.of(context).size.width * 0.46,
                   child: ElevatedButton(
                       onPressed: () {
                         context.push("/seller/products/add");
                       },
-                      child: const Row(
+                      child: Row(
                         children: [
-                          Icon(Icons.add),
-                          Text("Add Product"),
+                          const Icon(Icons.add),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.22,
+                            child: const Text(
+                              "Add Product",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ],
                       )),
                 )

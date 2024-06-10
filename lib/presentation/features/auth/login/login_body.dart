@@ -135,11 +135,16 @@ class _LoginBodyState extends ConsumerState<LoginBody> {
                         const SizedBox(width: 10.0),
                         SizedBox(
                           height: 40,
+                          width: MediaQuery.of(context).size.width * 0.35,
                           child: OutlinedButton(
                             onPressed: () {
                               context.push('/register');
                             },
-                            child: const Text("Register"),
+                            child: const Text(
+                              "Register",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                       ],
@@ -151,11 +156,16 @@ class _LoginBodyState extends ConsumerState<LoginBody> {
                         const SizedBox(width: 10.0),
                         SizedBox(
                           height: 40,
+                          width: MediaQuery.of(context).size.width * 0.35,
                           child: OutlinedButton(
                             onPressed: () {
                               context.push('/forgotPassword');
                             },
-                            child: const Text("Forgot Password?"),
+                            child: const Text(
+                              "Forgot Password?",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                       ],

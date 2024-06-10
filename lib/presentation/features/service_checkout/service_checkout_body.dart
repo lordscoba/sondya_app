@@ -62,7 +62,7 @@ class _ServiceCheckoutBodyState extends ConsumerState<ServiceCheckoutBody> {
 
     // getServiceDetails.when(data: (data) {
     //   // print(data["order_exist"]);
-    //   print(data["checkout_items"]["image"]);
+    //   print(data);
     // }, error: (error, stackTrace) {
     //   print(error);
     // }, loading: () {
@@ -70,17 +70,15 @@ class _ServiceCheckoutBodyState extends ConsumerState<ServiceCheckoutBody> {
     // });
     final AsyncValue<Map<String, dynamic>> checkState =
         ref.watch(initializeFlutterwaveProvider);
+
+    // print(widget.sellerId);
+    // print(widget.serviceId);
     return SingleChildScrollView(
       child: Center(
         child: getServiceDetails.when(
           data: (data) {
-            payment.amount =
-                data["checkout_items"]["terms"]["amount"].toDouble();
-            return Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            if (data == null || data.isEmpty || data == {}) {
+              return Column(
                 children: [
                   context.canPop()
                       ? Row(
@@ -96,144 +94,178 @@ class _ServiceCheckoutBodyState extends ConsumerState<ServiceCheckoutBody> {
                           ],
                         )
                       : Container(),
-                  SondyaPictureSlider(
-                    pictureList: data["checkout_items"]["image"] != null &&
-                            data["checkout_items"]["image"].isNotEmpty
-                        ? data["checkout_items"]["image"]
-                        : [
-                            {
-                              "url": "https://picsum.photos/500/300",
-                              "public_id": "sondya/gcxk3g0crkg3dh7suf0e",
-                              "folder": "sondya",
-                              "_id": "65722ab6fbbcca9851accff2"
-                            }
-                          ],
-                  ),
                   const SizedBox(
                     height: 20,
                   ),
-                  Row(
-                    children: [
-                      // Text("Duration: 4 days, "),
-                      Text(
-                          "Duration: ${data["checkout_items"]["terms"]["duration"] ?? "No Duration"} ${data["checkout_items"]["terms"]["durationUnit"] ?? ""}, "),
-                      const Text("Revision: 1"),
-                    ],
+                  const Text(
+                    "No data found, Order another service",
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Text(
-                    data["checkout_items"]["name"] ?? "No Name",
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    data["checkout_items"]["brief_description"] ??
-                        "No Description",
-                  ),
-                  ListView(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      ListTile(
-                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                        leadingAndTrailingTextStyle: textStyleConCluding,
-                        leading: const Text("Sub Total"),
-                        trailing: Text(
-                            "\$ ${data["checkout_items"]["terms"]["amount"].toString()}"),
-                      ),
-                      const Divider(),
-                      ListTile(
-                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                        leadingAndTrailingTextStyle: textStyleConCluding,
-                        leading: const Text("Total"),
-                        trailing: Text(
-                            "\$ ${data["checkout_items"]["terms"]["amount"].toString()}"),
-                      )
-                    ],
-                  ),
-                  CheckoutSellerDetailsBody(
-                    details: data["checkout_items"]["owner"],
-                    city: data["checkout_items"]["city"],
-                    state: data["checkout_items"]["state"],
-                    country: data["checkout_items"]["country"],
-                    phoneNumber: data["checkout_items"]["phone_number"],
-                    address: data["checkout_items"]["location_description"],
-                    phoneNumberBackup: data["checkout_items"]
-                        ["phone_number_backup"],
-                  ),
-                  CheckoutPaymentMethodSerBody(
-                    onChangedR: (value) {
-                      setState(() {
-                        paymentMethod = value!;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  data["terms_agreed"]
-                      ? SizedBox(
-                          height: 50,
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              if (mounted) {
-                                if (paymentMethod == "card") {
-                                  // print(payment.toJson());
-                                  ref
-                                      .read(initializeFlutterwaveProvider
-                                          .notifier)
-                                      .initServicePayment(payment, context);
-                                } else {
-                                  print("Payment method is mobile wallet");
-                                }
-                              }
-                            },
-                            child: checkState.isLoading
-                                ? sondyaThreeBounceLoader(color: Colors.white)
-                                : Text(
-                                    "Pay \$${data["checkout_items"]["terms"]["amount"].toDouble().toString()}"),
-                          ),
-                        )
-                      : SizedBox(
-                          height: 160,
-                          width: double.infinity,
-                          child: Column(
+                ],
+              );
+            } else {
+              payment.amount =
+                  data["checkout_items"]["terms"]["amount"].toDouble() ?? 0.0;
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    context.canPop()
+                        ? Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              const SizedBox(
-                                width: 400,
-                                child: Text(
-                                  textAlign: TextAlign.center,
-                                  "Since you have not agreed to service terms, you cannot proceed to checkout. click on the button below to agree to service terms with the seller.",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.orangeAccent,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    // print(data["terms_agreed"]);
-                                    // print(data["order_id"]);
-                                    context.push(
-                                        "/user/service/order/review/terms/${data["order_id"]}");
-                                  },
-                                  child: const Column(
-                                    children: [
-                                      Text("Agree to Service Terms"),
-                                    ],
-                                  ),
-                                ),
+                              IconButton(
+                                onPressed: () {
+                                  context.pop();
+                                },
+                                icon: const Icon(Icons.arrow_back),
                               ),
                             ],
-                          ),
+                          )
+                        : Container(),
+                    SondyaPictureSlider(
+                      pictureList: data["checkout_items"]["image"] != null &&
+                              data["checkout_items"]["image"].isNotEmpty
+                          ? data["checkout_items"]["image"]
+                          : [
+                              {
+                                "url": "https://picsum.photos/500/300",
+                                "public_id": "sondya/gcxk3g0crkg3dh7suf0e",
+                                "folder": "sondya",
+                                "_id": "65722ab6fbbcca9851accff2"
+                              }
+                            ],
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      children: [
+                        // Text("Duration: 4 days, "),
+                        Text(
+                            "Duration: ${data["checkout_items"]["terms"]["duration"] ?? "No Duration"} ${data["checkout_items"]["terms"]["durationUnit"] ?? ""}, "),
+                        const Text("Revision: 1"),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Text(
+                      data["checkout_items"]["name"] ?? "No Name",
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      data["checkout_items"]["brief_description"] ??
+                          "No Description",
+                    ),
+                    ListView(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: [
+                        ListTile(
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 0),
+                          leadingAndTrailingTextStyle: textStyleConCluding,
+                          leading: const Text("Sub Total"),
+                          trailing: Text(
+                              "\$ ${data["checkout_items"]["terms"]["amount"].toString()}"),
                         ),
-                ],
-              ),
-            );
+                        const Divider(),
+                        ListTile(
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 0),
+                          leadingAndTrailingTextStyle: textStyleConCluding,
+                          leading: const Text("Total"),
+                          trailing: Text(
+                              "\$ ${data["checkout_items"]["terms"]["amount"].toString()}"),
+                        )
+                      ],
+                    ),
+                    CheckoutSellerDetailsBody(
+                      details: data["checkout_items"]["owner"],
+                      city: data["checkout_items"]["city"],
+                      state: data["checkout_items"]["state"],
+                      country: data["checkout_items"]["country"],
+                      phoneNumber: data["checkout_items"]["phone_number"],
+                      address: data["checkout_items"]["location_description"],
+                      phoneNumberBackup: data["checkout_items"]
+                          ["phone_number_backup"],
+                    ),
+                    CheckoutPaymentMethodSerBody(
+                      onChangedR: (value) {
+                        setState(() {
+                          paymentMethod = value!;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    data["terms_agreed"]
+                        ? SizedBox(
+                            height: 50,
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (mounted) {
+                                  if (paymentMethod == "card") {
+                                    // print(payment.toJson());
+                                    ref
+                                        .read(initializeFlutterwaveProvider
+                                            .notifier)
+                                        .initServicePayment(payment, context);
+                                  } else {
+                                    print("Payment method is mobile wallet");
+                                  }
+                                }
+                              },
+                              child: checkState.isLoading
+                                  ? sondyaThreeBounceLoader(color: Colors.white)
+                                  : Text(
+                                      "Pay \$${data["checkout_items"]["terms"]["amount"].toDouble().toString()}"),
+                            ),
+                          )
+                        : SizedBox(
+                            height: 160,
+                            width: double.infinity,
+                            child: Column(
+                              children: [
+                                const SizedBox(
+                                  width: 400,
+                                  child: Text(
+                                    textAlign: TextAlign.center,
+                                    "Since you have not agreed to service terms, you cannot proceed to checkout. click on the button below to agree to service terms with the seller.",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.orangeAccent,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      // print(data["terms_agreed"]);
+                                      // print(data["order_id"]);
+                                      context.push(
+                                          "/user/service/order/review/terms/${data["order_id"] ?? ""}");
+                                    },
+                                    child: const Column(
+                                      children: [
+                                        Text("Agree to Service Terms"),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                  ],
+                ),
+              );
+            }
           },
           loading: () => const CupertinoActivityIndicator(),
           error: (error, stackTrace) => Text(error.toString()),

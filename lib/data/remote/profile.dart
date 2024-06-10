@@ -38,6 +38,35 @@ final getProfileByIdProvider =
   }
 });
 
+final getUsersProvider = FutureProvider.autoDispose
+    .family<List<dynamic>, String>((ref, search) async {
+  try {
+    final dio = Dio();
+    dio.interceptors.add(const AuthInterceptor());
+
+    // // get auth user id
+    // AuthInfo localAuth = await getLocalAuth();
+    // String userId = localAuth.id;
+
+    final response = await dio.get(EnvironmentProfileConfig.getUsers + search);
+
+    // debugPrint(response.data.toString());
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return response.data["data"] as List<dynamic>;
+    } else {
+      throw Exception('Failed to fetch map data');
+    }
+  } on DioException catch (e) {
+    if (e.response != null) {
+      // debugPrint(e.response?.data.toString());
+      return e.response?.data;
+    } else {
+      // debugPrint(e.message.toString());
+      return throw Exception("Failed to fetch map data error: ${e.message}");
+    }
+  }
+});
+
 class ProfileNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
   ProfileNotifier() : super(const AsyncValue.data({}));
 

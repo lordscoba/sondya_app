@@ -38,19 +38,21 @@ class _CartBodyState extends ConsumerState<CartBody> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      // Navigator.pop(context);
-                      context.pop();
-                    },
-                    icon: const Icon(Icons.arrow_back),
-                  ),
-                ],
-              ),
+              context.canPop()
+                  ? Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            // Navigator.pop(context);
+                            context.pop();
+                          },
+                          icon: const Icon(Icons.arrow_back),
+                        ),
+                      ],
+                    )
+                  : const SizedBox(),
               const SizedBox(height: 10.0),
               const Text(
                 "Cart",
@@ -63,6 +65,7 @@ class _CartBodyState extends ConsumerState<CartBody> {
                 data: (data) {
                   return ListView.builder(
                     shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: data.length,
                     itemBuilder: (context, index) {
                       return CartItem(

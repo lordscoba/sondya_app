@@ -28,8 +28,9 @@ class _ProductContainerState extends ConsumerState<ProductContainer> {
   var isFavorite = false;
   void _detailsPage() {
     // debugPrint("/product/details/$id/${sondyaSlugify(productName)}");
-    context.push(
-        "/product/details/${widget.id}/${sondyaSlugify(widget.productName)}");
+    final route =
+        "/product/details/${widget.id}/${sondyaSlugify(widget.productName)}";
+    context.push(route);
   }
 
   @override
@@ -71,30 +72,58 @@ class _ProductContainerState extends ConsumerState<ProductContainer> {
               height: 18,
               padding: EdgeInsets.zero,
               child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  PriceFormatWidget(price: widget.productPrice),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        isFavorite = !isFavorite;
-                        if (isFavorite) {
-                          ref
-                              .read(addToWishlistProvider.notifier)
-                              .addToWishlist(
-                                  widget.id, "product", widget.productName);
-                        } else {
-                          ref
-                              .read(removeFromWishlistProvider.notifier)
-                              .removeFromWishlist(widget.id, "product");
-                        }
-                      });
-                    },
-                    icon: Icon(
-                      isFavorite ? Icons.favorite : Icons.favorite_outline,
-                      size: 15,
-                      color: const Color(0xFFEDB842),
+                  PriceFormatWidget(
+                    price: widget.productPrice,
+                    fontSize: 15.0,
+                  ),
+                  SizedBox(
+                    width: 100,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          width: 30,
+                          child: IconButton(
+                            onPressed: _detailsPage,
+                            icon: const Icon(
+                              Icons.visibility_outlined,
+                              size: 18,
+                              color: Color(0xFFEDB842),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 30,
+                          child: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                isFavorite = !isFavorite;
+                                if (isFavorite) {
+                                  ref
+                                      .read(addToWishlistProvider.notifier)
+                                      .addToWishlist(widget.id, "product",
+                                          widget.productName);
+                                } else {
+                                  ref
+                                      .read(removeFromWishlistProvider.notifier)
+                                      .removeFromWishlist(widget.id, "product");
+                                }
+                              });
+                            },
+                            icon: Icon(
+                              isFavorite
+                                  ? Icons.favorite
+                                  : Icons.favorite_outline,
+                              size: 18,
+                              color: const Color(0xFFEDB842),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

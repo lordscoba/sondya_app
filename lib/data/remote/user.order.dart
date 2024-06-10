@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sondya_app/data/api_constants.dart';
 import 'package:sondya_app/data/local/get_local_auth.dart';
@@ -89,7 +90,7 @@ final getUserServiceOrdersProvider =
 });
 
 final checkUserServiceOrderProvider = FutureProvider.autoDispose
-    .family<Map<String, dynamic>, dynamic>((ref, data) async {
+    .family<Map<String, dynamic>?, dynamic>((ref, data) async {
   try {
     final dio = Dio();
     dio.interceptors.add(const AuthInterceptor());
@@ -100,20 +101,23 @@ final checkUserServiceOrderProvider = FutureProvider.autoDispose
 
     data["buyer_id"] = userId;
 
+    // print(data);
+
     final response = await dio
-        .get(EnvironmentUserServiceOrderConfig.checkServiceOrder, data: data);
+        .post(EnvironmentUserServiceOrderConfig.checkServiceOrder, data: data);
     // debugPrint(response.data.toString());
     if (response.statusCode == 200 || response.statusCode == 201) {
+      // print(response.data["data"]);
       return response.data["data"] as Map<String, dynamic>;
     } else {
       throw Exception('Failed to fetch map data');
     }
   } on DioException catch (e) {
     if (e.response != null) {
-      // debugPrint(e.response?.data.toString());
+      debugPrint(e.response?.data.toString());
       return e.response?.data;
     } else {
-      // debugPrint(e.message.toString());
+      debugPrint(e.message.toString());
       return throw Exception("Failed to fetch map data error: ${e.message}");
     }
   }

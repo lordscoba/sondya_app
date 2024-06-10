@@ -136,7 +136,7 @@ class EnvironmentUserServiceOrderConfig {
   static const String updateServiceOrder =
       '$baseUrl/user/order/services/update/'; // PUT: order_id
   static const String checkServiceOrder =
-      '$baseUrl/user/order/services/check'; // GET
+      '$baseUrl/user/order/services/check'; // POST
 }
 
 class EnvironmentTrackOrderConfig {

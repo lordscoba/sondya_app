@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sondya_app/data/local/cart.dart';
 import 'package:sondya_app/data/remote/home.dart';
@@ -50,7 +51,7 @@ class _CartItemState extends ConsumerState<CartItem> {
     return Container(
       padding: const EdgeInsets.all(10.0),
       width: double.infinity,
-      height: 190,
+      height: 250,
       decoration: const BoxDecoration(
         border: Border(
           bottom: BorderSide(color: Color(0xFFEDB842)),
@@ -73,6 +74,7 @@ class _CartItemState extends ConsumerState<CartItem> {
                             : data['data']["image"][0]["url"],
                       ),
                       width: 100,
+                      height: 130,
                       fit: BoxFit.cover,
                     ),
                     GestureDetector(
@@ -132,6 +134,21 @@ class _CartItemState extends ConsumerState<CartItem> {
                       fontSize: 16,
                       fontFamily: GoogleFonts.openSans().fontFamily,
                       color: Colors.black87,
+                    ),
+                    SizedBox(
+                      width: 130,
+                      height: 40,
+                      child: TextButton(
+                        onPressed: () {
+                          final route =
+                              "/product/details/${widget.id}/${sondyaSlugify(widget.name!)}";
+                          context.push(route);
+                        },
+                        child: const Text(
+                          "View Details",
+                          style: TextStyle(color: Color(0xFFEDB842)),
+                        ),
+                      ),
                     ),
                     SizedBox(
                       width: 150,

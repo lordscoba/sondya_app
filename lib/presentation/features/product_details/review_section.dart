@@ -351,7 +351,8 @@ class _CreateReviewWidgetState extends ConsumerState<CreateReviewWidget> {
                     ).show(
                       context,
                     );
-                  } else if (!isAuthenticated()) {
+                  } else if (!(await isAuthenticated())) {
+                    // ignore: use_build_context_synchronously
                     AnimatedSnackBar.rectangle(
                       'Error',
                       "You have to be logged in to post reviews",

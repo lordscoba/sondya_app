@@ -225,11 +225,14 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
                             const SizedBox(
                               height: 5,
                             ),
-                            const Text(
-                              "Brief Description",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Color(0xFFEDB842),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              child: const Text(
+                                "Brief Description",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Color(0xFFEDB842),
+                                ),
                               ),
                             ),
                             const SizedBox(
@@ -356,10 +359,13 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
                       const SizedBox(
                         height: 10,
                       ),
-                      Text(
-                        data["data"]["description"],
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w400),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        child: Text(
+                          data["data"]["description"],
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w400),
+                        ),
                       ),
                       const SizedBox(
                         height: 20,
@@ -388,8 +394,13 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
                               children: [
                                 Text(
                                     "${data["data"]["owner"]["username"]}, ${data["data"]["owner"]["email"]}"),
-                                Text(
-                                    data["data"]["location_description"] ?? ''),
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.7,
+                                  child: Text(data["data"]
+                                          ["location_description"] ??
+                                      ''),
+                                ),
                               ],
                             ),
                           ),
@@ -469,11 +480,15 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
                                     color: Color(0xFF74767E),
                                   ),
                                 ),
-                                Text(
-                                  data["data"]["website_link"] ?? "N/A",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF62646A),
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.3,
+                                  child: Text(
+                                    data["data"]["website_link"] ?? "N/A",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF62646A),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -488,11 +503,15 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
                                     color: Color(0xFF74767E),
                                   ),
                                 ),
-                                Text(
-                                  data["data"]["email"] ?? "N/A",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF62646A),
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.4,
+                                  child: Text(
+                                    data["data"]["email"] ?? "N/A",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF62646A),
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(
@@ -515,11 +534,17 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                const Text(
-                                  "Phone Number Back Up",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    color: Color(0xFF74767E),
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.4,
+                                  child: const Text(
+                                    "Phone Number Back Up",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      color: Color(0xFF74767E),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                                 Text(
@@ -539,11 +564,15 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
                                     color: Color(0xFF74767E),
                                   ),
                                 ),
-                                Text(
-                                  data["data"]["map_location_link"] ?? "N/A",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF62646A),
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.4,
+                                  child: Text(
+                                    data["data"]["map_location_link"] ?? "N/A",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF62646A),
+                                    ),
                                   ),
                                 ),
                               ],
