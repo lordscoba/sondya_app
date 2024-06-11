@@ -29,12 +29,20 @@ class _ProductSearchBodyState extends ConsumerState<ProductSearchBody> {
   // controls the scroll container
   final ScrollController _scrollController = ScrollController();
 
+  Map<String, dynamic> searchData = {};
+
+  TextEditingController? searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
+
     // Initialize the variable in initState
     _scrollController.addListener(_scrollListener);
     search = ref.read(productSearchprovider);
+
+    // assign initial text to search controller
+    searchController = TextEditingController(text: search.search);
   }
 
   @override
@@ -70,7 +78,7 @@ class _ProductSearchBodyState extends ConsumerState<ProductSearchBody> {
     BuildContext context,
   ) {
     // gets the search map removes null and page key, ready for iteration
-    var searchData = ref.watch(productSearchprovider).toJson();
+    searchData = ref.watch(productSearchprovider).toJson();
     searchData.removeWhere((key, value) => (value == null || key == "page"));
 
     //calls search api with the filter strings
@@ -89,6 +97,7 @@ class _ProductSearchBodyState extends ConsumerState<ProductSearchBody> {
         });
       }
     });
+
     return SingleChildScrollView(
       child: Center(
         child: Container(
@@ -114,11 +123,30 @@ class _ProductSearchBodyState extends ConsumerState<ProductSearchBody> {
                   : const SizedBox(),
               const SizedBox(height: 5),
               TextFormField(
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: " Enter your search",
                   labelText: 'Search',
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: IconButton(
+                    icon: search.search == null || search.search == ""
+                        ? const SizedBox()
+                        : const Icon(Icons.clear, color: Colors.red),
+                    onPressed: () {
+                      setState(() {
+                        search.search = null;
+                        search.page = null;
+
+                        searchController!.clear();
+
+                        allItems = [];
+                        search.page = null;
+                        bottomPage = false;
+                        ref.read(productSearchprovider.notifier).state = search;
+                      });
+                    },
+                  ),
                 ),
+                controller: searchController,
                 validator: isInputEmpty,
                 onChanged: (value) {
                   Future.delayed(const Duration(seconds: 1), () {
@@ -257,6 +285,7 @@ class _ProductSearchBodyState extends ConsumerState<ProductSearchBody> {
                             setState(() {
                               if (key == "search") {
                                 search.search = null;
+                                searchController!.clear();
                               } else if (key == "popularBrands") {
                                 search.popularBrands = null;
                               } else if (key == "priceRange") {

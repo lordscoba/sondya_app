@@ -29,12 +29,20 @@ class _ServiceSearchBodyState extends ConsumerState<ServiceSearchBody> {
   // controls the scroll container
   final ScrollController _scrollController = ScrollController();
 
+  Map<String, dynamic> searchData = {};
+
+  TextEditingController? searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
+
     // Initialize the variable in initState
     _scrollController.addListener(_scrollListener);
     search = ref.read(serviceSearchprovider);
+
+    // assign initial text to search controller
+    searchController = TextEditingController(text: search.search);
   }
 
   @override
@@ -68,7 +76,7 @@ class _ServiceSearchBodyState extends ConsumerState<ServiceSearchBody> {
   @override
   Widget build(BuildContext context) {
     // gets the search map removes null and page key, ready for iteration
-    var searchData = ref.watch(serviceSearchprovider).toJson();
+    searchData = ref.watch(serviceSearchprovider).toJson();
     searchData.removeWhere((key, value) => (value == null || key == "page"));
 
     //calls search api with the filter strings
@@ -113,11 +121,30 @@ class _ServiceSearchBodyState extends ConsumerState<ServiceSearchBody> {
                   : const SizedBox(),
               const SizedBox(height: 5),
               TextFormField(
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: " Enter your search",
                   labelText: 'Search',
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: IconButton(
+                    icon: search.search == null || search.search == ""
+                        ? const SizedBox()
+                        : const Icon(Icons.clear, color: Colors.red),
+                    onPressed: () {
+                      setState(() {
+                        search.search = null;
+                        search.page = null;
+
+                        searchController!.clear();
+
+                        allItems = [];
+                        search.page = null;
+                        bottomPage = false;
+                        ref.read(serviceSearchprovider.notifier).state = search;
+                      });
+                    },
+                  ),
                 ),
+                controller: searchController,
                 validator: isInputEmpty,
                 onChanged: (value) {
                   Future.delayed(const Duration(seconds: 1), () {
@@ -257,6 +284,7 @@ class _ServiceSearchBodyState extends ConsumerState<ServiceSearchBody> {
                             setState(() {
                               if (key == "search") {
                                 search.search = null;
+                                searchController!.clear();
                               } else if (key == "priceRange") {
                                 search.priceRange = null;
                               } else if (key == "subcategory") {
