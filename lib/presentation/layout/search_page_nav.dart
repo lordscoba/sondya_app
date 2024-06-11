@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sondya_app/domain/models/home.dart';
+import 'package:sondya_app/domain/providers/home.provider.dart';
 import 'package:sondya_app/utils/input_validations.dart';
 
 class SearchPageNavbar extends ConsumerStatefulWidget {
@@ -17,6 +19,13 @@ class _SearchPageNavbarState extends ConsumerState<SearchPageNavbar> {
   int _selectedValue = 0; // Initially selected value
   String _selectedString = 'Products';
 
+  @override
+  void initState() {
+    super.initState();
+    search = NavSearchBarType();
+    // Initialize the variable in initState
+  }
+
   void Function(int?)? _handleRadioValueChanged(value) {
     if (value == 0) {
       setState(() {
@@ -30,13 +39,6 @@ class _SearchPageNavbarState extends ConsumerState<SearchPageNavbar> {
       });
     }
     return null;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    search = NavSearchBarType();
-    // Initialize the variable in initState
   }
 
   @override
@@ -104,6 +106,19 @@ class _SearchPageNavbarState extends ConsumerState<SearchPageNavbar> {
                     // context.push('/home');
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState?.save();
+                      if (_selectedValue == 0) {
+                        search.category = "products";
+
+                        ref.read(productSearchprovider.notifier).state =
+                            ProductSearchModel.fromJson(search.toJson());
+                        context.push('/product/search');
+                      } else {
+                        search.category = "services";
+
+                        ref.read(serviceSearchprovider.notifier).state =
+                            ServiceSearchModel.fromJson(search.toJson());
+                        context.push('/service/search');
+                      }
                     }
                   },
                   child: const Text("Search"),

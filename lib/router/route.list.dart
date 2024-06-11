@@ -71,7 +71,6 @@ import 'package:sondya_app/presentation/pages/userDashboard/user_payments_screen
 import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 import 'package:sondya_app/presentation/pages/wishlist_screen.dart';
 import 'package:sondya_app/utils/auth_utils.dart';
-import 'package:sondya_app/utils/has_initialized_app.dart';
 
 GoRouter goRouterFunc(WidgetRef ref) {
   FutureOr<String?> paymentDoneRedirectStrict(
@@ -111,8 +110,8 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
-    // initialLocation: "/splash",
-    initialLocation: hasInitializedAppSession() ? '/' : "/splash",
+    initialLocation: "/splash",
+    // initialLocation: hasInitializedAppSession() ? '/' : "/splash",
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(
@@ -133,11 +132,15 @@ GoRouter goRouterFunc(WidgetRef ref) {
       ),
       GoRoute(
         path: '/product/search',
-        builder: (context, state) => const ProductSearchScreen(),
+        builder: (context, state) {
+          return const ProductSearchScreen();
+        },
       ),
       GoRoute(
         path: '/service/search',
-        builder: (context, state) => const ServiceSearchScreen(),
+        builder: (context, state) {
+          return const ServiceSearchScreen();
+        },
       ),
       GoRoute(
         path: '/product/details/:id/:name',
