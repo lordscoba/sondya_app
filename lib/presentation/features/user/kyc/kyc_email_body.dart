@@ -45,6 +45,7 @@ class _KycEmailVerificationBodyState
             key: _formKey,
             child: storedAuthValue.when(
               data: (data) {
+                // print(data.toJson());
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
@@ -52,7 +53,7 @@ class _KycEmailVerificationBodyState
                       data: (data) {
                         if (data.isNotEmpty) {
                           WidgetsBinding.instance.addPostFrameCallback(
-                              (_) => context.push('kyc/code/verify'));
+                              (_) => context.push('/kyc/code/verify'));
 
                           // Optionally, refresh the kycEmailProvider
                           // ignore: unused_result

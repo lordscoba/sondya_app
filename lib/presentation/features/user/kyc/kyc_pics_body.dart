@@ -123,7 +123,10 @@ class _KycProfilePicsBodyState extends ConsumerState<KycProfilePicsBody> {
                       ),
                       const SizedBox(height: 20.0),
                       SondyaImageSelection(
-                        savedNetworkImage: data["image"][0]["url"],
+                        savedNetworkImage:
+                            data["image"] != null && data["image"].isNotEmpty
+                                ? data["image"][0]["url"]
+                                : null,
                         onSetImage: (value) async {
                           // Save the image
                           setState(() {

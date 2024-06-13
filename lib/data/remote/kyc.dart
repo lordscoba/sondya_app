@@ -1,11 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import 'package:sondya_app/data/api_constants.dart';
+import 'package:sondya_app/data/hive_boxes.dart';
 import 'package:sondya_app/data/local/get_local_auth.dart';
 import 'package:sondya_app/data/repositories/token_interceptors.dart';
+import 'package:sondya_app/data/storage_constants.dart';
 import 'package:sondya_app/domain/hive_models/auth/auth.dart';
 import 'package:sondya_app/domain/models/user/kyc.dart';
 
@@ -65,6 +68,13 @@ class KycCodeNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         state = AsyncValue.data(response.data as Map<String, dynamic>);
+
+        // Open the Hive box only once for performance optimization
+        boxAuth = await Hive.openBox<AuthInfo>(authBoxString);
+
+        localAuth.emailVerified = "true";
+
+        boxAuth.put(EnvironmentStorageConfig.authSession, localAuth);
       }
     } on DioException catch (e) {
       if (e.response != null) {
@@ -74,6 +84,9 @@ class KycCodeNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
         state = AsyncValue.error(e.message.toString(), e.stackTrace);
         // debugPrint(e.message.toString());
       }
+    } finally {
+      // Ensure the box is closed if it was opened
+      await boxAuth.close();
     }
   }
 }
@@ -283,6 +296,13 @@ class KycCompanyInfoNotifier
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         state = AsyncValue.data(response.data as Map<String, dynamic>);
+
+        // Open the Hive box only once for performance optimization
+        boxAuth = await Hive.openBox<AuthInfo>(authBoxString);
+
+        localAuth.kycCompleted = "true";
+
+        boxAuth.put(EnvironmentStorageConfig.authSession, localAuth);
       }
     } on DioException catch (e) {
       if (e.response != null) {
@@ -292,6 +312,9 @@ class KycCompanyInfoNotifier
         state = AsyncValue.error(e.message.toString(), e.stackTrace);
         // debugPrint(e.message.toString());
       }
+    } finally {
+      // Ensure the box is closed if it was opened
+      await boxAuth.close();
     }
   }
 }
