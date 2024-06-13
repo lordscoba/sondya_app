@@ -112,7 +112,9 @@ class _KycCompanyInformationBodyState
                           labelText: 'Company Name',
                         ),
                         validator: isInputEmpty,
-                        initialValue: data['company_details']['company_name'],
+                        initialValue: data['company_details'] != null
+                            ? data['company_details']['company_name'] ?? ''
+                            : '',
                         onSaved: (value) {
                           // user.email = value!;
                           companyDetails["company_name"] = value;
@@ -125,8 +127,9 @@ class _KycCompanyInformationBodyState
                           labelText: 'Company Website',
                         ),
                         validator: isInputEmpty,
-                        initialValue: data['company_details']
-                            ['company_website'],
+                        initialValue: data['company_details'] != null
+                            ? data['company_details']['company_website'] ?? ''
+                            : '',
                         onSaved: (value) {
                           // user.email = value!;
                           companyDetails["company_website"] = value;
@@ -139,7 +142,9 @@ class _KycCompanyInformationBodyState
                           labelText: 'Company Email',
                         ),
                         validator: isInputEmpty,
-                        initialValue: data['company_details']['company_email'],
+                        initialValue: data['company_details'] != null
+                            ? data['company_details']['company_email'] ?? ''
+                            : '',
                         onSaved: (value) {
                           // user.email = value!;
                           companyDetails["company_email"] = value;
@@ -151,8 +156,10 @@ class _KycCompanyInformationBodyState
                           hintText: " Enter Contact Person Name",
                           labelText: 'Contact Person Name',
                         ),
-                        initialValue: data['company_details']
-                            ['contact_person_name'],
+                        initialValue: data['company_details'] != null
+                            ? data['company_details']['contact_person_name'] ??
+                                ''
+                            : '',
                         validator: isInputEmpty,
                         onSaved: (value) {
                           // user.email = value!;
@@ -165,8 +172,11 @@ class _KycCompanyInformationBodyState
                           hintText: " Enter Contact Person Number",
                           labelText: 'Contact Person Number',
                         ),
-                        initialValue: data['company_details']
-                            ['contact_person_number'],
+                        initialValue: data['company_details'] != null
+                            ? data['company_details']
+                                    ['contact_person_number'] ??
+                                ''
+                            : '',
                         validator: isInputEmpty,
                         onSaved: (value) {
                           // user.email = value!;

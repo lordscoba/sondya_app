@@ -53,6 +53,8 @@ class _KycDocumentUploadBodyState extends ConsumerState<KycDocumentUploadBody> {
           child: profileData.when(
             data: (data) {
               // debugPrint(data["id_document"][0]["url"]);
+              // print("hy");
+              // print(data["id_document"]);
               return Form(
                 key: _formKey,
                 child: Column(
@@ -147,7 +149,10 @@ class _KycDocumentUploadBodyState extends ConsumerState<KycDocumentUploadBody> {
                     ),
                     const SizedBox(height: 20.0),
                     SondyaImageSelection(
-                      savedNetworkImage: data["id_document"][0]["url"],
+                      savedNetworkImage: data["id_document"] != null &&
+                              data["id_document"].isNotEmpty
+                          ? data["id_document"][0]["url"]
+                          : null,
                       onSetImage: (value) async {
                         // Save the image
                         setState(() {

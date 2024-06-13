@@ -59,3 +59,33 @@ Future<bool> isAuthenticated() async {
     await boxAuth.close();
   }
 }
+
+Future<bool> isKycCompleted() async {
+  // Open the Hive box only once for performance optimization
+  boxAuth = await Hive.openBox<AuthInfo>(authBoxString);
+
+  try {
+    // Attempt to retrieve the AuthInfo object
+    final AuthInfo? obj =
+        await boxAuth.get(EnvironmentStorageConfig.authSession);
+
+    if (obj == null || obj.toJson().isEmpty || obj.token.isEmpty) {
+      return false;
+    }
+
+    // check if kyc is completed
+    if (obj.kycCompleted != "true") {
+      return false;
+    }
+
+    return true;
+  } on HiveError catch (error) {
+    print(error);
+    return false;
+  } catch (error) {
+    print(error);
+    return false;
+  } finally {
+    await boxAuth.close();
+  }
+}

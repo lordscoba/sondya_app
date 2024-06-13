@@ -76,12 +76,14 @@ class _KycPersonalInformationBodyState
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: profileData.when(
             data: (data) {
-              if (data['gender'].isNotEmpty &&
+              if (data['gender'] != null &&
+                  data['gender'].isNotEmpty &&
                   _selectedGenderType == "Gender") {
                 _initialGender = data['gender'];
                 user.gender = _initialGender;
               }
-              if (data['marital_status'].isNotEmpty &&
+              if (data['marital_status'] != null &&
+                  data['marital_status'].isNotEmpty &&
                   _selectedMaritalStatusType == "Marital Status") {
                 _initialMaritalStatus = data['marital_status'];
                 user.maritalStatus = _initialMaritalStatus;
