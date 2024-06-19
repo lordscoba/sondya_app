@@ -62,10 +62,12 @@ class _ProductCheckoutBodyState extends ConsumerState<ProductCheckoutBody> {
               const Divider(),
               getCartList.when(
                 data: (data) {
+                  // print(data);
                   return ListView.builder(
                     shrinkWrap: true,
                     itemCount: data.length,
                     itemBuilder: (context, index) {
+                      // return const Text("hy");
                       return ProductCheckoutItem(
                         id: data[index].id,
                         quantity: data[index].orderQuantity,
@@ -96,7 +98,7 @@ class _ProductCheckoutBodyState extends ConsumerState<ProductCheckoutBody> {
                 data: (dataP) {
                   // update payment request state
                   ref.watch(paymentRequestprovider.notifier).state.amount =
-                      20.0;
+                      dataP.total!;
 
                   // update product order state
                   ref
@@ -190,16 +192,7 @@ class _ProductCheckoutBodyState extends ConsumerState<ProductCheckoutBody> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // print(ref.read(paymentRequestprovider).toJson());
-
-                    if (ref.watch(ispaymentDone.notifier).state == true) {
-                      context.go('/product/checkout/status');
-                    } else {
-                      ref
-                          .read(initializeFlutterwaveProvider.notifier)
-                          .initPayment(
-                              ref.read(paymentRequestprovider), context);
-                    }
+                    context.push('/product/checkout/confirmation');
                   },
                   child: checkState.isLoading
                       ? sondyaThreeBounceLoader(color: Colors.white)

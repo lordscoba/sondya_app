@@ -25,7 +25,6 @@ class ProductCheckoutItem extends ConsumerStatefulWidget {
 
 class _ProductCheckoutItemState extends ConsumerState<ProductCheckoutItem> {
   @override
-  @override
   Widget build(BuildContext context) {
     final getProductDetails = ref.watch(getCheckoutProductDetailsProvider(
         (id: widget.id!, name: sondyaSlugify(widget.name!))));
@@ -53,6 +52,7 @@ class _ProductCheckoutItemState extends ConsumerState<ProductCheckoutItem> {
                           : data['data']["image"][0]["url"],
                     ),
                     width: 100,
+                    height: 100,
                     fit: BoxFit.cover,
                   ),
                 ],

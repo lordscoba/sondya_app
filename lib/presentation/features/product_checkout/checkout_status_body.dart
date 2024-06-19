@@ -4,15 +4,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sondya_app/data/remote/checkout.dart';
+import 'package:sondya_app/domain/models/checkout.dart';
 import 'package:sondya_app/domain/providers/checkout.provider.dart';
 
-class ProductCheckoutStatusBody extends ConsumerWidget {
+class ProductCheckoutStatusBody extends ConsumerStatefulWidget {
   const ProductCheckoutStatusBody({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final getVerificationStatus = ref.watch(verifyCheckoutPaymentProvider(
-        ref.watch(checkoutDataprovider.notifier).state['tx_ref']));
+  ConsumerState<ProductCheckoutStatusBody> createState() =>
+      _ProductCheckoutStatusBodyState();
+}
+
+class _ProductCheckoutStatusBodyState
+    extends ConsumerState<ProductCheckoutStatusBody> {
+  late Map<String, dynamic> verifyData;
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the variable in initState
+    verifyData = ref.read(checkoutDataprovider);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final getVerificationStatus =
+        ref.watch(verifyCheckoutPaymentProvider(verifyData['tx_ref']));
+
     return SingleChildScrollView(
       child: Center(
         child: Container(
@@ -21,9 +38,35 @@ class ProductCheckoutStatusBody extends ConsumerWidget {
           padding: const EdgeInsets.all(13.0),
           child: getVerificationStatus.when(
             data: (data) {
-              print(data);
               if (data["data"]["data"]["status"] == "successful") {
-                return const CheckoutSucessFFF();
+                if (ref.watch(ispaymentDone) == true) {
+                  final createProduct =
+                      ref.watch(createProductOrderProvider(data));
+
+                  return createProduct.when(
+                    data: (data2) {
+                      // delay for 3 seconds
+                      Future.delayed(const Duration(seconds: 1), () {
+                        // make productOrderDataprovider empty
+                        ref.watch(productOrderDataprovider.notifier).state =
+                            CreateProductOrderType();
+
+                        ref.watch(ispaymentDone.notifier).state = false;
+
+                        ref.read(checkoutDataprovider.notifier).state = {};
+                      });
+                      return const CheckoutSucessFFF();
+                    },
+                    loading: () => const Center(
+                      child: CupertinoActivityIndicator(
+                        radius: 50,
+                      ),
+                    ),
+                    error: (error, stackTrace) => Text(error.toString()),
+                  );
+                } else {
+                  return const CheckoutSucessFFF();
+                }
               } else {
                 return CheckoutFailureFFF(
                   message: data["data"]["message"],
@@ -41,13 +84,11 @@ class ProductCheckoutStatusBody extends ConsumerWidget {
   }
 }
 
-class CheckoutSucessFFF extends StatelessWidget {
-  const CheckoutSucessFFF({
-    super.key,
-  });
+class CheckoutSucessFFF extends ConsumerWidget {
+  const CheckoutSucessFFF({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.max,

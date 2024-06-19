@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:random_string/random_string.dart';
 import 'package:sondya_app/domain/providers/checkout.provider.dart';
 import 'package:sondya_app/presentation/widgets/collapsible_widget.dart';
 
@@ -33,9 +34,10 @@ class _CheckoutPaymentMethodBodyState
 
   @override
   Widget build(BuildContext context) {
-    // print(_selectedString);
     ref.watch(productOrderDataprovider.notifier).state.paymentMethod =
         _selectedString;
+    ref.watch(productOrderDataprovider.notifier).state.paymentId =
+        randomNumeric(8);
     return CollapsibleWidget(
       isVisible: true,
       title: "Payment Method",
