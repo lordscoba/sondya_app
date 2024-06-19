@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sondya_app/data/api_constants.dart';
 import 'package:sondya_app/data/hive_boxes.dart';
@@ -12,8 +11,6 @@ import 'package:sondya_app/domain/hive_models/shipment_info/shipment.dart';
 import 'package:sondya_app/domain/models/checkout.dart';
 import 'package:sondya_app/domain/models/home.dart';
 import 'package:sondya_app/domain/providers/checkout.provider.dart';
-
-// typedef ItemDetailsParameters = ({String mode, String name});
 
 final getShippingAddressProvider = FutureProvider.autoDispose
     .family<ShippingDestinationType, String>((ref, String mode) async {
@@ -80,44 +77,55 @@ final verifyCheckoutPaymentProvider = FutureProvider.autoDispose
     final response =
         await dio.get(EnvironmentUserPaymentConfig.verifyPayment + txRef);
     if (response.statusCode == 200 || response.statusCode == 201) {
-      if (response.data["data"]["data"]["status"] == "successful") {
-        ref.watch(productOrderDataprovider.notifier).state.paymentStatus =
-            response.data["data"]["data"]["status"];
-        ref.watch(productOrderDataprovider.notifier).state.orderStatus =
-            "order placed";
-
-        final response2 = await dio.post(
-          EnvironmentUserProductOrderConfig.productOrder,
-          data: ref.watch(productOrderDataprovider.notifier).state.toJson(),
-        );
-
-        if (response2.statusCode == 200 || response2.statusCode == 201) {
-          // print(ref.watch(productOrderDataprovider.notifier).state);
-          // return response2.data as Map<String, dynamic>;
-
-          // clear box
-          boxForCart.clear();
-
-          // make productOrderDataprovider empty
-          ref.watch(productOrderDataprovider.notifier).state =
-              CreateProductOrderType();
-
-          ref.watch(ispaymentDone.notifier).state = false;
-        }
-        return response.data;
-      }
       return response.data;
     } else {
       throw Exception('Failed to fetch map data');
     }
   } on DioException catch (e) {
     if (e.response != null) {
-      debugPrint(e.response?.data.toString());
+      // debugPrint(e.response?.data.toString());
       return e.response?.data;
     } else {
-      debugPrint(e.message.toString());
+      // debugPrint(e.message.toString());
       return throw Exception("Failed to fetch map data error: ${e.message}");
     }
+  }
+});
+
+final createProductOrderProvider = FutureProvider.autoDispose
+    .family<Map<String, dynamic>, Map<String, dynamic>>((ref, data) async {
+  try {
+    final dio = Dio();
+    dio.interceptors.add(const AuthInterceptor());
+
+    ref.watch(productOrderDataprovider.notifier).state.paymentStatus =
+        data["data"]["data"]["status"];
+    ref.watch(productOrderDataprovider.notifier).state.orderStatus =
+        "order placed";
+
+    final response = await dio.post(
+      EnvironmentUserProductOrderConfig.productOrder,
+      data: ref.watch(productOrderDataprovider).toJson(),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      // clear box
+      boxForCart.clear();
+
+      return response.data;
+    } else {
+      throw Exception('Failed to fetch map data');
+    }
+  } on DioException catch (e) {
+    if (e.response != null) {
+      // debugPrint(e.response?.data.toString());
+      return e.response?.data;
+    } else {
+      // debugPrint(e.message.toString());
+      return throw Exception("Failed to fetch map data error: ${e.message}");
+    }
+  } finally {
+    // await boxForCart.close();
   }
 });
 
@@ -167,7 +175,10 @@ final getCheckoutProductDetailsProvider = FutureProvider.autoDispose
 
     final response = await dio.get(
         "${EnvironmentHomeConfig.productDetail}${arguments.id}/${arguments.name}");
-    if (response.statusCode == 200) {
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      // boxForCart = await Hive.openBox<ProductOrderType>(cartBoxString);
+
       final Map<dynamic, dynamic> dataMap = boxForCart.toMap();
       dynamic desiredKey;
       dataMap.forEach((key, value) {
@@ -176,7 +187,7 @@ final getCheckoutProductDetailsProvider = FutureProvider.autoDispose
         }
       });
 
-      // // // get data for desired key
+      // get data for desired key
       final ProductOrderType dataForDesiredKey = boxForCart.get(desiredKey);
 
       final CheckoutItems item = CheckoutItems(
@@ -243,10 +254,10 @@ final getCheckoutProductDetailsProvider = FutureProvider.autoDispose
     }
   } on DioException catch (e) {
     if (e.response != null) {
-      debugPrint(e.response?.data.toString());
+      // debugPrint(e.response?.data.toString());
       return e.response?.data;
     } else {
-      debugPrint(e.message.toString());
+      // debugPrint(e.message.toString());
       return throw Exception("Failed to fetch map data error: ${e.message}");
     }
   }

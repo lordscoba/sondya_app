@@ -20,7 +20,7 @@ class AuthInterceptor extends Interceptor {
       "Authorization": "Bearer ${obj?.token}",
     };
 
-    await boxAuth.close();
+    // await boxAuth.close();
     super.onRequest(options, handler);
   }
 }

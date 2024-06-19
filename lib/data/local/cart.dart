@@ -15,6 +15,9 @@ class AddToCartNotifier
       // Set loading state
       state = const AsyncValue.loading();
 
+      // open cart box
+      // boxForCart = await Hive.openBox<ProductOrderType>(cartBoxString);
+
       // check if product is already in wishlist
       final bool check = boxForCart.values
           .where((element) => element.id == data['_id'])
@@ -30,7 +33,7 @@ class AddToCartNotifier
           discount: 1, // TODO : add discount
         );
 
-        boxForCart.add(person);
+        await boxForCart.add(person);
       } else {
         // update quantity in cart
         final Map<dynamic, dynamic> dataMap = boxForCart.toMap();
@@ -42,15 +45,18 @@ class AddToCartNotifier
         });
 
         // get data for desired key
-        final ProductOrderType dataForDesiredKey = boxForCart.get(desiredKey);
+        final ProductOrderType dataForDesiredKey =
+            await boxForCart.get(desiredKey);
 
         // update quantity in dataForDesiredKey data
         dataForDesiredKey.orderQuantity += data['order_quantity'] as int;
-        boxForCart.put(desiredKey, dataForDesiredKey);
+        await boxForCart.put(desiredKey, dataForDesiredKey);
       }
       state = const AsyncValue.data({});
     } on Error catch (e) {
       state = AsyncValue.error(e.toString(), StackTrace.current);
+    } finally {
+      // await boxForCart.close();
     }
   }
 }
@@ -64,6 +70,9 @@ class UpdateCartNotifier
       // Set loading state
       state = const AsyncValue.loading();
 
+      // open cart box
+      // boxForCart = await Hive.openBox<ProductOrderType>(cartBoxString);
+
       // update quantity in cart
       final Map<dynamic, dynamic> dataMap = boxForCart.toMap();
       dynamic desiredKey;
@@ -74,14 +83,17 @@ class UpdateCartNotifier
       });
 
       // get data for desired key
-      final ProductOrderType dataForDesiredKey = boxForCart.get(desiredKey);
+      final ProductOrderType dataForDesiredKey =
+          await boxForCart.get(desiredKey);
 
       // update quantity in dataForDesiredKey data
       dataForDesiredKey.orderQuantity = data['order_quantity'] as int;
-      boxForCart.put(desiredKey, dataForDesiredKey);
+      await boxForCart.put(desiredKey, dataForDesiredKey);
       state = const AsyncValue.data({});
     } on Error catch (e) {
       state = AsyncValue.error(e.toString(), StackTrace.current);
+    } finally {
+      // await boxForCart.close();
     }
   }
 }
@@ -95,6 +107,9 @@ class UpdateCartVariantNotifier
       // Set loading state
       state = const AsyncValue.loading();
 
+      // open cart box
+      // boxForCart = await Hive.openBox<ProductOrderType>(cartBoxString);
+
       // update quantity in cart
       final Map<dynamic, dynamic> dataMap = boxForCart.toMap();
       dynamic desiredKey;
@@ -107,7 +122,8 @@ class UpdateCartVariantNotifier
       // check if product is already in wishlist
       if (desiredKey != null) {
         // get data for desired key
-        final ProductOrderType dataForDesiredKey = boxForCart.get(desiredKey);
+        final ProductOrderType dataForDesiredKey =
+            await boxForCart.get(desiredKey);
         if (dataForDesiredKey.selectedVariants != null) {
           dataForDesiredKey.selectedVariants!.addAll(data);
         } else {
@@ -124,12 +140,14 @@ class UpdateCartVariantNotifier
           shippingCost: 3, // TODO : add shipping cost
           discount: 1, // TODO : add discount
         );
-        boxForCart.add(person);
+        await boxForCart.add(person);
       }
 
       state = const AsyncValue.data({});
     } on Error catch (e) {
       state = AsyncValue.error(e.toString(), StackTrace.current);
+    } finally {
+      // await boxForCart.close();
     }
   }
 }
@@ -143,6 +161,9 @@ class RemoveFromCartNotifier
       // Set loading state
       state = const AsyncValue.loading();
 
+      // open cart box
+      // boxForCart = await Hive.openBox<ProductOrderType>(cartBoxString);
+
       // remove product from wishlist
       final Map<dynamic, dynamic> dataMap = boxForCart.toMap();
       dynamic desiredKey;
@@ -151,7 +172,7 @@ class RemoveFromCartNotifier
           desiredKey = key;
         }
       });
-      boxForCart.delete(desiredKey);
+      await boxForCart.delete(desiredKey);
 
       state = const AsyncValue.data({});
 
@@ -159,6 +180,8 @@ class RemoveFromCartNotifier
       // print(id);
     } on Error catch (e) {
       state = AsyncValue.error(e.toString(), StackTrace.current);
+    } finally {
+      // await boxForCart.close();
     }
   }
 }
@@ -172,12 +195,17 @@ class RemoveAllCartNotifier
       // Set loading state
       state = const AsyncValue.loading();
 
+      // open cart box
+      // boxForCart = await Hive.openBox<ProductOrderType>(cartBoxString);
+
       // remove all products from wishlist
-      boxForCart.clear();
+      await boxForCart.clear();
 
       state = const AsyncValue.data({});
     } on Error catch (e) {
       state = AsyncValue.error(e.toString(), StackTrace.current);
+    } finally {
+      // await boxForCart.close();
     }
   }
 }
@@ -185,27 +213,42 @@ class RemoveAllCartNotifier
 final getTotalCartProvider = FutureProvider.autoDispose<int>((ref) async {
   try {
     // get boxForCart data list
+
+    // open cart box
+    // boxForCart = await Hive.openBox<ProductOrderType>(cartBoxString);
+
     final totalList = boxForCart.values.toList().length;
     return totalList;
   } on Error catch (e) {
     return throw Exception("Failed to fetch map data error: ${e.toString()}");
+  } finally {
+    // await boxForCart.close();
   }
 });
 
 final getCartDataProvider =
     FutureProvider.autoDispose<List<dynamic>>((ref) async {
   try {
+    // open cart box
+    // boxForCart = await Hive.openBox<ProductOrderType>(cartBoxString);
+
     // get boxForCart data list
     final list = boxForCart.values.toList();
-    return list;
+
+    return list.toList();
   } on Error catch (e) {
     return throw Exception("Failed to fetch map data error: ${e.toString()}");
+  } finally {
+    // await boxForCart.close();
   }
 });
 
 final getCartDataByIdProvider = FutureProvider.autoDispose
     .family<ProductOrderType, String>((ref, String id) async {
   try {
+    // open cart box
+    // boxForCart = await Hive.openBox<ProductOrderType>(cartBoxString);
+
     final Map<dynamic, dynamic> dataMap = boxForCart.toMap();
     dynamic desiredKey;
     dataMap.forEach((key, value) {
@@ -214,15 +257,20 @@ final getCartDataByIdProvider = FutureProvider.autoDispose
       }
     });
     // get data for desired key
-    final ProductOrderType dataForDesiredKey = boxForCart.get(desiredKey);
+    final ProductOrderType dataForDesiredKey = await boxForCart.get(desiredKey);
     return dataForDesiredKey;
   } on Error catch (e) {
     return throw Exception("Failed to fetch map data error: ${e.toString()}");
+  } finally {
+    // await boxForCart.close();
   }
 });
 
 final totalingProvider = FutureProvider.autoDispose<TotalingType>((ref) async {
   try {
+    // open cart box
+    // boxForCart = await Hive.openBox<ProductOrderType>(cartBoxString);
+
     // get boxForCart data list
     final list = boxForCart.values.toList();
 
@@ -274,7 +322,10 @@ final totalingProvider = FutureProvider.autoDispose<TotalingType>((ref) async {
 
     return total;
   } on Error catch (e) {
+    // print(e);
     return throw Exception("Failed to fetch map data error: ${e.toString()}");
+  } finally {
+    // await boxForCart.close();
   }
 });
 
@@ -318,5 +369,7 @@ final getShipmentDestinationdDataProvider =
             phoneNumber: '');
   } on Error catch (e) {
     return throw Exception("Failed to fetch map data error: ${e.toString()}");
+  } finally {
+    // boxForCart.close();
   }
 });

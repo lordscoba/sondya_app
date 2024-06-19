@@ -303,6 +303,7 @@ class CheckoutItems {
     data['variants'] = variants;
     data['state'] = state;
     data['city'] = city;
+    data["country"] = country;
     data['zip_code'] = zipCode;
     data['address'] = address;
     if (image != null) {

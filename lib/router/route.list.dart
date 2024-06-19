@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sondya_app/domain/providers/auth.provider.dart';
-import 'package:sondya_app/domain/providers/checkout.provider.dart';
 import 'package:sondya_app/presentation/pages/auth/forgot_password_screen.dart';
 import 'package:sondya_app/presentation/pages/auth/login_screen.dart';
 import 'package:sondya_app/presentation/pages/auth/register_screen.dart';
@@ -16,6 +15,7 @@ import 'package:sondya_app/presentation/pages/cart_screen.dart';
 import 'package:sondya_app/presentation/pages/error_screen.dart';
 import 'package:sondya_app/presentation/pages/home_screen.dart';
 import 'package:sondya_app/presentation/pages/onboarding_screen.dart';
+import 'package:sondya_app/presentation/pages/product_checkout_confirmation_screen.dart';
 import 'package:sondya_app/presentation/pages/product_checkout_screen.dart';
 import 'package:sondya_app/presentation/pages/product_checkout_status_screen.dart';
 import 'package:sondya_app/presentation/pages/product_details_screen.dart';
@@ -43,6 +43,7 @@ import 'package:sondya_app/presentation/pages/sellerDashboard/seller_services_st
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_withdraw_screen.dart';
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_withdrawal_details_screen.dart';
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_withdrawals_screen.dart';
+import 'package:sondya_app/presentation/pages/service_checkout_confirmation_screen.dart';
 import 'package:sondya_app/presentation/pages/service_checkout_screen.dart';
 import 'package:sondya_app/presentation/pages/service_details_screen.dart';
 import 'package:sondya_app/presentation/pages/service_search_screen.dart';
@@ -80,9 +81,6 @@ GoRouter goRouterFunc(WidgetRef ref) {
     if (!isAuth) {
       ref.watch(isAuthenticatedTemp.notifier).state = false;
       return '/login';
-    }
-    if (ref.watch(ispaymentDone.notifier).state == true) {
-      return '/product/checkout/status';
     }
     ref.watch(isAuthenticatedTemp.notifier).state = true;
     return null;
@@ -129,7 +127,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
-    // initialLocation: "/settings",
+    // initialLocation: "/",
     initialLocation: hasInitializedAppSession() ? '/' : "/splash",
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
@@ -303,6 +301,19 @@ GoRouter goRouterFunc(WidgetRef ref) {
         path: '/product/checkout',
         builder: (context, state) => const ProductCheckoutScreen(),
         redirect: paymentDoneRedirectStrict,
+      ),
+
+      // product checkout confirmation route
+      GoRoute(
+        path: '/product/checkout/confirmation',
+        builder: (context, state) => const ProductCheckoutConfirmationScreen(),
+        redirect: paymentDoneRedirectStrict,
+      ),
+      // service checkout confirmation route
+      GoRoute(
+        path: '/service/checkout/confirmation',
+        builder: (context, state) => const ServiceCheckoutConfirmationScreen(),
+        redirect: authRedirectStrict,
       ),
 
       // service checkout route

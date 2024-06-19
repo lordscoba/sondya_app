@@ -56,7 +56,7 @@ Future<bool> isAuthenticated() async {
     print(error);
     return false;
   } finally {
-    await boxAuth.close();
+    // await boxAuth.close();
   }
 }
 
