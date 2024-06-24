@@ -85,7 +85,8 @@ class _ProductCheckoutStatusBodyState
 }
 
 class CheckoutSucessFFF extends ConsumerWidget {
-  const CheckoutSucessFFF({super.key});
+  final bool isService;
+  const CheckoutSucessFFF({super.key, this.isService = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -103,30 +104,35 @@ class CheckoutSucessFFF extends ConsumerWidget {
               fontFamily: GoogleFonts.playfairDisplay().fontFamily),
         ),
         const SizedBox(height: 20),
-        const Text(
-          "We are preparing your order and will notify you as soon as it has shipped.",
-          style: TextStyle(
-            fontSize: 16,
-            color: Color(0xFF807D7E),
-          ),
-          textAlign: TextAlign.center,
-        ),
+        isService
+            ? const Text("Your order has been placed")
+            : const Text(
+                "We are preparing your order and will notify you as soon as it has shipped.",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF807D7E),
+                ),
+                textAlign: TextAlign.center,
+              ),
         const SizedBox(height: 20),
         ElevatedButton(
-            onPressed: () {
-              context.push("/");
-            },
-            child: const Text("Continue Shopping")),
+          onPressed: () {
+            context.push("/");
+          },
+          child: const Text("Continue Shopping"),
+        ),
       ],
     );
   }
 }
 
 class CheckoutFailureFFF extends StatelessWidget {
+  final bool isService;
   final String message;
   const CheckoutFailureFFF({
     super.key,
     required this.message,
+    this.isService = false,
   });
 
   @override
@@ -162,11 +168,19 @@ class CheckoutFailureFFF extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 20),
-        ElevatedButton(
-            onPressed: () {
-              context.push("/product/checkout");
-            },
-            child: const Text("Continue")),
+        isService
+            ? ElevatedButton(
+                onPressed: () {
+                  context.push("/service/checkout/confirmation");
+                },
+                child: const Text("Continue"),
+              )
+            : ElevatedButton(
+                onPressed: () {
+                  context.push("/product/checkout/confirmation");
+                },
+                child: const Text("Continue"),
+              ),
       ],
     );
   }

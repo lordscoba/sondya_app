@@ -59,24 +59,15 @@ class _ServiceCheckoutBodyState extends ConsumerState<ServiceCheckoutBody> {
   Widget build(BuildContext context) {
     final getServiceDetails =
         ref.watch(checkUserServiceOrderProvider(checkData));
-
-    // getServiceDetails.when(data: (data) {
-    //   // print(data["order_exist"]);
-    //   print(data);
-    // }, error: (error, stackTrace) {
-    //   print(error);
-    // }, loading: () {
-    //   return const SizedBox();
-    // });
     final AsyncValue<Map<String, dynamic>> checkState =
         ref.watch(initializeFlutterwaveProvider);
 
-    // print(widget.sellerId);
-    // print(widget.serviceId);
     return SingleChildScrollView(
       child: Center(
         child: getServiceDetails.when(
           data: (data) {
+            // print("hy");
+            // debugPrint(data.toString(), wrapWidth: 1024);
             if (data == null || data.isEmpty || data == {}) {
               return Column(
                 children: [
@@ -211,10 +202,13 @@ class _ServiceCheckoutBodyState extends ConsumerState<ServiceCheckoutBody> {
                                 if (mounted) {
                                   if (paymentMethod == "card") {
                                     // print(payment.toJson());
-                                    ref
-                                        .read(initializeFlutterwaveProvider
-                                            .notifier)
-                                        .initServicePayment(payment, context);
+                                    // ref
+                                    //     .read(initializeFlutterwaveProvider
+                                    //         .notifier)
+                                    //     .initServicePayment(payment, context);
+                                    context.push(
+                                        "/service/checkout/confirmation",
+                                        extra: data);
                                   } else {
                                     print("Payment method is mobile wallet");
                                   }
