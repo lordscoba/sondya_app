@@ -140,11 +140,13 @@ class InitializeFlutterwaveNotifier
 
       ref.watch(checkoutServiceDataprovider.notifier).state = response.toJson();
 
+      print(response.toJson());
+
       ref.watch(ispaymentServiceDone.notifier).state = true;
 
       state = AsyncValue.data(response.toJson());
     } on Error catch (e) {
-      print(e.toString());
+      // print(e.toString());
       state = AsyncValue.error(e.toString(), StackTrace.current);
     }
   }

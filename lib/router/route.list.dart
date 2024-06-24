@@ -45,6 +45,7 @@ import 'package:sondya_app/presentation/pages/sellerDashboard/seller_withdrawal_
 import 'package:sondya_app/presentation/pages/sellerDashboard/seller_withdrawals_screen.dart';
 import 'package:sondya_app/presentation/pages/service_checkout_confirmation_screen.dart';
 import 'package:sondya_app/presentation/pages/service_checkout_screen.dart';
+import 'package:sondya_app/presentation/pages/service_checkout_status_screen.dart';
 import 'package:sondya_app/presentation/pages/service_details_screen.dart';
 import 'package:sondya_app/presentation/pages/service_search_screen.dart';
 import 'package:sondya_app/presentation/pages/splash_screen.dart';
@@ -309,10 +310,23 @@ GoRouter goRouterFunc(WidgetRef ref) {
         builder: (context, state) => const ProductCheckoutConfirmationScreen(),
         redirect: paymentDoneRedirectStrict,
       ),
+
+      // product checkout status route
+      GoRoute(
+        path: '/product/checkout/status',
+        builder: (context, state) {
+          return const ProductCheckoutStatusScreen();
+        },
+        redirect: authRedirectStrict,
+      ),
+
       // service checkout confirmation route
       GoRoute(
         path: '/service/checkout/confirmation',
-        builder: (context, state) => const ServiceCheckoutConfirmationScreen(),
+        builder: (context, state) {
+          final extra = state.extra! as Map<String, dynamic>;
+          return ServiceCheckoutConfirmationScreen(data: extra);
+        },
         redirect: authRedirectStrict,
       ),
 
@@ -330,11 +344,14 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
 
-      // service checkout route
+      // service checkout status route
       GoRoute(
-        path: '/product/checkout/status',
+        path: '/service/checkout/status',
         builder: (context, state) {
-          return const ProductCheckoutStatusScreen();
+          final extra = state.extra! as Map<String, dynamic>;
+          return ServiceCheckoutStatusScreen(
+            data: extra,
+          );
         },
         redirect: authRedirectStrict,
       ),

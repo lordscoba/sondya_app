@@ -234,3 +234,32 @@ class CreateUserServiceOrderNotifier
     }
   }
 }
+
+final updateUserServiceOrderProvider = FutureProvider.autoDispose
+    .family<Map<String, dynamic>, Map<String, dynamic>>(
+        (ref, Map<String, dynamic> updateData) async {
+  try {
+    final dio = Dio();
+    dio.interceptors.add(const AuthInterceptor());
+
+    final response = await dio.put(
+      EnvironmentUserServiceOrderConfig.updateServiceOrder +
+          updateData["order_id"],
+      data: updateData,
+    );
+    // debugPrint(response.data.toString());
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return response.data["data"] as Map<String, dynamic>;
+    } else {
+      throw Exception('Failed to fetch map data');
+    }
+  } on DioException catch (e) {
+    if (e.response != null) {
+      // debugPrint(e.response?.data.toString());
+      return e.response?.data;
+    } else {
+      // debugPrint(e.message.toString());
+      return throw Exception("Failed to fetch map data error: ${e.message}");
+    }
+  }
+});

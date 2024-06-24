@@ -46,7 +46,7 @@ class ServiceOrderDetailsBody extends ConsumerWidget {
                 child: const Text("Update Terms"),
               ),
             ),
-            if (data["payment_method"] != "COMPLETED")
+            if (data["payment_status"] != "successful")
               Container(
                 margin: const EdgeInsets.all(10.0),
                 width: double.infinity,

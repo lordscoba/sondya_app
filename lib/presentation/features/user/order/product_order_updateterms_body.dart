@@ -221,7 +221,7 @@ class _UserOrderReviewTermsBodyState
                                     ),
                                   ),
                                   const SizedBox(height: 10),
-                                  if (data["payment_method"] != "COMPLETED")
+                                  if (data["payment_status"] != "successful")
                                     SizedBox(
                                       width: double.infinity,
                                       child: ElevatedButton(
