@@ -117,3 +117,32 @@ void mainshajjajjajsxtx() {
     print('Received: $message');
   });
 }
+
+
+// final chatWebSocketProvider = StreamProvider<List<dynamic>>((ref) async* {
+//   final wsUrl = Uri.parse(EnvironmentWebSocketConfig.personal);
+//   final socket = WebSocketChannel.connect(wsUrl);
+
+//   await socket.ready;
+
+//   ref.onDispose(socket.sink.close);
+
+//   final defaultMessage = jsonEncode({
+//     "meta": "echo_payload",
+//     "sender_id": "6571cf8a009ed796a706aa1f",
+//     "receiver_id": "658eafc1f86136f97618ccd2",
+//     "payload": "whats up1"
+//   });
+
+//   socket.sink.add(defaultMessage);
+
+//   ref.onDispose(socket.sink.close);
+
+//   var allMessages = const <dynamic>[];
+
+//   await for (final message in socket.stream) {
+//     // A new message has been received. Let's add it to the list of all messages.
+//     allMessages = [...allMessages, message];
+//     yield allMessages;
+//   }
+// });
