@@ -19,7 +19,7 @@ class InboxBody extends ConsumerStatefulWidget {
 }
 
 class _InboxBodyState extends ConsumerState<InboxBody> {
-  List<dynamic> userChats = []; // not in use yet
+  // List<dynamic> userChats = []; // not in use yet
 
   List<dynamic> usersNew = [];
 
@@ -45,7 +45,6 @@ class _InboxBodyState extends ConsumerState<InboxBody> {
         ref.watch(usersSearchprovider).search!.length > 1) {
       getUsers.whenData(
         (data) {
-          // print(data);
           usersNew = data;
         },
       );
@@ -58,8 +57,6 @@ class _InboxBodyState extends ConsumerState<InboxBody> {
     //   },
     // );
 
-    // text
-
     return SingleChildScrollView(
       child: RefreshIndicator(
         onRefresh: () async {
@@ -68,7 +65,6 @@ class _InboxBodyState extends ConsumerState<InboxBody> {
         },
         child: Center(
           child: Container(
-            // height: 1200,
             width: double.infinity,
             padding: const EdgeInsets.all(10.0),
             child: Column(
@@ -125,14 +121,6 @@ class _InboxBodyState extends ConsumerState<InboxBody> {
                         });
                       }
                       ref.read(usersSearchprovider.notifier).state = search;
-                      // else {
-                      //   setState(() {
-                      //     search.search = null;
-                      //     search.page = null;
-                      //     ref.read(usersSearchprovider.notifier).state = search;
-                      //     usersNew = [];
-                      //   });
-                      // }
                     });
                   },
                 ),
@@ -175,7 +163,10 @@ class _InboxBodyState extends ConsumerState<InboxBody> {
                   ),
                   child: getChats.when(
                     data: (data) {
+                      // initialize empty chats list
                       List<dynamic> chatReceiver = [];
+
+                      // add users(the ones receiving the message) to chatReceiver
                       for (var element in data) {
                         if (element["user1"]["_id"] != widget.userId) {
                           chatReceiver.add(element["user1"]);
@@ -183,6 +174,8 @@ class _InboxBodyState extends ConsumerState<InboxBody> {
                           chatReceiver.add(element["user2"]);
                         }
                       }
+
+                      // users filter by search, to get new users
                       if (usersNew.isNotEmpty) {
                         return ListView.builder(
                           itemCount: usersNew.length,
@@ -204,12 +197,25 @@ class _InboxBodyState extends ConsumerState<InboxBody> {
                           },
                         );
                       }
+
+                      // if chat list data is empty and get users data is loading, show loading indicator
+                      if (data.isEmpty && getUsers.isLoading) {
+                        return const Center(
+                          child: CupertinoActivityIndicator(
+                            radius: 50,
+                          ),
+                        );
+                      }
+
+                      // if chat list data is empty, show message
                       // ignore: unnecessary_null_comparison
                       if (data == null || data.isEmpty) {
                         return const Center(
                           child: Text("Pick a User to Chat with..."),
                         );
                       }
+
+                      // if chat list data is not empty, show chat list
                       return ListView.builder(
                         itemCount: data.length,
                         itemBuilder: (context, index) {

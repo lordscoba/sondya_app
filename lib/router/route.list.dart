@@ -13,6 +13,9 @@ import 'package:sondya_app/presentation/pages/auth/reset_password_screen.dart';
 import 'package:sondya_app/presentation/pages/auth/verification_code_screen.dart';
 import 'package:sondya_app/presentation/pages/cart_screen.dart';
 import 'package:sondya_app/presentation/pages/error_screen.dart';
+import 'package:sondya_app/presentation/pages/groupchat_details.dart';
+import 'package:sondya_app/presentation/pages/groupchat_list_screen.dart';
+import 'package:sondya_app/presentation/pages/groupchat_screen.dart';
 import 'package:sondya_app/presentation/pages/home_screen.dart';
 import 'package:sondya_app/presentation/pages/onboarding_screen.dart';
 import 'package:sondya_app/presentation/pages/product_checkout_confirmation_screen.dart';
@@ -73,7 +76,6 @@ import 'package:sondya_app/presentation/pages/userDashboard/user_payments_screen
 import 'package:sondya_app/presentation/pages/welcome_screen.dart';
 import 'package:sondya_app/presentation/pages/wishlist_screen.dart';
 import 'package:sondya_app/utils/auth_utils.dart';
-import 'package:sondya_app/utils/has_initialized_app.dart';
 
 GoRouter goRouterFunc(WidgetRef ref) {
   FutureOr<String?> paymentDoneRedirectStrict(
@@ -128,8 +130,8 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
-    // initialLocation: "/",
-    initialLocation: hasInitializedAppSession() ? '/' : "/splash",
+    initialLocation: "/group/chat",
+    // initialLocation: hasInitializedAppSession() ? '/' : "/splash",
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
       GoRoute(
@@ -439,6 +441,23 @@ GoRouter goRouterFunc(WidgetRef ref) {
             id: id,
           );
         },
+        redirect: authRedirectStrict,
+      ),
+
+      // Group chat route
+      GoRoute(
+        path: '/group/chat/list',
+        builder: (context, state) => const GroupChatListScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/group/chat',
+        builder: (context, state) => const GroupChatScreen(),
+        redirect: authRedirectStrict,
+      ),
+      GoRoute(
+        path: '/group/chat/details',
+        builder: (context, state) => const GroupChatDetailsScreen(),
         redirect: authRedirectStrict,
       ),
 
