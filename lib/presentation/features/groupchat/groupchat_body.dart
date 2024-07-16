@@ -12,7 +12,7 @@ class GroupChatBody extends StatelessWidget {
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.all(10.0),
-          height: MediaQuery.of(context).size.height * 0.7,
+          height: MediaQuery.of(context).size.height * 0.8,
           child: Column(
             children: [
               context.canPop()
@@ -36,10 +36,45 @@ class GroupChatBody extends StatelessWidget {
                     )
                   : const SizedBox(),
               const SizedBox(height: 10.0),
-              const GroupChatTopRow(),
-              const SizedBox(height: 20.0),
-              const Expanded(
-                child: GroupChatList(),
+              GestureDetector(
+                onTap: () {
+                  context.push("/group/chat/details");
+                },
+                behavior: HitTestBehavior.translucent,
+                child: const Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GroupChatTopRow(),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 50.0,
+                      color: Colors.grey,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10.0),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.6,
+                child: Column(
+                  children: [
+                    const Expanded(
+                      child: GroupChatList(),
+                    ),
+                    const SizedBox(height: 2.0),
+                    TextField(
+                      decoration: InputDecoration(
+                        hintText: "Type your message...",
+                        suffixIcon: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Icons.send),
+                        ),
+                      ),
+                      onChanged: (value) {},
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -55,6 +90,8 @@ class GroupChatList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
+      reverse: true,
+      shrinkWrap: true,
       itemCount: 10,
       itemBuilder: (context, index) {
         if (index.isEven) {

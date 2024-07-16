@@ -54,27 +54,24 @@ class GroupChatListBody extends StatelessWidget {
                 GroupChatItem(
                   name: "Group Chat",
                   onTap: () {
-                    context.push("/groupchat");
+                    context.push("/group/chat");
                   },
                 ),
                 const SizedBox(height: 20.0),
                 GroupChatItem(
                   name: "Group Chat",
                   onTap: () {
-                    context.push("/groupchat");
+                    context.push("/group/chat");
                   },
                 ),
                 const SizedBox(height: 20.0),
                 GroupChatItem(
                   name: "Group Chat",
                   onTap: () {
-                    context.push("/groupchat");
+                    context.push("/group/chat");
                   },
                 ),
               ],
-              // separatorBuilder: (BuildContext context, int index) {
-              //   return const SizedBox(height: 20.0);
-              // },
             )
           ],
         ),
