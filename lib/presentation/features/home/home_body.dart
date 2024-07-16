@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sondya_app/presentation/features/home/home_body_sections.dart';
 
 class HomeBody extends ConsumerWidget {
@@ -56,7 +57,9 @@ class HomeToGroupChat extends StatelessWidget {
                 SizedBox(
                   height: 60,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.push('/group/chat/list');
+                    },
                     child: const Text("Get Started"),
                   ),
                 ),
