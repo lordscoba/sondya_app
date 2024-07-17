@@ -59,6 +59,23 @@ class EnvironmentChatConfig {
   static const String sendMessage = '$baseUrl/chat/send/message'; // POST
 }
 
+class EnvironmentGroupChatConfig {
+  static const String getUserGroupChats =
+      '$baseUrl/user/groupchats/'; // GET :user_id
+  static const String getChats = '$baseUrl/groupchats'; // GET
+  static const String getChat = '$baseUrl/groupchat/'; // GET :group_id
+  static const String joinChat =
+      '$baseUrl/groupchat/members/join'; // POST :{group_id, user_id}
+  static const String getMembers =
+      '$baseUrl/groupchat/members/'; // GET :group_id
+  static const String getMessages =
+      '$baseUrl/groupchat/messages/'; // GET :group_id
+  static const String sendMessage =
+      '$baseUrl/groupchat/messages/send'; // POST :{group_id, message, sender_id}
+  static const String likeMessage =
+      '$baseUrl/groupchat/messages/like'; // POST for both liking and unliking a message
+}
+
 class EnvironmentKycConfig {
   static const String kycVerifyEmail = '$baseUrl/kyc/verify/email'; // POST
 
