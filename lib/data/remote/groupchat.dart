@@ -5,39 +5,68 @@ import 'package:sondya_app/data/local/get_local_auth.dart';
 import 'package:sondya_app/data/repositories/token_interceptors.dart';
 import 'package:sondya_app/domain/hive_models/auth/auth.dart';
 
-final getUserGroupchatsProvider = FutureProvider.autoDispose
-    .family<List<Map<String, dynamic>>, String>((ref, id) async {
+// final getUserGroupchatsProvider = FutureProvider.autoDispose
+//     .family<List<Map<String, dynamic>>, String>((ref, id) async {
+//   try {
+//     final dio = Dio();
+//     dio.interceptors.add(const AuthInterceptor());
+
+//     final response =
+//         await dio.get("${EnvironmentGroupChatConfig.getUserGroupChats}/$id");
+//     if (response.statusCode == 200) {
+//       return response.data as List<Map<String, dynamic>>;
+//     } else {
+//       throw Exception('Failed to fetch map data');
+//     }
+//   } on DioException catch (e) {
+//     if (e.response != null) {
+//       // debugPrint(e.response?.data.toString());
+//       return e.response?.data;
+//     } else {
+//       // debugPrint(e.message.toString());
+//       return throw Exception("Failed to fetch map data error: ${e.message}");
+//     }
+//   }
+// });
+
+final getGroupchatsProvider = FutureProvider.autoDispose
+    .family<List<dynamic>, String>((ref, search) async {
   try {
     final dio = Dio();
     dio.interceptors.add(const AuthInterceptor());
 
     final response =
-        await dio.get("${EnvironmentGroupChatConfig.getUserGroupChats}/$id");
-    if (response.statusCode == 200) {
-      return response.data as List<Map<String, dynamic>>;
-    } else {
-      throw Exception('Failed to fetch map data');
-    }
-  } on DioException catch (e) {
-    if (e.response != null) {
-      // debugPrint(e.response?.data.toString());
-      return e.response?.data;
-    } else {
-      // debugPrint(e.message.toString());
-      return throw Exception("Failed to fetch map data error: ${e.message}");
-    }
-  }
-});
+        await dio.get(EnvironmentGroupChatConfig.getChats + search);
 
-final getGroupchatsProvider =
-    FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
-  try {
-    final dio = Dio();
-    dio.interceptors.add(const AuthInterceptor());
+    // get auth user id
+    AuthInfo localAuth = await getLocalAuth();
+    String userId = localAuth.id;
 
-    final response = await dio.get(EnvironmentGroupChatConfig.getChats);
+    // get user group chats that user has joined
+    final response2 =
+        await dio.get("${EnvironmentGroupChatConfig.getUserGroupChats}$userId");
+
+    List userGroupChatsList = [];
+
+    // get list of user group chats
+    response2.data["data"].forEach((element) {
+      userGroupChatsList.add(element["group_id"]);
+    });
+
+    // get list of group chats
+    List<dynamic> groupChatsList = response.data["data"]["groupChats"];
+
+    // check if user has joined and mark it as isJoined == true
+    for (var element in groupChatsList) {
+      if (userGroupChatsList.contains(element["_id"])) {
+        element["isJoined"] = true;
+      } else {
+        element["isJoined"] = false;
+      }
+    }
+
     if (response.statusCode == 200) {
-      return response.data as List<Map<String, dynamic>>;
+      return groupChatsList;
     } else {
       throw Exception('Failed to fetch map data');
     }

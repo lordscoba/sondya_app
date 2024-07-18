@@ -1,12 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sondya_app/data/extra_constants.dart';
+import 'package:sondya_app/data/remote/groupchat.dart';
+import 'package:sondya_app/domain/providers/groupchat.dart';
 
-class GroupChatBody extends StatelessWidget {
-  const GroupChatBody({super.key});
+class GroupChatBody extends ConsumerStatefulWidget {
+  final String groupId;
+  const GroupChatBody({super.key, required this.groupId});
+
+  @override
+  ConsumerState<GroupChatBody> createState() => _GroupChatBodyState();
+}
+
+class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the variable in initState
+  }
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_result
+    // ref.refresh(memberJoinGroupChatProvider);
+
     return SingleChildScrollView(
       child: Center(
         child: Container(
@@ -22,6 +40,13 @@ class GroupChatBody extends StatelessWidget {
                       children: [
                         IconButton(
                           onPressed: () {
+                            //calls search api with the filter strings
+
+                            // ignore: unused_result
+                            ref.refresh(getGroupchatsProvider("?page=1"));
+
+                            // ignore: unused_result
+                            ref.refresh(memberJoinGroupChatProvider);
                             Navigator.pop(context);
                           },
                           icon: const Icon(Icons.arrow_back),
