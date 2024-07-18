@@ -5,14 +5,17 @@ import 'package:sondya_app/presentation/layout/top_bar.dart';
 import 'package:sondya_app/presentation/layout/user_drawer.dart';
 
 class GroupChatScreen extends StatelessWidget {
-  const GroupChatScreen({super.key});
+  final String groupId;
+  const GroupChatScreen({super.key, required this.groupId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const SondyaTopBar(title: "Group Chat", isHome: false),
       drawer: sonyaUserDrawer(context),
-      body: const GroupChatBody(),
+      body: GroupChatBody(
+        groupId: groupId,
+      ),
       bottomNavigationBar: sondyaBottomNavigationBar(context),
     );
   }
