@@ -168,18 +168,22 @@ class _GroupChatListBodyState extends ConsumerState<GroupChatListBody> {
               ),
               validator: isInputEmpty,
               onChanged: (value) {
-                Future.delayed(const Duration(seconds: 1), () {
-                  if (value.isNotEmpty) {
-                    setState(() {
-                      // print(value);
-                      search.search = value;
-                      allItems = [];
-                      search.page = null;
-                      bottomPage = false;
-                      ref.read(groupchatSearchprovider.notifier).state = search;
-                    });
-                  }
-                });
+                Future.delayed(
+                  const Duration(seconds: 1),
+                  () {
+                    if (value.isNotEmpty) {
+                      setState(() {
+                        // print(value);
+                        search.search = value;
+                        allItems = [];
+                        search.page = null;
+                        bottomPage = false;
+                        ref.read(groupchatSearchprovider.notifier).state =
+                            search;
+                      });
+                    }
+                  },
+                );
               },
             ),
           ),

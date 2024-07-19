@@ -104,16 +104,22 @@ final getGroupchatProvider = FutureProvider.autoDispose
   }
 });
 
+typedef GroupchatMemberDataParameters = ({String groupId, String search});
 final getGroupchatMembersProvider = FutureProvider.autoDispose
-    .family<List<Map<String, dynamic>>, String>((ref, groupId) async {
+    .family<List<dynamic>, GroupchatMemberDataParameters>(
+        (ref, arguments) async {
   try {
     final dio = Dio();
     dio.interceptors.add(const AuthInterceptor());
 
-    final response =
-        await dio.get("${EnvironmentGroupChatConfig.getMembers}/$groupId");
+    final String search =
+        arguments.search.isNotEmpty ? "?search=${arguments.search}" : "";
+
+    final response = await dio.get(
+        "${EnvironmentGroupChatConfig.getMembers}${arguments.groupId}$search");
+
     if (response.statusCode == 200) {
-      return response.data as List<Map<String, dynamic>>;
+      return response.data["data"] as List<dynamic>;
     } else {
       throw Exception('Failed to fetch map data');
     }
