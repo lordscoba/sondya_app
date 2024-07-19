@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -36,15 +37,10 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
               context.canPop()
                   ? Row(
                       mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         IconButton(
                           onPressed: () {
-                            //calls search api with the filter strings
-
-                            // ignore: unused_result
-                            ref.refresh(getGroupchatsProvider("?page=1"));
-
                             // ignore: unused_result
                             ref.refresh(memberJoinGroupChatProvider);
                             Navigator.pop(context);
@@ -63,19 +59,27 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
               const SizedBox(height: 10.0),
               GestureDetector(
                 onTap: () {
-                  context.push("/group/chat/details");
+                  // ignore: unused_result
+                  ref.refresh(memberJoinGroupChatProvider);
+                  context.push("/group/chat/details/${widget.groupId}");
                 },
                 behavior: HitTestBehavior.translucent,
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    GroupChatTopRow(),
-                    Icon(
+                    GroupChatTopRow(
+                      id: widget.groupId,
+                    ),
+                    // IconButton(
+                    //   onPressed: () {},
+                    //   icon:
+                    const Icon(
                       Icons.chevron_right_rounded,
                       size: 50.0,
                       color: Colors.grey,
                     ),
+                    // )
                   ],
                 ),
               ),
@@ -240,61 +244,57 @@ class GroupChatSnippet2 extends StatelessWidget {
   }
 }
 
-class GroupChatTopRow extends StatelessWidget {
-  const GroupChatTopRow({super.key});
+class GroupChatTopRow extends ConsumerWidget {
+  final String id;
+  const GroupChatTopRow({super.key, required this.id});
 
   @override
-  Widget build(BuildContext context) {
-    return const Row(
-      children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundImage: NetworkImage(
-                'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+  Widget build(BuildContext context, WidgetRef ref) {
+    final getGroupchatMembers =
+        ref.watch(getGroupchatMembersProvider((groupId: id, search: "")));
+
+    return getGroupchatMembers.when(
+      data: (data) {
+        return SizedBox(
+          height: 60,
+          width: 400,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: <Widget>[
+              ...data.take(5).toList().map<Widget>(
+                (e) {
+                  return Positioned(
+                    left: (data.indexOf(e) * 20).toDouble(),
+                    child: CircleAvatar(
+                      radius: 30,
+                      backgroundImage: NetworkImage(
+                        e["image"] != null && e["image"].isNotEmpty
+                            ? e["image"][0]["url"]
+                            : networkImagePlaceholder,
+                      ),
+                    ),
+                  );
+                },
               ),
-            ),
-            Positioned(
-              left: 20,
-              child: CircleAvatar(
-                radius: 30,
-                backgroundImage: NetworkImage(
-                    "https://media.istockphoto.com/id/1435891660/photo/close-up-view-of-a-young-mans-face-in-the-shadow-eye-in-the-foreground-in-black-and-dark.jpg?s=1024x1024&w=is&k=20&c=EhKb9dBcYz5VHowOJvoObg-FNqC3c0YduWk_4idRy2Y="),
-              ),
-            ),
-            Positioned(
-              left: 40,
-              child: CircleAvatar(
-                radius: 30,
-                backgroundImage: NetworkImage(
-                    "https://images.unsplash.com/photo-1720640320081-763dc112f1b1?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"),
-              ),
-            ),
-            Positioned(
-              left: 60,
-              child: CircleAvatar(
-                radius: 30,
-                backgroundImage: NetworkImage(
-                  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+              Positioned(
+                bottom: 20,
+                left: data.length * 20,
+                child: Text(
+                  data.length > 5 ? "+${data.length - 5}" : "",
+                  style: const TextStyle(
+                      fontSize: 18.0,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
-            ),
-            Positioned(
-              bottom: 20,
-              left: 70,
-              child: Text(
-                "+20",
-                style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        )
-      ],
+            ],
+          ),
+        );
+      },
+      error: (error, stackTrace) => Text(error.toString()),
+      loading: () => const CupertinoActivityIndicator(
+        radius: 20,
+      ),
     );
   }
 }

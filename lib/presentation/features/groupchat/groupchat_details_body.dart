@@ -1,12 +1,27 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sondya_app/data/remote/groupchat.dart';
 
-class GroupChatDetailsBody extends StatelessWidget {
-  const GroupChatDetailsBody({super.key});
+class GroupChatDetailsBody extends ConsumerStatefulWidget {
+  final String groupId;
+  const GroupChatDetailsBody({super.key, required this.groupId});
 
   @override
+  ConsumerState<GroupChatDetailsBody> createState() =>
+      _GroupChatDetailsBodyState();
+}
+
+class _GroupChatDetailsBodyState extends ConsumerState<GroupChatDetailsBody> {
+  // for the search box
+  String search = "";
+  TextEditingController searchController = TextEditingController();
+  @override
   Widget build(BuildContext context) {
+    final getGroupchatMembers = ref.watch(
+        getGroupchatMembersProvider((groupId: widget.groupId, search: search)));
     return SingleChildScrollView(
       child: Center(
         child: Container(
@@ -52,34 +67,45 @@ class GroupChatDetailsBody extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10.0),
-              RichText(
-                text: TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: "Group members: ",
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: const Color(0xFF222222),
-                        fontFamily: GoogleFonts.playfairDisplay().fontFamily,
-                      ),
+              getGroupchatMembers.when(
+                data: (data) {
+                  return RichText(
+                    text: TextSpan(
+                      children: <TextSpan>[
+                        TextSpan(
+                          text: "Group members: ",
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: const Color(0xFF222222),
+                            fontFamily:
+                                GoogleFonts.playfairDisplay().fontFamily,
+                          ),
+                        ),
+                        TextSpan(
+                          text: data.length.toString(),
+                          style: TextStyle(
+                            fontSize: 26.0,
+                            color: const Color(0xFFEDB842),
+                            fontFamily:
+                                GoogleFonts.playfairDisplay().fontFamily,
+                          ),
+                        ),
+                        TextSpan(
+                          text: " members",
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: const Color(0xFF222222),
+                            fontFamily:
+                                GoogleFonts.playfairDisplay().fontFamily,
+                          ),
+                        ),
+                      ],
                     ),
-                    TextSpan(
-                      text: "5",
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: const Color(0xFFEDB842),
-                        fontFamily: GoogleFonts.playfairDisplay().fontFamily,
-                      ),
-                    ),
-                    TextSpan(
-                      text: " members",
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: const Color(0xFF222222),
-                        fontFamily: GoogleFonts.playfairDisplay().fontFamily,
-                      ),
-                    ),
-                  ],
+                  );
+                },
+                error: (error, stackTrace) => Text(error.toString()),
+                loading: () => const CupertinoActivityIndicator(
+                  radius: 20,
                 ),
               ),
               const SizedBox(height: 10.0),
@@ -88,40 +114,53 @@ class GroupChatDetailsBody extends StatelessWidget {
                 style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10.0),
-              const TextField(
+              TextField(
+                onSubmitted: (value) {
+                  setState(() {
+                    search = searchController.text;
+                  });
+                },
+                controller: searchController,
                 decoration: InputDecoration(
-                  suffixIcon: Icon(Icons.search),
+                  suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          search = searchController.text;
+                        });
+                      },
+                      icon: const Icon(Icons.search)),
                   hintText: "Search members",
                 ),
               ),
-              ListView.separated(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text("User ${index + 1}"),
+              getGroupchatMembers.when(
+                data: (data) {
+                  return ListView.separated(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      // print(data[index]["user_id"]);
+                      return ListTile(
+                        title: Text(
+                            "${data[index]["user_id"]["username"]}(${data[index]["user_id"]["email"]})"),
+                      );
+                    },
+                    separatorBuilder: (context, index) {
+                      return const Divider(
+                        color: Colors.grey,
+                      );
+                    },
+                    itemCount: data.length,
                   );
                 },
-                separatorBuilder: (context, index) {
-                  return const Divider(
-                    color: Colors.grey,
-                  );
-                },
-                itemCount: 10,
+                error: (error, stackTrace) => Text(error.toString()),
+                loading: () => const CupertinoActivityIndicator(
+                  radius: 20,
+                ),
               ),
             ],
           ),
         ),
       ),
     );
-  }
-}
-
-class UserItemForGroupChat extends StatelessWidget {
-  const UserItemForGroupChat({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
   }
 }

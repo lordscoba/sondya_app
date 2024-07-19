@@ -132,6 +132,8 @@ GoRouter goRouterFunc(WidgetRef ref) {
 
   return GoRouter(
     // initialLocation: "/group/chat/list",
+    // initialLocation: "/group/chat/656dca98138f07e0f17648f9",
+    // initialLocation: "/group/chat/details/656dca98138f07e0f17648f9",
     initialLocation: hasInitializedAppSession() ? '/' : "/splash",
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
@@ -462,8 +464,13 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/group/chat/details',
-        builder: (context, state) => const GroupChatDetailsScreen(),
+        path: '/group/chat/details/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return GroupChatDetailsScreen(
+            groupId: id,
+          );
+        },
         redirect: authRedirectStrict,
       ),
 
