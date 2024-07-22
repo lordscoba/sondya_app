@@ -1,3 +1,4 @@
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sondya_app/data/extra_constants.dart';
 import 'package:sondya_app/data/remote/groupchat.dart';
 import 'package:sondya_app/domain/providers/groupchat.dart';
+import 'package:sondya_app/utils/dateTime_to_string.dart';
 
 class GroupChatBody extends ConsumerStatefulWidget {
   final String groupId;
@@ -15,16 +17,29 @@ class GroupChatBody extends ConsumerStatefulWidget {
 }
 
 class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
+  Map<String, dynamic> messageData = {
+    "message": "",
+    "group_id": "",
+    "sender_id": "",
+  };
+
   @override
   void initState() {
     super.initState();
     // Initialize the variable in initState
+    messageData["group_id"] = widget.groupId;
   }
 
   @override
   Widget build(BuildContext context) {
     // ignore: unused_result
     // ref.refresh(memberJoinGroupChatProvider);
+
+    final AsyncValue<Map<String, dynamic>> checkStateMessages =
+        ref.watch(sendMessageGroupChatProvider);
+
+    final AsyncValue<Map<String, dynamic>> checkStateToggeleLike =
+        ref.watch(toggleLikeButtonGroupChatProvider);
 
     return SingleChildScrollView(
       child: Center(
@@ -71,9 +86,6 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                     GroupChatTopRow(
                       id: widget.groupId,
                     ),
-                    // IconButton(
-                    //   onPressed: () {},
-                    //   icon:
                     const Icon(
                       Icons.chevron_right_rounded,
                       size: 50.0,
@@ -88,19 +100,48 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                 height: MediaQuery.of(context).size.height * 0.6,
                 child: Column(
                   children: [
-                    const Expanded(
-                      child: GroupChatList(),
+                    Expanded(
+                      child: GroupChatList(
+                        groupId: widget.groupId,
+                      ),
                     ),
                     const SizedBox(height: 2.0),
                     TextField(
                       decoration: InputDecoration(
                         hintText: "Type your message...",
                         suffixIcon: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.send),
+                          onPressed: () async {
+                            if (messageData["message"].isNotEmpty) {
+                              ref.invalidate(sendMessageGroupChatProvider);
+
+                              await ref
+                                  .read(sendMessageGroupChatProvider.notifier)
+                                  .sendMessage(
+                                    messageData,
+                                  );
+                            } else {
+                              AnimatedSnackBar.rectangle(
+                                'Error',
+                                "Please enter a message",
+                                type: AnimatedSnackBarType.warning,
+                                brightness: Brightness.light,
+                              ).show(
+                                context,
+                              );
+                            }
+                          },
+                          icon: checkStateMessages.isLoading
+                              ? const CupertinoActivityIndicator(
+                                  radius: 10,
+                                )
+                              : const Icon(Icons.send),
                         ),
                       ),
-                      onChanged: (value) {},
+                      onChanged: (value) {
+                        setState(() {
+                          messageData["message"] = value;
+                        });
+                      },
                     ),
                   ],
                 ),
@@ -113,39 +154,57 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
   }
 }
 
-class GroupChatList extends StatelessWidget {
-  const GroupChatList({super.key});
+class GroupChatList extends ConsumerWidget {
+  final String groupId;
+  const GroupChatList({super.key, required this.groupId});
 
   @override
-  Widget build(BuildContext context) {
-    return ListView.separated(
-      reverse: true,
-      shrinkWrap: true,
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        if (index.isEven) {
-          return const GroupChatSnippet(
-            text: "Hi there!",
-            time: "10:00 AM",
-            image: networkImagePlaceholder,
-          );
-        }
-        return const GroupChatSnippet2(
-          text: "Hi there!",
-          time: "10:00 AM",
+  Widget build(BuildContext context, WidgetRef ref) {
+    // get the details
+    final getGroupChatMessages =
+        ref.watch(getGroupchatMessagesProvider(groupId));
+    return getGroupChatMessages.when(
+      data: (data) {
+        return ListView.separated(
+          reverse: true,
+          shrinkWrap: true,
+          itemCount: data.length,
+          itemBuilder: (context, index) {
+            if (data[index]["isMe"]) {
+              return GroupChatSnippet2(
+                text: data[index]["message"],
+                time: sondyaFormattedDate(data[index]["createdAt"]),
+              );
+            }
+            return GroupChatSnippet(
+              text: data[index]["message"],
+              senderName:
+                  "${data[index]["sender"]["first_name"] ?? ""} ${data[index]["sender"]["last_name"] ?? ""}",
+              image: data[index]["image"] != null &&
+                      data[index]["image"].isNotEmpty
+                  ? data[index]["image"][0]["url"]
+                  : networkImagePlaceholder,
+              time: sondyaFormattedDate(data[index]["createdAt"]),
+            );
+          },
+          separatorBuilder: (context, index) => const SizedBox(height: 10.0),
         );
       },
-      separatorBuilder: (context, index) => const SizedBox(height: 10.0),
+      error: (error, stackTrace) => Text(error.toString()),
+      loading: () => const CupertinoActivityIndicator(
+        radius: 20,
+      ),
     );
   }
 }
 
 class GroupChatSnippet extends StatelessWidget {
+  final String? senderName;
   final String? text;
   final String? time;
   final String? image;
   const GroupChatSnippet(
-      {super.key, required this.text, this.time, this.image});
+      {super.key, this.senderName, required this.text, this.time, this.image});
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +216,7 @@ class GroupChatSnippet extends StatelessWidget {
           decoration: BoxDecoration(
             image: DecorationImage(
               image: NetworkImage(
-                image ?? networkImagePlaceholder,
+                image!,
               ),
               fit: BoxFit.cover,
             ),
@@ -178,6 +237,14 @@ class GroupChatSnippet extends StatelessWidget {
               SizedBox(
                 width: 260,
                 child: Text(
+                  senderName ?? "Unknown",
+                  style: const TextStyle(fontSize: 12, color: Colors.white54),
+                ),
+              ),
+              const SizedBox(height: 5.0),
+              SizedBox(
+                width: 260,
+                child: Text(
                   text ?? "Unknown",
                   style: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
@@ -189,7 +256,7 @@ class GroupChatSnippet extends StatelessWidget {
                   width: 120,
                   child: Text(
                     time ?? "unknown",
-                    style: const TextStyle(fontSize: 10, color: Colors.white),
+                    style: const TextStyle(fontSize: 10, color: Colors.white54),
                   ),
                 ),
               ),
@@ -257,7 +324,7 @@ class GroupChatTopRow extends ConsumerWidget {
       data: (data) {
         return SizedBox(
           height: 60,
-          width: 400,
+          width: MediaQuery.of(context).size.width * 0.8,
           child: Stack(
             clipBehavior: Clip.none,
             children: <Widget>[

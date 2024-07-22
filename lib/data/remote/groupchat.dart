@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sondya_app/data/api_constants.dart';
 import 'package:sondya_app/data/local/get_local_auth.dart';
@@ -87,9 +88,9 @@ final getGroupchatProvider = FutureProvider.autoDispose
     final dio = Dio();
     dio.interceptors.add(const AuthInterceptor());
 
-    final response = await dio.get("${EnvironmentGroupChatConfig.getChat}/$id");
+    final response = await dio.get("${EnvironmentGroupChatConfig.getChat}$id");
     if (response.statusCode == 200) {
-      return response.data as Map<String, dynamic>;
+      return response.data["data"] as Map<String, dynamic>;
     } else {
       throw Exception('Failed to fetch map data');
     }
@@ -104,7 +105,10 @@ final getGroupchatProvider = FutureProvider.autoDispose
   }
 });
 
+// get group chat members types
 typedef GroupchatMemberDataParameters = ({String groupId, String search});
+
+// get group chat members
 final getGroupchatMembersProvider = FutureProvider.autoDispose
     .family<List<dynamic>, GroupchatMemberDataParameters>(
         (ref, arguments) async {
@@ -135,15 +139,30 @@ final getGroupchatMembersProvider = FutureProvider.autoDispose
 });
 
 final getGroupchatMessagesProvider = FutureProvider.autoDispose
-    .family<List<Map<String, dynamic>>, String>((ref, groupId) async {
+    .family<List<dynamic>, String>((ref, groupId) async {
   try {
     final dio = Dio();
     dio.interceptors.add(const AuthInterceptor());
 
+    // get auth user id
+    AuthInfo localAuth = await getLocalAuth();
+    String userId = localAuth.id;
+
     final response =
-        await dio.get("${EnvironmentGroupChatConfig.getMessages}/$groupId");
+        await dio.get("${EnvironmentGroupChatConfig.getMessages}$groupId");
+
+    List<dynamic> messages = response.data["data"];
+
+    for (var element in messages) {
+      if (element["sender_id"] == userId) {
+        element["isMe"] = true;
+      } else {
+        element["isMe"] = false;
+      }
+    }
+
     if (response.statusCode == 200) {
-      return response.data as List<Map<String, dynamic>>;
+      return messages;
     } else {
       throw Exception('Failed to fetch map data');
     }
@@ -209,9 +228,13 @@ class SendMessageGroupChatNotifier
       final dio = Dio();
       dio.interceptors.add(const AuthInterceptor());
 
-      // // get auth user id
-      // AuthInfo localAuth = await getLocalAuth();
-      // String userId = localAuth.id;
+      // get auth user id
+      AuthInfo localAuth = await getLocalAuth();
+      String userId = localAuth.id;
+
+      details['sender_id'] = userId;
+
+      print(details);
 
       // Make the PUT request
       final response = await dio.post(
@@ -225,10 +248,10 @@ class SendMessageGroupChatNotifier
     } on DioException catch (e) {
       if (e.response != null) {
         state = AsyncValue.error(e.response?.data['message'], e.stackTrace);
-        // debugPrint(e.response?.data['message'].toString());
+        debugPrint(e.response?.data['message'].toString());
       } else {
         state = AsyncValue.error(e.message.toString(), e.stackTrace);
-        // debugPrint(e.message.toString());
+        debugPrint(e.message.toString());
       }
     }
   }
