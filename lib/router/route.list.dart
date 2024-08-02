@@ -131,6 +131,9 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
+    // initialLocation: "/inbox",
+    // initialLocation:
+    //     "/inbox/chat/65a11540df8051503766b73f/65392eefb7498d248b07c91b",
     // initialLocation: "/group/chat/list",
     // initialLocation: "/group/chat/656dca98138f07e0f17648f9",
     // initialLocation: "/group/chat/details/656dca98138f07e0f17648f9",
@@ -244,12 +247,13 @@ GoRouter goRouterFunc(WidgetRef ref) {
         redirect: authRedirectStrict,
       ),
       GoRoute(
-        path: '/inbox/chat/:chat_id/:user_id',
+        path: '/inbox/chat/:receiver_id/:user_id',
         builder: (context, state) {
-          final chatId = state.pathParameters['chat_id']!;
+          final receiverId = state.pathParameters['receiver_id']!;
           final userId = state.pathParameters['user_id']!;
           final extra = state.extra! as Map<String, dynamic>;
-          return InboxChatScreen(chatId: chatId, userId: userId, data: extra);
+          return InboxChatScreen(
+              receiverId: receiverId, userId: userId, data: extra);
         },
         redirect: authRedirectStrict,
       ),

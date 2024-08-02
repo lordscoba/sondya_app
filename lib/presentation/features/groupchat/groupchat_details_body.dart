@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sondya_app/data/remote/groupchat.dart';
+import 'package:sondya_app/utils/dateTime_to_string.dart';
 
 class GroupChatDetailsBody extends ConsumerStatefulWidget {
   final String groupId;
@@ -20,8 +21,14 @@ class _GroupChatDetailsBodyState extends ConsumerState<GroupChatDetailsBody> {
   TextEditingController searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    // get the members
     final getGroupchatMembers = ref.watch(
         getGroupchatMembersProvider((groupId: widget.groupId, search: search)));
+
+    // get the details
+    final getGroupChatDetails =
+        ref.watch(getGroupchatProvider((widget.groupId)));
+
     return SingleChildScrollView(
       child: Center(
         child: Container(
@@ -44,29 +51,77 @@ class _GroupChatDetailsBodyState extends ConsumerState<GroupChatDetailsBody> {
                     )
                   : const SizedBox(),
               const SizedBox(height: 10.0),
-              Image(
-                image: const NetworkImage(
-                  "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg",
+              getGroupChatDetails.when(
+                data: (data) {
+                  return Column(
+                    children: [
+                      Image(
+                        image: NetworkImage(data["image"] != null &&
+                                data["image"].isNotEmpty
+                            ? data["image"][0]["url"]
+                            : "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg"),
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        height: MediaQuery.of(context).size.height * 0.2,
+                        fit: BoxFit.cover,
+                      ),
+                      const SizedBox(height: 10.0),
+                      Text(
+                        data["name"],
+                        style: const TextStyle(fontSize: 24.0),
+                      ),
+                      const SizedBox(height: 10.0),
+                      RichText(
+                        text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: "Created by: ",
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: const Color(0xFF222222),
+                                fontFamily:
+                                    GoogleFonts.playfairDisplay().fontFamily,
+                              ),
+                            ),
+                            TextSpan(
+                              text:
+                                  "${data["admin_id"]["last_name"] ?? ""} ${data["admin_id"]["first_name"] ?? ""}",
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: const Color(0xFFEDB842),
+                                fontFamily:
+                                    GoogleFonts.playfairDisplay().fontFamily,
+                              ),
+                            ),
+                            TextSpan(
+                              text: " on ",
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: const Color(0xFF222222),
+                                fontFamily:
+                                    GoogleFonts.playfairDisplay().fontFamily,
+                              ),
+                            ),
+                            TextSpan(
+                              text: sondyaFormattedDate(data["createdAt"]),
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: const Color(0xFFEDB842),
+                                fontFamily:
+                                    GoogleFonts.playfairDisplay().fontFamily,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10.0),
+                    ],
+                  );
+                },
+                error: (error, stackTrace) => Text(error.toString()),
+                loading: () => const CupertinoActivityIndicator(
+                  radius: 20,
                 ),
-                width: MediaQuery.of(context).size.width * 0.8,
-                height: MediaQuery.of(context).size.height * 0.2,
-                fit: BoxFit.cover,
               ),
-              const SizedBox(height: 10.0),
-              const Text(
-                "Aquifers group chat",
-                style: TextStyle(fontSize: 24.0),
-              ),
-              const SizedBox(height: 10.0),
-              Text(
-                "Group created by admin, yesterday at 1:17 AM",
-                style: TextStyle(
-                  fontSize: 14.0,
-                  color: const Color(0xFFEDB842),
-                  fontFamily: GoogleFonts.playfairDisplay().fontFamily,
-                ),
-              ),
-              const SizedBox(height: 10.0),
               getGroupchatMembers.when(
                 data: (data) {
                   return RichText(
