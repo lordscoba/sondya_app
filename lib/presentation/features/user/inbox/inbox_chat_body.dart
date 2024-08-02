@@ -1,23 +1,27 @@
+import 'dart:convert';
+
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:sondya_app/data/api_constants.dart';
 import 'package:sondya_app/data/extra_constants.dart';
 import 'package:sondya_app/data/remote/chat.dart';
-import 'package:sondya_app/data/websocket/chat.websocket.dart';
 import 'package:sondya_app/domain/models/chat.dart';
 import 'package:sondya_app/domain/providers/chat.provider.dart';
 import 'package:sondya_app/utils/dateTime_to_string.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class InboxChatBody extends ConsumerStatefulWidget {
   final String userId;
-  final String chatId;
+  final String receiverId;
   final Map<String, dynamic> data;
   const InboxChatBody(
       {super.key,
       required this.userId,
-      required this.chatId,
+      required this.receiverId,
       required this.data});
 
   @override
@@ -25,201 +29,219 @@ class InboxChatBody extends ConsumerStatefulWidget {
 }
 
 class _InboxChatBodyState extends ConsumerState<InboxChatBody> {
-  late Map<String, dynamic> chatSender;
+  late Map<String, dynamic>? chatSender;
+  late Map<String, dynamic>? chatReceiver;
   late PostMessageType chatMessage;
+  late String _chatId;
+
+  // for websocket connection
+  late WebSocketChannel _channel;
+  final List<dynamic> _messageHistory = [];
+  final String _socketUrl = EnvironmentWebSocketConfig.personal;
+  final int _reconnectAttempts = 5;
+  final Duration _reconnectInterval = const Duration(seconds: 3);
+  int _reconnectCount = 0;
+  bool _userStatus = false;
+  // websocket ends here
+
+  // Initialize TextEditingController
+  final TextEditingController _messageController = TextEditingController();
+
+  // for the chat data
+  List<dynamic> chatData = [];
+  bool _isInitialFetchDone = false; // Flag to track if initial fetch is done
+
   @override
   void initState() {
     super.initState();
+
     // Initialize the variable in initState
-    chatSender = widget.data;
+
+    // initialize chat sender variable
+    chatSender = widget.data["sender_data"] != null &&
+            widget.data["sender_data"].isNotEmpty
+        ? widget.data["sender_data"]
+        : null;
+
+    // initialize chat receiver variable
+    chatReceiver = widget.data["receiver_data"] != null &&
+            widget.data["receiver_data"].isNotEmpty
+        ? widget.data["receiver_data"]
+        : null;
+
+    // initialize chatMessage for sending message
     chatMessage = PostMessageType();
+
+    // Perform initial data fetch
+    _fetchInitialData().then((data) {
+      // Access data if needed from _fetchInitialData
+
+      // assign chat_id to chatId1
+      _chatId = data[0]["chat_id"];
+
+      // Connect to WebSocket
+      _connectWebSocket();
+
+      // Initialize join room
+      _joinChatInitialize();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    // this helps to get get messages state
     final getChats = ref.watch(
       getMessagesProvider(
-        (receiverId: widget.data["_id"], senderId: widget.userId),
+        (receiverId: widget.receiverId, senderId: widget.userId),
       ),
     );
 
-    final getWebChats = ref.watch(chatWebSocketProvider);
-
-    // getChats.whenData(
-    //   (data) {
-    //     print("hy");
-    //     print(data);
-    //     // userChats = [...data];
-    //   },
-    // );
-
-    // getChats.when(
-    //   data: (data) {
-    //     print(data);
-    //   },
-    //   error: (error, stackTrace) {
-    //     print(error);
-    //   },
-    //   loading: () {},
-    // );
+    // this helps to get get message state
     final AsyncValue<Map<String, dynamic>> checkState =
         ref.watch(postMessagesProvider);
     return SingleChildScrollView(
-      child: RefreshIndicator(
-        onRefresh: () async {
-          // ignore: unused_result
-          ref.refresh(
-            getMessagesProvider(
-              (receiverId: widget.data["_id"], senderId: widget.userId),
-            ),
-          );
-        },
-        child: Center(
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                context.canPop()
-                    ? Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            icon: const Icon(Icons.arrow_back),
-                          ),
-                        ],
-                      )
-                    : const SizedBox(),
-                getWebChats.when(
-                  data: (data) {
-                    return Text(data.toString());
-                  },
-                  error: (error, stackTrace) {
-                    return Text(error.toString());
-                  },
-                  loading: () => const SizedBox(),
-                ),
-                // checkState.when(
-                //   data: (data) {
-                //     return sondyaDisplaySuccessMessage(context, data["message"]);
-                //   },
-                //   loading: () => const SizedBox(),
-                //   error: (error, stackTrace) =>
-                //       sondyaDisplayErrorMessage(error.toString(), context),
-                // ),
-                const SizedBox(height: 20.0),
-                const Text(
-                  "Inbox",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20.0),
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10.0),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.grey,
-                          ),
-                          borderRadius: const BorderRadiusDirectional.only(
-                            topStart: Radius.circular(10),
-                            topEnd: Radius.circular(10),
-                          ),
+      child: Center(
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              context.canPop()
+                  ? Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.arrow_back),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              height: 50,
-                              width: 50,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                      widget.data["image"] != null &&
-                                              widget.data["image"].length > 0
-                                          ? widget.data["image"][0]["url"]
-                                          : networkImagePlaceholder),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10.0),
-                            Column(
-                              children: [
-                                Text(chatSender["username"] ?? "Unknown"),
-                                const Row(
-                                  children: [
-                                    Icon(Icons.circle,
-                                        color: Colors.green, size: 10),
-                                    SizedBox(width: 5.0),
-                                    Text("Active now"),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                            const Icon(Icons.delete),
-                          ],
+                      ],
+                    )
+                  : const SizedBox(),
+              const SizedBox(height: 10.0),
+              const Text(
+                "Inbox",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10.0),
+              Container(
+                height: MediaQuery.of(context).size.height * 0.6,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey,
+                        ),
+                        borderRadius: const BorderRadiusDirectional.only(
+                          topStart: Radius.circular(10),
+                          topEnd: Radius.circular(10),
                         ),
                       ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 5.0),
-                          child: getChats.when(
-                            data: (data1) {
-                              // ignore: unnecessary_null_comparison
-                              if (data1 == null || data1.isEmpty) {
-                                return const Center(
-                                  child: Text(
-                                      "This is a new chat. No messages yet"),
-                                );
-                              }
-                              return ConstrainedBox(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                    chatReceiver!["image"] != null &&
+                                            chatReceiver!["image"].length > 0
+                                        ? chatReceiver!["image"][0]["url"]
+                                        : networkImagePlaceholder),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10.0),
+                          Column(
+                            children: [
+                              Text(chatReceiver != null &&
+                                      chatReceiver!["username"].isNotEmpty
+                                  ? chatReceiver!["username"] ?? "Unknown"
+                                  : "Unknown"),
+                              _userStatus
+                                  ? const Row(
+                                      children: [
+                                        Icon(Icons.circle,
+                                            color: Colors.green, size: 10),
+                                        SizedBox(width: 5.0),
+                                        Text("Active now"),
+                                      ],
+                                    )
+                                  : const Row(
+                                      children: [
+                                        Icon(Icons.circle,
+                                            color: Colors.red, size: 10),
+                                        SizedBox(width: 5.0),
+                                        Text("Offline"),
+                                      ],
+                                    ),
+                            ],
+                          ),
+                          const Spacer(),
+                          const Icon(Icons.delete),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5.0),
+                        child: Column(
+                          children: [
+                            if (chatData.isEmpty)
+                              const Center(
+                                child:
+                                    Text("This is a new chat. No messages yet"),
+                              ),
+                            if (getChats.isLoading)
+                              const Center(
+                                child: CupertinoActivityIndicator(
+                                  radius: 50,
+                                ),
+                              ),
+                            if (chatData.isNotEmpty)
+                              ConstrainedBox(
                                 constraints: BoxConstraints(
                                     minHeight: 60,
                                     maxHeight:
                                         MediaQuery.of(context).size.height *
-                                            0.46),
-                                // height: MediaQuery.of(context).size.height * 0.46,
+                                            0.44),
                                 child: ListView.separated(
                                   reverse: true,
                                   shrinkWrap: true,
-                                  itemCount: data1.length,
+                                  itemCount: chatData.length,
                                   itemBuilder: (context, index) {
-                                    var data = data1.reversed.toList();
-
-                                    if (data[index]["sender_id"]["_id"] ==
+                                    if (chatData[index]["sender_id"]["_id"] ==
                                         widget.userId) {
                                       return ChatSnippet2(
-                                        text: data[index]["message"],
+                                        text: chatData[index]["message"],
                                         time: sondyaFormattedDate(
-                                            data[index]["createdAt"]),
+                                            chatData[index]["createdAt"]),
                                       );
                                     }
                                     return ChatSnippet(
-                                      text: data[index]["message"],
-                                      image: widget.data["image"] != null &&
-                                              widget.data["image"].length > 0
-                                          ? widget.data["image"][0]["url"]
+                                      text: chatData[index]["message"],
+                                      image: chatReceiver!["image"] != null &&
+                                              chatReceiver!["image"].length > 0
+                                          ? chatReceiver!["image"][0]["url"]
                                           : networkImagePlaceholder,
                                       time: sondyaFormattedDate(
-                                          data[index]["createdAt"]),
+                                          chatData[index]["createdAt"]),
                                     );
                                   },
                                   separatorBuilder: (context, index) {
@@ -228,74 +250,193 @@ class _InboxChatBodyState extends ConsumerState<InboxChatBody> {
                                     );
                                   },
                                 ),
-                              );
-                            },
-                            error: (error, stackTrace) =>
-                                Text(error.toString()),
-                            loading: () => const Center(
-                              child: CupertinoActivityIndicator(
-                                radius: 50,
-                              ),
-                            ),
-                          ),
+                              )
+                          ],
                         ),
                       ),
-                      TextField(
-                        decoration: InputDecoration(
-                          hintText: "Type your message...",
-                          suffixIcon: chatMessage.messageText != null &&
-                                  chatMessage.messageText != ""
-                              ? IconButton(
-                                  onPressed: () {
-                                    if (chatMessage.messageText != null &&
-                                        chatMessage.messageText != "") {
-                                      // print(chatMessage.toJson());
-                                      ref
-                                          .read(postMessagesProvider.notifier)
-                                          .postMessages(chatMessage.toJson());
+                    ),
+                    TextField(
+                      controller: _messageController,
+                      decoration: InputDecoration(
+                        hintText: "Type your message...",
+                        suffixIcon: chatMessage.messageText != null &&
+                                chatMessage.messageText != ""
+                            ? IconButton(
+                                onPressed: () {
+                                  if (chatMessage.messageText != null &&
+                                      chatMessage.messageText != "") {
+                                    _sendMessage(chatMessage.messageText!);
+                                    // print(chatMessage.toJson());
+                                    ref
+                                        .read(postMessagesProvider.notifier)
+                                        .postMessages(chatMessage.toJson());
 
-                                      // ignore: unused_result
-                                      ref.refresh(getMessagesProvider((
-                                        receiverId: widget.data["_id"],
-                                        senderId: widget.userId
-                                      )));
-                                    }
-                                  },
-                                  icon: checkState.isLoading
-                                      ? const Icon(Icons.bar_chart)
-                                      : const Icon(Icons.send),
-                                )
-                              : IconButton(
-                                  onPressed: () {
-                                    AnimatedSnackBar.rectangle(
-                                      'Error',
-                                      "Attachment coming soon",
-                                      type: AnimatedSnackBarType.warning,
-                                      brightness: Brightness.light,
-                                    ).show(
-                                      context,
-                                    );
-                                  },
-                                  icon: const Icon(Icons.attach_file_outlined),
-                                ),
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            chatMessage.messageText = value;
-                            chatMessage.senderId = widget.userId;
-                            chatMessage.receiverId = chatSender["_id"];
-                          });
-                        },
+                                    // Clear the TextField
+                                    _messageController.clear();
+                                    chatMessage.messageText = "";
+                                  }
+                                },
+                                icon: checkState.isLoading
+                                    ? const CupertinoActivityIndicator(
+                                        radius: 10,
+                                      )
+                                    : const Icon(Icons.send),
+                              )
+                            : IconButton(
+                                onPressed: () {
+                                  AnimatedSnackBar.rectangle(
+                                    'Error',
+                                    "Attachment coming soon",
+                                    type: AnimatedSnackBarType.warning,
+                                    brightness: Brightness.light,
+                                  ).show(
+                                    context,
+                                  );
+                                },
+                                icon: const Icon(Icons.attach_file_outlined),
+                              ),
                       ),
-                    ],
-                  ),
-                )
-              ],
-            ),
+                      onChanged: (value) {
+                        setState(() {
+                          chatMessage.messageText = value;
+                          chatMessage.senderId = widget.userId;
+                          chatMessage.receiverId = widget.receiverId;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  void _connectWebSocket() {
+    _channel = WebSocketChannel.connect(Uri.parse(_socketUrl));
+
+    _channel.stream.listen(
+      (message) {
+        final newMessage = jsonDecode(message);
+        if (newMessage["meta"] != null &&
+            newMessage["meta"] == "user_status" &&
+            newMessage["user_id"] == widget.receiverId) {
+          setState(() {
+            if (newMessage["status"] == "offline") {
+              _userStatus = false;
+            } else if (newMessage["status"] == "online") {
+              _userStatus = true;
+            }
+          });
+        }
+
+        if (_chatId.isNotEmpty &&
+            newMessage["chat_id"] != null &&
+            newMessage["chat_id"] == _chatId) {
+          setState(() {
+            _messageHistory.add(newMessage);
+            chatData = [newMessage, ...chatData];
+            print(chatData.length);
+          });
+        }
+      },
+      onDone: () {
+        if (_reconnectCount < _reconnectAttempts) {
+          _reconnectCount++;
+          Future.delayed(_reconnectInterval, _connectWebSocket);
+        }
+      },
+      onError: (error) {
+        if (_reconnectCount < _reconnectAttempts) {
+          _reconnectCount++;
+          Future.delayed(_reconnectInterval, _connectWebSocket);
+        }
+      },
+    );
+  }
+
+  void _sendMessage(String text) {
+    if (chatMessage.messageText != null && chatMessage.messageText != "") {
+      DateTime now = DateTime.now().toUtc();
+      String isoDate = DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'").format(now);
+      final defaultMessage = jsonEncode({
+        "meta": "echo_payload",
+        "sender_id": widget.userId,
+        "receiver_id": widget.receiverId,
+        "payload": {
+          "chat_id": _chatId,
+          "sender_id": {
+            "_id": widget.userId,
+            "first_name":
+                chatSender != null && chatSender!["first_name"].isNotEmpty
+                    ? chatSender!["first_name"]
+                    : chatData[0]["sender_id"]["first_name"] ?? "nil",
+            "last_name":
+                chatSender != null && chatSender!["last_name"].isNotEmpty
+                    ? chatSender!["last_name"]
+                    : chatData[0]["sender_id"]["last_name"] ?? "nil",
+            "username": chatSender != null && chatSender!["username"].isNotEmpty
+                ? chatSender!["username"]
+                : chatData[0]["sender_id"]["username"] ?? "nil",
+            "email": chatSender != null && chatSender!["email"].isNotEmpty
+                ? chatSender!["email"]
+                : chatData[0]["sender_id"]["email"] ?? "nil",
+          },
+          "message": text,
+          "createdAt": isoDate,
+          "updatedAt": isoDate
+        }
+      });
+      _channel.sink.add(defaultMessage);
+    }
+  }
+
+  void _joinChatInitialize() {
+    if (_chatId.isNotEmpty && widget.userId != "") {
+      final defaultMessage = jsonEncode({
+        "meta": "join_conversation",
+        "room_id": _chatId,
+        "sender_id": widget.userId,
+      });
+      _channel.sink.add(defaultMessage);
+    }
+  }
+
+  Future<List<dynamic>> _fetchInitialData() async {
+    try {
+      final getChats = ref.read(getMessagesProvider(
+        (receiverId: widget.receiverId, senderId: widget.userId),
+      ).future);
+
+      return await getChats.then((data3) {
+        setState(() {
+          if (!_isInitialFetchDone) {
+            _chatId = data3[0]["chat_id"];
+            chatData = data3.reversed.toList();
+
+            _isInitialFetchDone = true; // Set the flag to true
+          }
+        });
+
+        return data3;
+      });
+    } catch (error) {
+      print(error);
+      // Handle the error case by returning an empty list or rethrowing the error.
+      // return [];
+
+      // Or, if you want to rethrow the error:
+      rethrow;
+    }
+  }
+
+  @override
+  void dispose() {
+    _channel.sink.close();
+    _messageController.dispose();
+    super.dispose();
   }
 }
 

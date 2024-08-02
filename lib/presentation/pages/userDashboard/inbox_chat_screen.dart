@@ -5,12 +5,12 @@ import 'package:sondya_app/presentation/layout/top_bar.dart';
 import 'package:sondya_app/presentation/layout/user_drawer.dart';
 
 class InboxChatScreen extends StatelessWidget {
-  final String chatId;
+  final String receiverId;
   final String userId;
   final Map<String, dynamic> data;
   const InboxChatScreen(
       {super.key,
-      required this.chatId,
+      required this.receiverId,
       required this.userId,
       required this.data});
 
@@ -20,7 +20,7 @@ class InboxChatScreen extends StatelessWidget {
       appBar: const SondyaTopBar(title: "Inbox Chat", isHome: false),
       drawer: sonyaUserDrawer(context),
       body: InboxChatBody(
-        chatId: chatId,
+        receiverId: receiverId,
         userId: userId,
         data: data,
       ),
