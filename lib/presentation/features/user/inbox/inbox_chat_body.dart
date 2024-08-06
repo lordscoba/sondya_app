@@ -157,11 +157,11 @@ class _InboxChatBodyState extends ConsumerState<InboxChatBody> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               image: DecorationImage(
-                                image: NetworkImage(
-                                    chatReceiver!["image"] != null &&
-                                            chatReceiver!["image"].length > 0
-                                        ? chatReceiver!["image"][0]["url"]
-                                        : networkImagePlaceholder),
+                                image: NetworkImage(chatReceiver != null &&
+                                        chatReceiver!["image"] != null &&
+                                        chatReceiver!["image"].length > 0
+                                    ? chatReceiver!["image"][0]["url"]
+                                    : networkImagePlaceholder),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -170,6 +170,7 @@ class _InboxChatBodyState extends ConsumerState<InboxChatBody> {
                           Column(
                             children: [
                               Text(chatReceiver != null &&
+                                      chatReceiver!["username"] != null &&
                                       chatReceiver!["username"].isNotEmpty
                                   ? chatReceiver!["username"] ?? "Unknown"
                                   : "Unknown"),
@@ -236,7 +237,8 @@ class _InboxChatBodyState extends ConsumerState<InboxChatBody> {
                                     }
                                     return ChatSnippet(
                                       text: chatData[index]["message"],
-                                      image: chatReceiver!["image"] != null &&
+                                      image: chatReceiver != null &&
+                                              chatReceiver!["image"] != null &&
                                               chatReceiver!["image"].length > 0
                                           ? chatReceiver!["image"][0]["url"]
                                           : networkImagePlaceholder,
