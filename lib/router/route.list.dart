@@ -471,8 +471,10 @@ GoRouter goRouterFunc(WidgetRef ref) {
         path: '/group/chat/details/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
+          final extra = state.extra! as Map<String, dynamic>;
           return GroupChatDetailsScreen(
             groupId: id,
+            data: extra,
           );
         },
         redirect: authRedirectStrict,

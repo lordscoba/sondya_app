@@ -8,7 +8,13 @@ import 'package:sondya_app/utils/dateTime_to_string.dart';
 
 class GroupChatDetailsBody extends ConsumerStatefulWidget {
   final String groupId;
-  const GroupChatDetailsBody({super.key, required this.groupId});
+  final String userId;
+  final Map<String, dynamic> data;
+  const GroupChatDetailsBody(
+      {super.key,
+      required this.groupId,
+      required this.userId,
+      required this.data});
 
   @override
   ConsumerState<GroupChatDetailsBody> createState() =>
@@ -16,9 +22,18 @@ class GroupChatDetailsBody extends ConsumerStatefulWidget {
 }
 
 class _GroupChatDetailsBodyState extends ConsumerState<GroupChatDetailsBody> {
+  // for user profile data
+  Map<String, dynamic> profileData = {};
   // for the search box
   String search = "";
   TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    profileData = widget.data;
+  }
+
   @override
   Widget build(BuildContext context) {
     // get the members
@@ -193,10 +208,24 @@ class _GroupChatDetailsBodyState extends ConsumerState<GroupChatDetailsBody> {
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
-                      // print(data[index]["user_id"]);
-                      return ListTile(
-                        title: Text(
-                            "${data[index]["user_id"]["username"]}(${data[index]["user_id"]["email"]})"),
+                      return GestureDetector(
+                        onDoubleTap: () {
+                          _goToUserChat(
+                              widget.userId,
+                              data[index]["user_id"]["_id"],
+                              data[index]["user_id"]);
+                        },
+                        onLongPress: () {
+                          _goToUserChat(
+                              widget.userId,
+                              data[index]["user_id"]["_id"],
+                              data[index]["user_id"]);
+                        },
+                        behavior: HitTestBehavior.translucent,
+                        child: ListTile(
+                          title: Text(
+                              "${data[index]["user_id"]["username"]}(${data[index]["user_id"]["email"]})"),
+                        ),
                       );
                     },
                     separatorBuilder: (context, index) {
@@ -217,5 +246,11 @@ class _GroupChatDetailsBodyState extends ConsumerState<GroupChatDetailsBody> {
         ),
       ),
     );
+  }
+
+  void _goToUserChat(String? senderId, String? receiverId,
+      Map<String, dynamic>? receiverData) {
+    context.push('/inbox/chat/${receiverId ?? "nil"}/${senderId ?? "nil"}',
+        extra: {"sender_data": profileData, "receiver_data": receiverData});
   }
 }
