@@ -17,6 +17,7 @@ import 'package:sondya_app/presentation/pages/groupchat_details.dart';
 import 'package:sondya_app/presentation/pages/groupchat_list_screen.dart';
 import 'package:sondya_app/presentation/pages/groupchat_screen.dart';
 import 'package:sondya_app/presentation/pages/home_screen.dart';
+import 'package:sondya_app/presentation/pages/notifications_screen.dart';
 import 'package:sondya_app/presentation/pages/onboarding_screen.dart';
 import 'package:sondya_app/presentation/pages/product_checkout_confirmation_screen.dart';
 import 'package:sondya_app/presentation/pages/product_checkout_screen.dart';
@@ -231,6 +232,11 @@ GoRouter goRouterFunc(WidgetRef ref) {
       ),
 
       // settings route
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationsScreen(),
+        redirect: authRedirectStrict,
+      ),
       GoRoute(
         path: '/settings',
         builder: (context, state) => const SettingsScreen(),

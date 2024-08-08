@@ -46,7 +46,7 @@ class _SettingsBodyState extends ConsumerState<SettingsBody> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Container(
-        height: 1080,
+        height: 1150,
         width: double.infinity,
         color: const Color(0xFFF5F5F5),
         child: Column(
@@ -246,6 +246,15 @@ class _SettingsBodyState extends ConsumerState<SettingsBody> {
                     return const EditCompanyDetailsBody();
                   },
                 );
+              },
+              bottomBorder: true,
+            ),
+            SettingsTile(
+              icon: Icons.notifications_outlined,
+              title: "Notifications",
+              iconColor: const Color(0xFFFFC749),
+              onTap: () {
+                context.push("/notifications");
               },
               bottomBorder: true,
             ),

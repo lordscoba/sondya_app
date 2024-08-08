@@ -56,8 +56,6 @@ class _GroupChatListBodyState extends ConsumerState<GroupChatListBody> {
   }
 
   void _scrollListener() {
-    // print(_scrollController.position.pixels);
-
     // for the headers
     if (_scrollController.position.pixels >= 30.8 && !hideHeader) {
       setState(() {
@@ -135,7 +133,7 @@ class _GroupChatListBodyState extends ConsumerState<GroupChatListBody> {
                   ],
                 )
               : const SizedBox(),
-          hideHeader ? const SizedBox() : const SizedBox(height: 20.0),
+          hideHeader ? const SizedBox() : const SizedBox(height: 5.0),
           hideHeader
               ? const SizedBox()
               : const Text(
@@ -146,7 +144,7 @@ class _GroupChatListBodyState extends ConsumerState<GroupChatListBody> {
                     color: Color(0xFF222222),
                   ),
                 ),
-          hideHeader ? const SizedBox() : const SizedBox(height: 20.0),
+          hideHeader ? const SizedBox() : const SizedBox(height: 5.0),
           hideHeader
               ? const SizedBox()
               : const Text(
@@ -157,7 +155,7 @@ class _GroupChatListBodyState extends ConsumerState<GroupChatListBody> {
                     color: Color(0xFF9F9F9F),
                   ),
                 ),
-          const SizedBox(height: 10.0),
+          const SizedBox(height: 5.0),
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.9,
             child: TextFormField(
@@ -187,7 +185,7 @@ class _GroupChatListBodyState extends ConsumerState<GroupChatListBody> {
               },
             ),
           ),
-          const SizedBox(height: 10.0),
+          const SizedBox(height: 5.0),
           Expanded(
             child: ListView.separated(
               controller: _scrollController,
@@ -291,9 +289,6 @@ class _GroupChatItemState extends ConsumerState<GroupChatItem> {
                 if (data.isNotEmpty) {
                   WidgetsBinding.instance.addPostFrameCallback(
                       (_) => context.push("/group/chat/${widget.groupId}"));
-
-                  // // ignore: unused_result
-                  // ref.refresh(memberJoinGroupChatProvider);
                 }
                 // return sondyaDisplaySuccessMessage(context, data["message"]);
                 return const SizedBox();
@@ -357,9 +352,7 @@ class _GroupChatItemState extends ConsumerState<GroupChatItem> {
                         OutlinedButton(
                           onPressed: () async {
                             if (widget.groupId.isNotEmpty) {
-                              // setState(() {
                               loadingBox = true;
-                              // });
                               ref.invalidate(memberJoinGroupChatProvider);
                               await ref
                                   .read(memberJoinGroupChatProvider.notifier)
