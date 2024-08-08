@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sondya_app/data/local/cart.dart';
+import 'package:sondya_app/data/remote/notifications.dart';
 import 'package:sondya_app/presentation/layout/search_page_nav.dart';
 import 'package:sondya_app/utils/is_seller.dart';
 
@@ -20,6 +21,14 @@ class SondyaTopBar extends ConsumerWidget implements PreferredSizeWidget {
       totalCartNum = value;
     });
 
+    int totalNotificationNum = 0;
+
+    final totalNotification =
+        ref.watch(getUserNotificationsUnSeenCountProvider);
+    totalNotification.whenData((value) {
+      totalNotificationNum = value["data"] ?? 0;
+    });
+
     return AppBar(
       title: Text(title), // Set the title to the page title
       centerTitle: true, // Center aligns the title
@@ -27,9 +36,38 @@ class SondyaTopBar extends ConsumerWidget implements PreferredSizeWidget {
           ? [
               IconButton(
                 onPressed: () {
-                  // context.push("/wishlist");
+                  context.push("/notifications");
                 },
-                icon: const Icon(Icons.notifications),
+                // icon: const Icon(Icons.notifications),
+                icon: Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: [
+                    const Icon(Icons.notifications),
+                    Positioned(
+                      top: -10,
+                      right: -10,
+                      child: Container(
+                        width: 22,
+                        height: 22,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEDB842),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            totalNotificationNum.toString(),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               )
             ]
           : [
@@ -70,7 +108,6 @@ class SondyaTopBar extends ConsumerWidget implements PreferredSizeWidget {
                     Positioned(
                       top: -10,
                       right: -10,
-                      // child: Icon(Icons.circle, color: Colors.red, size: 8),
                       child: Container(
                         width: 22,
                         height: 22,

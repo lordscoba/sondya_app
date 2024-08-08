@@ -3,7 +3,6 @@ const String baseUrl = 'https://sondya-backend.adaptable.app/api/v1';
 const String wsBaseUrl = 'wss://sondya-backend.adaptable.app/api/v1';
 
 // local base url
-
 // const String baseUrl = 'http://localhost:8989/api/v1';
 // const String wsBaseUrl = 'ws://localhost:8989/api/v1';
 
@@ -226,4 +225,14 @@ class EnvironmentSellerWithdrawalConfig {
       '$baseUrl/seller/withdrawal/stat/'; // GET :id - user's id
   static const String deleteWithdrawal =
       '$baseUrl/seller/withdrawal/delete/'; // DELETE :id - withdrawal's id
+}
+
+// Users &&  notifications
+class EnvironmentNotificationConfig {
+  static const String create = '$baseUrl/notifications'; // POST
+  static const String getUnseenCount =
+      '$baseUrl/notifications/unseencount/'; // GET :user_id
+  static const String get = '$baseUrl/notifications/'; // GET :user_id
+  static const String delete = '$baseUrl/notifications/'; // DELETE :id
+  static const String markSeen = '$baseUrl/notifications/'; // PUT :id
 }
