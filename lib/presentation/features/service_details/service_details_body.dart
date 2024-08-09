@@ -43,6 +43,8 @@ class _ServiceDetailsBodyState extends ConsumerState<ServiceDetailsBody> {
       "checkout_items": {},
       "order_id": "",
     };
+
+    // print(widget.id);
   }
 
   void _scrollToSection(double position) {
