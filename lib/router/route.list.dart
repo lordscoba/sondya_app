@@ -138,6 +138,7 @@ GoRouter goRouterFunc(WidgetRef ref) {
     // initialLocation: "/group/chat/list",
     // initialLocation: "/group/chat/656dca98138f07e0f17648f9",
     // initialLocation: "/group/chat/details/656dca98138f07e0f17648f9",
+    // initialLocation: "/service/details/65a111ccdf8051503766b374/ricestew",
     initialLocation: hasInitializedAppSession() ? '/' : "/splash",
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [
