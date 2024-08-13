@@ -491,3 +491,19 @@ class MultiImageItem extends StatelessWidget {
     );
   }
 }
+
+class SondyaFileAttachmentWidget extends StatefulWidget {
+  const SondyaFileAttachmentWidget({super.key});
+
+  @override
+  State<SondyaFileAttachmentWidget> createState() =>
+      _SondyaFileAttachmentWidgetState();
+}
+
+class _SondyaFileAttachmentWidgetState
+    extends State<SondyaFileAttachmentWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}

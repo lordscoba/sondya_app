@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:sondya_app/data/api_constants.dart';
 import 'package:sondya_app/data/extra_constants.dart';
@@ -44,6 +47,12 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
   // for the chat data
   List<dynamic> chatData = [];
   bool _isInitialFetchDone = false; // Flag to track if initial fetch is done
+
+  // for image and files
+  XFile? _image;
+  dynamic _pickImageError;
+  FilePickerResult? _result;
+  // image and files ends here
 
   @override
   void initState() {
@@ -209,38 +218,58 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                       controller: _messageController,
                       decoration: InputDecoration(
                         hintText: "Type your message...",
-                        suffixIcon: IconButton(
-                          onPressed: () async {
-                            if (messageData["message"].isNotEmpty) {
-                              _sendMessage(messageData["message"]);
-                              ref.invalidate(sendMessageGroupChatProvider);
+                        suffixIcon: messageData["message"].isNotEmpty
+                            ? IconButton(
+                                onPressed: () async {
+                                  if (messageData["message"].isNotEmpty) {
+                                    _sendMessage(messageData["message"]);
+                                    ref.invalidate(
+                                        sendMessageGroupChatProvider);
 
-                              await ref
-                                  .read(sendMessageGroupChatProvider.notifier)
-                                  .sendMessage(
-                                    messageData,
-                                  );
+                                    await ref
+                                        .read(sendMessageGroupChatProvider
+                                            .notifier)
+                                        .sendMessage(
+                                          messageData,
+                                        );
 
-                              // Clear the TextField
-                              _messageController.clear();
-                              messageData["message"] = "";
-                            } else {
-                              AnimatedSnackBar.rectangle(
-                                'Error',
-                                "Please enter a message",
-                                type: AnimatedSnackBarType.warning,
-                                brightness: Brightness.light,
-                              ).show(
-                                context,
-                              );
-                            }
-                          },
-                          icon: checkStateMessages.isLoading
-                              ? const CupertinoActivityIndicator(
-                                  radius: 10,
-                                )
-                              : const Icon(Icons.send),
-                        ),
+                                    // Clear the TextField
+                                    _messageController.clear();
+                                    messageData["message"] = "";
+                                  } else {
+                                    AnimatedSnackBar.rectangle(
+                                      'Error',
+                                      "Please enter a message",
+                                      type: AnimatedSnackBarType.warning,
+                                      brightness: Brightness.light,
+                                    ).show(
+                                      context,
+                                    );
+                                  }
+                                },
+                                icon: checkStateMessages.isLoading
+                                    ? const CupertinoActivityIndicator(
+                                        radius: 10,
+                                      )
+                                    : const Icon(Icons.send),
+                              )
+                            : IconButton(
+                                onPressed: () => _showAttachmentPicker(
+                                  context,
+                                ),
+                                // onPressed: () {
+                                // () => _showAttachmentPicker(context);
+                                // AnimatedSnackBar.rectangle(
+                                //   'Error',
+                                //   "Attachment coming soon",
+                                //   type: AnimatedSnackBarType.warning,
+                                //   brightness: Brightness.light,
+                                // ).show(
+                                //   context,
+                                // );
+                                // },
+                                icon: const Icon(Icons.attach_file_outlined),
+                              ),
                       ),
                       onChanged: (value) {
                         setState(() {
@@ -256,6 +285,142 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
         ),
       ),
     );
+  }
+
+  void _showAttachmentPicker(BuildContext context, {File? file, XFile? image}) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        if (_image == null && _result == null) {
+          return Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Camera'),
+                onTap: () {
+                  _pickImage(ImageSource.camera, context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Gallery'),
+                onTap: () {
+                  _pickImage(ImageSource.gallery, context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.insert_drive_file),
+                title: const Text('Document'),
+                onTap: () {
+                  _pickDocument(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.location_on),
+                title: const Text('Location'),
+                onTap: () {
+                  // Handle location sharing
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        } else if (_image != null || _result != null) {
+          return SizedBox(
+            height: MediaQuery.of(context).size.height * 0.3,
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      child: Text(
+                        "${_image?.name ?? _result?.files.first.name}",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _image = null;
+                          _result = null;
+                          context.pop();
+                        });
+                      },
+                      icon: const Icon(Icons.close),
+                    )
+                  ],
+                ),
+                const SizedBox(height: 5),
+                _getImageWidget(),
+              ],
+            ),
+          );
+        }
+        return Text('Error picking image: ${_pickImageError.toString()}');
+      },
+    );
+  }
+
+  Future<XFile?> _pickImage(ImageSource source, BuildContext context) async {
+    if (context.mounted) {
+      try {
+        final ImagePicker picker = ImagePicker();
+        final XFile? pickedFile = await picker.pickImage(source: source);
+
+        // Check if image is picked
+        if (pickedFile != null) {
+          setState(() {
+            _image = pickedFile;
+          });
+          // Handle the image file
+          // print('Picked image: ${pickedFile.path}');
+        }
+      } catch (e) {
+        setState(() {
+          _pickImageError = e;
+        });
+      }
+    }
+    return null;
+  }
+
+  Future<void> _pickDocument(BuildContext context) async {
+    if (context.mounted) {
+      try {
+        final FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+        // Check if document is picked
+        if (result != null) {
+          setState(() {
+            _result = result;
+          });
+          // Handle the selected file
+          // print('Picked document: ${result.files.single.path}');
+        }
+      } catch (e) {
+        setState(() {
+          _pickImageError = e;
+        });
+      }
+    }
+  }
+
+  Widget _getImageWidget() {
+    if (_image != null) {
+      return Image.file(
+        File(_image!.path),
+        fit: BoxFit.cover,
+        height: MediaQuery.of(context).size.height * 0.2,
+      );
+    }
+    return const SizedBox();
   }
 
   void _goToUserChat(String? senderId, String? receiverId,
