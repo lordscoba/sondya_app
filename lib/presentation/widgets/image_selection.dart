@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sondya_app/domain/models/home.dart';
 
@@ -493,7 +495,10 @@ class MultiImageItem extends StatelessWidget {
 }
 
 class SondyaFileAttachmentWidget extends StatefulWidget {
-  const SondyaFileAttachmentWidget({super.key});
+  final void Function(XFile value)? onSetImage;
+  final void Function(FilePickerResult value)? onSetFile;
+  const SondyaFileAttachmentWidget(
+      {super.key, this.onSetImage, this.onSetFile});
 
   @override
   State<SondyaFileAttachmentWidget> createState() =>
@@ -502,8 +507,251 @@ class SondyaFileAttachmentWidget extends StatefulWidget {
 
 class _SondyaFileAttachmentWidgetState
     extends State<SondyaFileAttachmentWidget> {
+  // for image and files
+  XFile? _image;
+  dynamic _pickImageError;
+  FilePickerResult? _result;
+  // image and files ends here
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("File Attachment"),
+      ),
+      extendBody: true,
+      body: Container(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          // mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (_image == null && _result == null && _pickImageError == null)
+              Wrap(
+                children: [
+                  const ListTile(
+                    title: Text(
+                      'Select an attachment!',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.camera_alt),
+                    title: const Text('Camera'),
+                    onTap: () {
+                      _pickImage(ImageSource.camera, context);
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.photo_library),
+                    title: const Text('Gallery'),
+                    onTap: () {
+                      _pickImage(ImageSource.gallery, context);
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.insert_drive_file),
+                    title: const Text('Document'),
+                    onTap: () {
+                      _pickDocument(context);
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.location_on),
+                    title: const Text('Location'),
+                    onTap: () {
+                      // Handle location sharing
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  const Divider(),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        context.pop();
+                      },
+                      child: const Text('Go Back'),
+                    ),
+                  ),
+                ],
+              ),
+            if (_image != null || _result != null)
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.4,
+                width: MediaQuery.of(context).size.width,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.6,
+                          child: Text(
+                            "${_image?.name ?? _result?.files.first.name}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _image = null;
+                              _result = null;
+                              _pickImageError = null;
+                            });
+                          },
+                          icon: const Icon(Icons.close),
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    _getImageWidget(),
+                    const SizedBox(height: 25),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_image != null) {
+                          widget.onSetImage!(_image!);
+                        } else if (_result != null) {
+                          widget.onSetFile!(_result!);
+                        }
+
+                        // close the bottom sheet
+                        context.pop();
+                      },
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Share'),
+                          SizedBox(width: 10),
+                          Icon(Icons.share),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (_pickImageError != null)
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.4,
+                width: MediaQuery.of(context).size.width,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.6,
+                          child: const Text(
+                            " Error Message",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _image = null;
+                              _result = null;
+                              _pickImageError = null;
+                            });
+                          },
+                          icon: const Icon(Icons.close),
+                        )
+                      ],
+                    ),
+                    Text('Error picking image: ${_pickImageError.toString()}'),
+                  ],
+                ),
+              )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<XFile?> _pickImage(ImageSource source, BuildContext context) async {
+    if (context.mounted) {
+      try {
+        final ImagePicker picker = ImagePicker();
+        final XFile? pickedFile = await picker.pickImage(source: source);
+
+        // Check if image is picked
+        if (pickedFile != null) {
+          setState(() {
+            _image = pickedFile;
+          });
+          // Handle the image file
+          // print('Picked image: ${pickedFile.path}');
+        }
+      } catch (e) {
+        setState(() {
+          _pickImageError = e;
+        });
+      }
+    }
+    return null;
+  }
+
+  Future<void> _pickDocument(BuildContext context) async {
+    if (context.mounted) {
+      try {
+        final FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+        // Check if document is picked
+        if (result != null) {
+          setState(() {
+            _result = result;
+          });
+          // Handle the selected file
+          // print('Picked document: ${result.files.single.path}');
+        }
+      } catch (e) {
+        setState(() {
+          _pickImageError = e;
+        });
+      }
+    }
+  }
+
+  Widget _getImageWidget() {
+    if (_image != null) {
+      return Image.file(
+        File(_image!.path),
+        fit: BoxFit.cover,
+        height: MediaQuery.of(context).size.height * 0.2,
+      );
+    }
+    if (_result != null) {
+      return Column(
+        children: [
+          Text(
+            _result!.files.first.extension!,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            _result!.files.first.name,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 20),
+          ),
+        ],
+      );
+    }
+    return const SizedBox.shrink();
   }
 }

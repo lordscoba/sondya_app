@@ -5,6 +5,7 @@ import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,6 +15,8 @@ import 'package:sondya_app/data/extra_constants.dart';
 import 'package:sondya_app/data/remote/groupchat.dart';
 import 'package:sondya_app/data/remote/profile.dart';
 import 'package:sondya_app/domain/providers/groupchat.dart';
+import 'package:sondya_app/presentation/features/groupchat/groupchat_snippet.dart';
+import 'package:sondya_app/presentation/widgets/image_selection.dart';
 import 'package:sondya_app/utils/dateTime_to_string.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -49,10 +52,11 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
   bool _isInitialFetchDone = false; // Flag to track if initial fetch is done
 
   // for image and files
-  XFile? _image;
-  dynamic _pickImageError;
-  FilePickerResult? _result;
-  // image and files ends here
+  // Uint8List? _imageBytes;
+  // XFile? _image;
+  // // dynamic _pickImageError;
+  // FilePickerResult? _result;
+  // // image and files ends here
 
   @override
   void initState() {
@@ -176,10 +180,90 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                           itemCount: chatData.length,
                           itemBuilder: (context, index) {
                             if (chatData[index]["isMe"]) {
+                              if (chatData[index]["type"] == "image") {
+                                return GroupChatImageSnippet2(
+                                  text: chatData[index]["message"],
+                                  time: sondyaFormattedDate(
+                                      chatData[index]["createdAt"]),
+                                  imageChat: chatData[index]["image"],
+                                );
+                              }
+                              if (chatData[index]["type"] == "file") {
+                                return GroupChatFileSnippet2(
+                                  text: chatData[index]["message"],
+                                  time: sondyaFormattedDate(
+                                      chatData[index]["createdAt"]),
+                                  fileChat: chatData[index]["file"],
+                                  fileSize: chatData[index]["file_size"],
+                                  fileName: chatData[index]["file_name"],
+                                  fileExtension: chatData[index]
+                                      ["file_extension"],
+                                );
+                              }
                               return GroupChatSnippet2(
                                 text: chatData[index]["message"],
                                 time: sondyaFormattedDate(
                                     chatData[index]["createdAt"]),
+                              );
+                            }
+                            if (chatData[index]["type"] == "image") {
+                              return GestureDetector(
+                                onDoubleTap: () {
+                                  _goToUserChat(
+                                      widget.userId,
+                                      chatData[index]["sender_id"],
+                                      chatData[index]["sender"]);
+                                },
+                                onLongPress: () {
+                                  _goToUserChat(
+                                      widget.userId,
+                                      chatData[index]["sender_id"],
+                                      chatData[index]["sender"]);
+                                },
+                                child: GroupChatImageSnippet(
+                                  text: chatData[index]["message"],
+                                  senderName:
+                                      "${chatData[index]["sender"]["first_name"] ?? ""} ${chatData[index]["sender"]["last_name"] ?? ""}",
+                                  time: sondyaFormattedDate(
+                                      chatData[index]["createdAt"]),
+                                  image: chatData[index]["image"] != null &&
+                                          chatData[index]["image"].isNotEmpty
+                                      ? chatData[index]["image"][0]["url"]
+                                      : networkImagePlaceholder,
+                                  imageChat: chatData[index]["image"],
+                                ),
+                              );
+                            }
+                            if (chatData[index]["type"] == "file") {
+                              return GestureDetector(
+                                onDoubleTap: () {
+                                  _goToUserChat(
+                                      widget.userId,
+                                      chatData[index]["sender_id"],
+                                      chatData[index]["sender"]);
+                                },
+                                onLongPress: () {
+                                  _goToUserChat(
+                                      widget.userId,
+                                      chatData[index]["sender_id"],
+                                      chatData[index]["sender"]);
+                                },
+                                child: GroupChatFileSnippet(
+                                  text: chatData[index]["message"],
+                                  senderName:
+                                      "${chatData[index]["sender"]["first_name"] ?? ""} ${chatData[index]["sender"]["last_name"] ?? ""}",
+                                  time: sondyaFormattedDate(
+                                      chatData[index]["createdAt"]),
+                                  image: chatData[index]["image"] != null &&
+                                          chatData[index]["image"].isNotEmpty
+                                      ? chatData[index]["image"][0]["url"]
+                                      : networkImagePlaceholder,
+                                  fileChat: chatData[index]["file"],
+                                  fileSize: chatData[index]["file_size"],
+                                  fileName: chatData[index]["file_name"],
+                                  fileExtension: chatData[index]
+                                      ["file_extension"],
+                                ),
                               );
                             }
                             return GestureDetector(
@@ -223,15 +307,15 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                                 onPressed: () async {
                                   if (messageData["message"].isNotEmpty) {
                                     _sendMessage(messageData["message"]);
-                                    ref.invalidate(
-                                        sendMessageGroupChatProvider);
+                                    // ref.invalidate(
+                                    //     sendMessageGroupChatProvider);
 
-                                    await ref
-                                        .read(sendMessageGroupChatProvider
-                                            .notifier)
-                                        .sendMessage(
-                                          messageData,
-                                        );
+                                    // await ref
+                                    //     .read(sendMessageGroupChatProvider
+                                    //         .notifier)
+                                    //     .sendMessage(
+                                    //       messageData,
+                                    //     );
 
                                     // Clear the TextField
                                     _messageController.clear();
@@ -254,20 +338,38 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                                     : const Icon(Icons.send),
                               )
                             : IconButton(
-                                onPressed: () => _showAttachmentPicker(
-                                  context,
-                                ),
-                                // onPressed: () {
-                                // () => _showAttachmentPicker(context);
-                                // AnimatedSnackBar.rectangle(
-                                //   'Error',
-                                //   "Attachment coming soon",
-                                //   type: AnimatedSnackBarType.warning,
-                                //   brightness: Brightness.light,
-                                // ).show(
-                                //   context,
-                                // );
-                                // },
+                                onPressed: () {
+                                  showGeneralDialog(
+                                    context: context,
+                                    transitionDuration: const Duration(
+                                        milliseconds:
+                                            100), // Adjust animation duration
+                                    transitionBuilder:
+                                        (context, a1, a2, widget) {
+                                      return FadeTransition(
+                                        opacity: CurvedAnimation(
+                                            parent: a1, curve: Curves.easeIn),
+                                        child: widget,
+                                      );
+                                    },
+                                    barrierLabel: MaterialLocalizations.of(
+                                            context)
+                                        .modalBarrierDismissLabel, // Optional accessibility label
+                                    pageBuilder:
+                                        (context, animation1, animation2) {
+                                      return SondyaFileAttachmentWidget(
+                                        onSetFile: (value) {
+                                          _sendFile(value);
+                                        },
+                                        onSetImage: (value) {
+                                          setState(() {
+                                            _sendImage(value);
+                                          });
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
                                 icon: const Icon(Icons.attach_file_outlined),
                               ),
                       ),
@@ -287,142 +389,6 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     );
   }
 
-  void _showAttachmentPicker(BuildContext context, {File? file, XFile? image}) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        if (_image == null && _result == null) {
-          return Wrap(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Camera'),
-                onTap: () {
-                  _pickImage(ImageSource.camera, context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Gallery'),
-                onTap: () {
-                  _pickImage(ImageSource.gallery, context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.insert_drive_file),
-                title: const Text('Document'),
-                onTap: () {
-                  _pickDocument(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.location_on),
-                title: const Text('Location'),
-                onTap: () {
-                  // Handle location sharing
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          );
-        } else if (_image != null || _result != null) {
-          return SizedBox(
-            height: MediaQuery.of(context).size.height * 0.3,
-            width: MediaQuery.of(context).size.width,
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.6,
-                      child: Text(
-                        "${_image?.name ?? _result?.files.first.name}",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _image = null;
-                          _result = null;
-                          context.pop();
-                        });
-                      },
-                      icon: const Icon(Icons.close),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 5),
-                _getImageWidget(),
-              ],
-            ),
-          );
-        }
-        return Text('Error picking image: ${_pickImageError.toString()}');
-      },
-    );
-  }
-
-  Future<XFile?> _pickImage(ImageSource source, BuildContext context) async {
-    if (context.mounted) {
-      try {
-        final ImagePicker picker = ImagePicker();
-        final XFile? pickedFile = await picker.pickImage(source: source);
-
-        // Check if image is picked
-        if (pickedFile != null) {
-          setState(() {
-            _image = pickedFile;
-          });
-          // Handle the image file
-          // print('Picked image: ${pickedFile.path}');
-        }
-      } catch (e) {
-        setState(() {
-          _pickImageError = e;
-        });
-      }
-    }
-    return null;
-  }
-
-  Future<void> _pickDocument(BuildContext context) async {
-    if (context.mounted) {
-      try {
-        final FilePickerResult? result = await FilePicker.platform.pickFiles();
-
-        // Check if document is picked
-        if (result != null) {
-          setState(() {
-            _result = result;
-          });
-          // Handle the selected file
-          // print('Picked document: ${result.files.single.path}');
-        }
-      } catch (e) {
-        setState(() {
-          _pickImageError = e;
-        });
-      }
-    }
-  }
-
-  Widget _getImageWidget() {
-    if (_image != null) {
-      return Image.file(
-        File(_image!.path),
-        fit: BoxFit.cover,
-        height: MediaQuery.of(context).size.height * 0.2,
-      );
-    }
-    return const SizedBox();
-  }
-
   void _goToUserChat(String? senderId, String? receiverId,
       Map<String, dynamic>? receiverData) {
     context.push('/inbox/chat/${receiverId ?? "nil"}/${senderId ?? "nil"}',
@@ -438,7 +404,52 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
 
         if (messageData["group_id"].isNotEmpty &&
             newMessage["chat_id"] != null &&
-            newMessage["chat_id"] == messageData["group_id"]) {
+            newMessage["chat_id"] == messageData["group_id"] &&
+            newMessage["type"] == "text") {
+          final String senderid = newMessage["sender_id"]["_id"];
+          final Map<String, dynamic> sender = newMessage["sender_id"];
+          setState(() {
+            newMessage["isMe"] = senderid == widget.userId;
+            newMessage["sender"] = sender;
+            newMessage["sender_id"] = senderid;
+            newMessage["group_id"] = newMessage["chat_id"];
+
+            // remove chat_id key from newMessage
+            newMessage.remove("chat_id");
+
+            _messageHistory.add(newMessage);
+            chatData = [newMessage, ...chatData];
+            // print(chatData.length);
+          });
+        }
+
+        if (messageData["group_id"].isNotEmpty &&
+            newMessage["chat_id"] != null &&
+            newMessage["chat_id"] == messageData["group_id"] &&
+            newMessage["type"] == "image") {
+          // print(newMessage);
+          final String senderid = newMessage["sender_id"]["_id"];
+          final Map<String, dynamic> sender = newMessage["sender_id"];
+          setState(() {
+            newMessage["isMe"] = senderid == widget.userId;
+            newMessage["sender"] = sender;
+            newMessage["sender_id"] = senderid;
+            newMessage["group_id"] = newMessage["chat_id"];
+
+            // remove chat_id key from newMessage
+            newMessage.remove("chat_id");
+
+            _messageHistory.add(newMessage);
+            chatData = [newMessage, ...chatData];
+            // print(chatData.length);
+          });
+        }
+
+        if (messageData["group_id"].isNotEmpty &&
+            newMessage["chat_id"] != null &&
+            newMessage["chat_id"] == messageData["group_id"] &&
+            newMessage["type"] == "file") {
+          // print(newMessage);
           final String senderid = newMessage["sender_id"]["_id"];
           final Map<String, dynamic> sender = newMessage["sender_id"];
           setState(() {
@@ -497,7 +508,104 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                 profileData["email"].isNotEmpty ? profileData["email"] : "nil",
             "image": profileData["image"]
           },
+          "type": "text",
           "message": text,
+          "createdAt": isoDate,
+          "updatedAt": isoDate
+        }
+      });
+      _channel.sink.add(defaultMessage);
+    }
+  }
+
+  Future<void> _sendImage(XFile image) async {
+    if (image.path.isNotEmpty) {
+      DateTime now = DateTime.now().toUtc();
+      String isoDate = DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'").format(now);
+
+      // Read the image as bytes
+      Uint8List imageBytes = await image.readAsBytes();
+
+      // Encode the image to base64
+      String base64Image = base64Encode(imageBytes);
+
+      final defaultMessage = jsonEncode({
+        "meta": "echo_payload",
+        "user_id": widget.userId,
+        "room_id": widget.groupId,
+        "message": "image",
+        "payload": {
+          "chat_id": widget.groupId,
+          "sender_id": {
+            "_id": widget.userId,
+            "first_name": profileData["first_name"].isNotEmpty
+                ? profileData["first_name"]
+                : "nil",
+            "last_name": profileData["last_name"].isNotEmpty
+                ? profileData["last_name"]
+                : "nil",
+            "username": profileData["username"].isNotEmpty
+                ? profileData["username"]
+                : "nil",
+            "email":
+                profileData["email"].isNotEmpty ? profileData["email"] : "nil",
+            "image": profileData["image"]
+          },
+          "type": "image",
+          "message": "image",
+          "image": base64Image,
+          "file_name": image.name,
+          "createdAt": isoDate,
+          "updatedAt": isoDate
+        }
+      });
+
+      _channel.sink.add(defaultMessage);
+    }
+  }
+
+  Future<void> _sendFile(FilePickerResult result) async {
+    // Iterate through the selected files (FilePickerResult can contain multiple files)
+    for (PlatformFile file in result.files) {
+      // Read the file as bytes
+      File fileToRead = File(file.path!);
+      Uint8List fileBytes = await fileToRead.readAsBytes();
+
+      // Encode the file bytes to base64
+      String base64File = base64Encode(fileBytes);
+
+      // generate timestamp
+      DateTime now = DateTime.now().toUtc();
+      String isoDate = DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'").format(now);
+
+      final defaultMessage = jsonEncode({
+        "meta": "echo_payload",
+        "user_id": widget.userId,
+        "room_id": widget.groupId,
+        "message": "file",
+        "payload": {
+          "chat_id": widget.groupId,
+          "sender_id": {
+            "_id": widget.userId,
+            "first_name": profileData["first_name"].isNotEmpty
+                ? profileData["first_name"]
+                : "nil",
+            "last_name": profileData["last_name"].isNotEmpty
+                ? profileData["last_name"]
+                : "nil",
+            "username": profileData["username"].isNotEmpty
+                ? profileData["username"]
+                : "nil",
+            "email":
+                profileData["email"].isNotEmpty ? profileData["email"] : "nil",
+            "image": profileData["image"]
+          },
+          "type": "file",
+          "message": "file",
+          "file": base64File,
+          'file_name': file.name,
+          'file_extension': file.extension,
+          'file_size': file.size,
           "createdAt": isoDate,
           "updatedAt": isoDate
         }
@@ -512,6 +620,7 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
         "meta": "join_conversation",
         "room_id": widget.groupId,
         "sender_id": widget.userId,
+        "type": "join",
         "message": "",
       });
       _channel.sink.add(defaultMessage);
@@ -560,119 +669,6 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     _channel.sink.close();
     _messageController.dispose();
     super.dispose();
-  }
-}
-
-class GroupChatSnippet extends StatelessWidget {
-  final String? senderName;
-  final String? text;
-  final String? time;
-  final String? image;
-  const GroupChatSnippet(
-      {super.key, this.senderName, required this.text, this.time, this.image});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 35,
-          height: 35,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: NetworkImage(
-                image!,
-              ),
-              fit: BoxFit.cover,
-            ),
-            color: Colors.grey,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 3.0),
-        Container(
-          padding: const EdgeInsets.all(10.0),
-          width: 300,
-          decoration: BoxDecoration(
-            color: Colors.grey,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            children: [
-              SizedBox(
-                width: 260,
-                child: Text(
-                  senderName ?? "Unknown",
-                  style: const TextStyle(fontSize: 12, color: Colors.white54),
-                ),
-              ),
-              const SizedBox(height: 5.0),
-              SizedBox(
-                width: 260,
-                child: Text(
-                  text ?? "Unknown",
-                  style: const TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 5.0),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: SizedBox(
-                  width: 120,
-                  child: Text(
-                    time ?? "unknown",
-                    style: const TextStyle(fontSize: 10, color: Colors.white54),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class GroupChatSnippet2 extends StatelessWidget {
-  final String? text;
-  final String? time;
-  const GroupChatSnippet2({super.key, required this.text, this.time});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10.0),
-      width: 350,
-      decoration: BoxDecoration(
-        color: const Color(0xFFEDB842),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        children: [
-          Align(
-            alignment: Alignment.topLeft,
-            child: SizedBox(
-              width: 260,
-              child: Text(
-                text ?? "Unknown",
-                style: const TextStyle(fontSize: 16, color: Colors.white),
-              ),
-            ),
-          ),
-          const SizedBox(height: 5.0),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: SizedBox(
-              width: 120,
-              child: Text(
-                time ?? "unknown",
-                style: const TextStyle(fontSize: 10, color: Colors.white),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 
