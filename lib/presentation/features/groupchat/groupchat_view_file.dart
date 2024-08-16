@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -13,135 +16,139 @@ class FileDownloader extends StatefulWidget {
       {super.key, required this.fileBytes, required this.fileName});
 
   @override
-  _FileDownloaderState createState() => _FileDownloaderState();
+  State<FileDownloader> createState() => _FileDownloaderState();
 }
 
 class _FileDownloaderState extends State<FileDownloader> {
+  String? filePath;
+  bool fileDownloaded = false;
+  bool isDownloading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.85,
+      child: Row(
+        children: [
+          Icon(Icons.file_copy_outlined, color: Colors.grey.shade700),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.75,
+            child: ElevatedButton(
+              onPressed: fileDownloaded ? openFile : saveFile,
+              child: isDownloading
+                  ? const CupertinoActivityIndicator(
+                      radius: 10,
+                    )
+                  : Text(fileDownloaded
+                      ? 'View File'
+                      : 'Download \n ${widget.fileName}'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> saveFile() async {
-    // Request permission to write to external storage
-    if (await _requestPermission(Permission.storage)) {
+    // if (await _requestPermission(Permission.storage)) {
+    if ((Platform.isAndroid &&
+            await requestManageExternalStoragePermission()) ||
+        (Platform.isIOS && await requestStoragePermission())) {
       try {
-        // Get the directory to save the file (external storage directory)
+        setState(() {
+          isDownloading = true;
+        });
+
+        // Save the file
         Directory directory = await getApplicationDocumentsDirectory();
-
-        // Create the file path
-        String filePath = '${directory.path}/${widget.fileName}';
-
-        // Create the file in the directory
-        File file = File(filePath);
-
-        // Write the fileBytes to the file
+        filePath = '${directory.path}/${widget.fileName}';
+        File file = File(filePath!);
         await file.writeAsBytes(widget.fileBytes);
 
-        // Notify the user
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('File saved to $filePath')),
+        setState(() {
+          fileDownloaded = true;
+          isDownloading = false;
+        });
+
+        // ignore: use_build_context_synchronously
+        AnimatedSnackBar.rectangle(
+          'File downloaded successfully',
+          "File saved to $filePath",
+          type: AnimatedSnackBarType.success,
+          brightness: Brightness.light,
+        ).show(
+          context,
         );
       } catch (e) {
         print('Error saving file: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to save file')),
+
+        // ignore: use_build_context_synchronously
+        AnimatedSnackBar.rectangle(
+          'Failed to save file',
+          "Error: $e",
+          type: AnimatedSnackBarType.warning,
+          brightness: Brightness.light,
+        ).show(
+          context,
         );
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Storage permission denied')),
+      // ignore: use_build_context_synchronously
+      AnimatedSnackBar.rectangle(
+        'Storage permission denied',
+        "Please grant storage permission",
+        type: AnimatedSnackBarType.warning,
+        brightness: Brightness.light,
+      ).show(
+        context,
       );
     }
   }
 
-  Future<bool> _requestPermission(Permission permission) async {
-    if (await permission.isGranted) {
+  Future<bool> requestManageExternalStoragePermission() async {
+    bool isGranted = await Permission.manageExternalStorage.isGranted;
+
+    if (isGranted) {
       return true;
     } else {
-      var result = await permission.request();
-      return result == PermissionStatus.granted;
+      // Request permission
+      PermissionStatus status =
+          await Permission.manageExternalStorage.request();
+
+      if (status.isGranted) {
+        return true;
+      } else if (status.isPermanentlyDenied) {
+        openAppSettings();
+        return false;
+      } else {
+        return false;
+      }
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('File Downloader'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: saveFile,
-          child: Text('Download ${widget.fileName}'),
-        ),
-      ),
-    );
+  Future<bool> requestStoragePermission() async {
+    // Check if the permission is already granted
+    if (await Permission.storage.isGranted) {
+      return true;
+    }
+
+    // Request permission
+    PermissionStatus status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      return true;
+    } else if (status.isPermanentlyDenied) {
+      openAppSettings();
+      return false;
+    } else {
+      return false;
+    }
+  }
+
+  void openFile() {
+    if (filePath != null) {
+      OpenFilex.open(filePath!);
+    }
   }
 }
-
-// import 'dart:io';
-// import 'dart:typed_data';
-
-// import 'package:flutter/material.dart';
-// import 'package:open_filex/open_filex.dart';
-// import 'package:path_provider/path_provider.dart';
-
-// class FileViewer extends StatefulWidget {
-//   final Uint8List fileBytes;
-//   final String fileName;
-
-//   const FileViewer(
-//       {super.key, required this.fileBytes, required this.fileName});
-
-//   @override
-//   State<FileViewer> createState() => _FileViewerState();
-// }
-
-// class _FileViewerState extends State<FileViewer> {
-//   String? filePath;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     saveFile();
-//   }
-
-//   Future<void> saveFile() async {
-//     try {
-//       // Get the directory to save the file
-//       Directory directory = await getApplicationDocumentsDirectory();
-
-//       // Create the file in the directory
-//       File file = File('${directory.path}/${widget.fileName}');
-
-//       // Write the fileBytes to the file
-//       await file.writeAsBytes(widget.fileBytes);
-
-//       // Store the file path for later use
-//       setState(() {
-//         filePath = file.path;
-//       });
-
-//       // Optionally open the file automatically
-//       OpenFilex.open(filePath!);
-//     } catch (e) {
-//       print('Error saving file: $e');
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('File Viewer'),
-//       ),
-//       body: Center(
-//         child: filePath != null
-//             ? ElevatedButton(
-//                 onPressed: () {
-//                   // Open the file if not opened automatically
-//                   OpenFilex.open(filePath!);
-//                 },
-//                 child: Text('Open ${widget.fileName}'),
-//               )
-//             : const CircularProgressIndicator(),
-//       ),
-//     );
-//   }
-// }

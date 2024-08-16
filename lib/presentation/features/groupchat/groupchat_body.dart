@@ -10,8 +10,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:mime/mime.dart';
 import 'package:sondya_app/data/api_constants.dart';
 import 'package:sondya_app/data/extra_constants.dart';
+import 'package:sondya_app/data/legal_mimetypes.dart';
 import 'package:sondya_app/data/remote/groupchat.dart';
 import 'package:sondya_app/data/remote/profile.dart';
 import 'package:sondya_app/domain/providers/groupchat.dart';
@@ -523,6 +525,21 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
       DateTime now = DateTime.now().toUtc();
       String isoDate = DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'").format(now);
 
+      // check mime type of image
+      final mimeTypeData = lookupMimeType(image.path)!.split("/");
+      if (mimeTypeData[0] != 'image') {
+        // ignore: use_build_context_synchronously
+        AnimatedSnackBar.rectangle(
+          'File type not supported',
+          "Error: File type not supported",
+          type: AnimatedSnackBarType.warning,
+          brightness: Brightness.light,
+        ).show(
+          context,
+        );
+        return;
+      }
+
       // Read the image as bytes
       Uint8List imageBytes = await image.readAsBytes();
 
@@ -567,6 +584,21 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
   Future<void> _sendFile(FilePickerResult result) async {
     // Iterate through the selected files (FilePickerResult can contain multiple files)
     for (PlatformFile file in result.files) {
+      // check mime type of file and throw error if not supported
+      final mimeTypeData = lookupMimeType(file.path!);
+      if (!legalMimeTypesList.contains(mimeTypeData)) {
+        // ignore: use_build_context_synchronously
+        AnimatedSnackBar.rectangle(
+          'File type not supported',
+          "Error: File type not supported",
+          type: AnimatedSnackBarType.warning,
+          brightness: Brightness.light,
+        ).show(
+          context,
+        );
+        return;
+      }
+
       // Read the file as bytes
       File fileToRead = File(file.path!);
       Uint8List fileBytes = await fileToRead.readAsBytes();

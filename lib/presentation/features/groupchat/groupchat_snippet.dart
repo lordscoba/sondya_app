@@ -324,24 +324,19 @@ class GroupChatFileSnippet extends StatelessWidget {
                     child: Image.memory(fileBytes, fit: BoxFit.cover),
                   ),
                 ),
-              if (fileExtension?.toLowerCase() == "pdf")
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: SizedBox(
-                    height: 200,
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: FileDownloader(
-                            fileBytes: fileBytes,
-                            fileName: fileName!,
-                          ),
-                        ),
-                      ],
+              if (fileExtension?.toLowerCase() != "jpg")
+                if (fileExtension?.toLowerCase() != "png")
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Container(
+                      padding: const EdgeInsets.all(15.0),
+                      color: Colors.white,
+                      child: FileDownloader(
+                        fileBytes: fileBytes,
+                        fileName: fileName!,
+                      ),
                     ),
                   ),
-                ),
               const SizedBox(height: 5.0),
               SizedBox(
                 width: 260,
@@ -387,9 +382,6 @@ class GroupChatFileSnippet2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final Uint8List imageBytes = base64Decode(imageChat!);
-    // return Image.memory(imageBytes);
-
     final Uint8List fileBytes = base64Decode(fileChat!);
     return Container(
       padding: const EdgeInsets.all(10.0),
@@ -400,17 +392,6 @@ class GroupChatFileSnippet2 extends StatelessWidget {
       ),
       child: Column(
         children: [
-          if (fileChat != null)
-            Align(
-              alignment: Alignment.topLeft,
-              child: SizedBox(
-                height: 200,
-                width: MediaQuery.of(context).size.width * 0.9,
-                child: Image.memory(fileBytes, fit: BoxFit.cover),
-                // child: Text(fileChat.toString()),
-              ),
-            ),
-          const SizedBox(height: 5.0),
           if (fileExtension == "jpg" || fileExtension == "png")
             Align(
               alignment: Alignment.topLeft,
@@ -420,24 +401,20 @@ class GroupChatFileSnippet2 extends StatelessWidget {
                 child: Image.memory(fileBytes, fit: BoxFit.cover),
               ),
             ),
-          if (fileExtension?.toLowerCase() == "pdf")
-            Align(
-              alignment: Alignment.topLeft,
-              child: SizedBox(
-                height: 200,
-                width: MediaQuery.of(context).size.width * 0.9,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: FileDownloader(
-                        fileBytes: fileBytes,
-                        fileName: fileName!,
-                      ),
-                    ),
-                  ],
+          // if (fileExtension?.toLowerCase() == "pdf")
+          if (fileExtension?.toLowerCase() != "jpg")
+            if (fileExtension?.toLowerCase() != "png")
+              Align(
+                alignment: Alignment.topLeft,
+                child: Container(
+                  padding: const EdgeInsets.all(15.0),
+                  color: Colors.white,
+                  child: FileDownloader(
+                    fileBytes: fileBytes,
+                    fileName: fileName!,
+                  ),
                 ),
               ),
-            ),
           const SizedBox(height: 5.0),
           SizedBox(
             width: 260,
