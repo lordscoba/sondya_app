@@ -16,6 +16,7 @@ import 'package:sondya_app/data/extra_constants.dart';
 import 'package:sondya_app/data/legal_mimetypes.dart';
 import 'package:sondya_app/data/remote/groupchat.dart';
 import 'package:sondya_app/data/remote/profile.dart';
+import 'package:sondya_app/domain/models/groupchat.dart';
 import 'package:sondya_app/domain/providers/groupchat.dart';
 import 'package:sondya_app/presentation/features/groupchat/groupchat_snippet.dart';
 import 'package:sondya_app/presentation/widgets/image_selection.dart';
@@ -32,11 +33,7 @@ class GroupChatBody extends ConsumerStatefulWidget {
 }
 
 class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
-  Map<String, dynamic> messageData = {
-    "message": "",
-    "group_id": "",
-    "sender_id": "",
-  };
+  late GroupChatPostMessageType messageData;
 
   Map<String, dynamic> profileData = {};
 
@@ -53,19 +50,15 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
   List<dynamic> chatData = [];
   bool _isInitialFetchDone = false; // Flag to track if initial fetch is done
 
-  // for image and files
-  // Uint8List? _imageBytes;
-  // XFile? _image;
-  // // dynamic _pickImageError;
-  // FilePickerResult? _result;
-  // // image and files ends here
-
   @override
   void initState() {
     super.initState();
 
+    messageData = GroupChatPostMessageType();
+
     // Initialize the variable in initState
-    messageData["group_id"] = widget.groupId;
+    messageData.groupId = widget.groupId;
+    messageData.message = '';
 
     _fetchUserProfile().then((data) {
       profileData = data;
@@ -184,6 +177,8 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                             if (chatData[index]["isMe"]) {
                               if (chatData[index]["type"] == "image") {
                                 return GroupChatImageSnippet2(
+                                  isFromWeb:
+                                      chatData[index]["isFromWeb"] ?? false,
                                   text: chatData[index]["message"],
                                   time: sondyaFormattedDate(
                                       chatData[index]["createdAt"]),
@@ -191,7 +186,10 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                                 );
                               }
                               if (chatData[index]["type"] == "file") {
+                                // return const SizedBox();
                                 return GroupChatFileSnippet2(
+                                  isFromWeb:
+                                      chatData[index]["isFromWeb"] ?? false,
                                   text: chatData[index]["message"],
                                   time: sondyaFormattedDate(
                                       chatData[index]["createdAt"]),
@@ -223,6 +221,8 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                                       chatData[index]["sender"]);
                                 },
                                 child: GroupChatImageSnippet(
+                                  isFromWeb:
+                                      chatData[index]["isFromWeb"] ?? false,
                                   text: chatData[index]["message"],
                                   senderName:
                                       "${chatData[index]["sender"]["first_name"] ?? ""} ${chatData[index]["sender"]["last_name"] ?? ""}",
@@ -237,6 +237,7 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                               );
                             }
                             if (chatData[index]["type"] == "file") {
+                              // return const SizedBox();
                               return GestureDetector(
                                 onDoubleTap: () {
                                   _goToUserChat(
@@ -251,6 +252,8 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                                       chatData[index]["sender"]);
                                 },
                                 child: GroupChatFileSnippet(
+                                  isFromWeb:
+                                      chatData[index]["isFromWeb"] ?? false,
                                   text: chatData[index]["message"],
                                   senderName:
                                       "${chatData[index]["sender"]["first_name"] ?? ""} ${chatData[index]["sender"]["last_name"] ?? ""}",
@@ -304,24 +307,27 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                       controller: _messageController,
                       decoration: InputDecoration(
                         hintText: "Type your message...",
-                        suffixIcon: messageData["message"].isNotEmpty
+                        suffixIcon: messageData.message!.isNotEmpty
                             ? IconButton(
                                 onPressed: () async {
-                                  if (messageData["message"].isNotEmpty) {
-                                    _sendMessage(messageData["message"]);
-                                    // ref.invalidate(
-                                    //     sendMessageGroupChatProvider);
+                                  if (messageData.message!.isNotEmpty) {
+                                    _sendMessage(messageData.message!);
+                                    ref.invalidate(
+                                        sendMessageGroupChatProvider);
 
-                                    // await ref
-                                    //     .read(sendMessageGroupChatProvider
-                                    //         .notifier)
-                                    //     .sendMessage(
-                                    //       messageData,
-                                    //     );
+                                    messageData.type = "text";
+
+                                    await ref
+                                        .read(sendMessageGroupChatProvider
+                                            .notifier)
+                                        .sendMessage(
+                                          messageData,
+                                          "text",
+                                        );
 
                                     // Clear the TextField
                                     _messageController.clear();
-                                    messageData["message"] = "";
+                                    messageData.message = "";
                                   } else {
                                     AnimatedSnackBar.rectangle(
                                       'Error',
@@ -360,13 +366,76 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                                     pageBuilder:
                                         (context, animation1, animation2) {
                                       return SondyaFileAttachmentWidget(
-                                        onSetFile: (value) {
-                                          _sendFile(value);
+                                        onSetFile: (value) async {
+                                          if (value.count > 0 &&
+                                              value.files.isNotEmpty) {
+                                            _sendFile(value);
+                                            ref.invalidate(
+                                                sendMessageGroupChatProvider);
+
+                                            messageData.file = value;
+                                            messageData.message = "file";
+                                            messageData.type = "file";
+
+                                            await ref
+                                                .read(
+                                                    sendMessageGroupChatProvider
+                                                        .notifier)
+                                                .sendMessage(
+                                                  messageData,
+                                                  "file",
+                                                );
+
+                                            // Clear the TextField
+                                            _messageController.clear();
+                                            messageData.message = "";
+                                          } else {
+                                            AnimatedSnackBar.rectangle(
+                                              'Error',
+                                              "Please enter a message",
+                                              type:
+                                                  AnimatedSnackBarType.warning,
+                                              brightness: Brightness.light,
+                                            ).show(
+                                              context,
+                                            );
+                                          }
                                         },
-                                        onSetImage: (value) {
-                                          setState(() {
-                                            _sendImage(value);
-                                          });
+                                        onSetImage: (value) async {
+                                          if (value.path.isNotEmpty) {
+                                            setState(() {
+                                              _sendImage(value);
+                                            });
+                                            ref.invalidate(
+                                                sendMessageGroupChatProvider);
+
+                                            messageData.image = value;
+                                            messageData.message = "image";
+                                            messageData.type = "image";
+
+                                            await ref
+                                                .read(
+                                                    sendMessageGroupChatProvider
+                                                        .notifier)
+                                                .sendMessage(
+                                                  messageData,
+                                                  "image",
+                                                );
+
+                                            // Clear the TextField
+                                            _messageController.clear();
+                                            messageData.message = "";
+                                          } else {
+                                            AnimatedSnackBar.rectangle(
+                                              'Error',
+                                              "Please enter a message",
+                                              type:
+                                                  AnimatedSnackBarType.warning,
+                                              brightness: Brightness.light,
+                                            ).show(
+                                              context,
+                                            );
+                                          }
                                         },
                                       );
                                     },
@@ -377,7 +446,7 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                       ),
                       onChanged: (value) {
                         setState(() {
-                          messageData["message"] = value;
+                          messageData.message = value;
                         });
                       },
                     ),
@@ -404,9 +473,9 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
       (message) {
         final newMessage = jsonDecode(message);
 
-        if (messageData["group_id"].isNotEmpty &&
+        if (messageData.groupId!.isNotEmpty &&
             newMessage["chat_id"] != null &&
-            newMessage["chat_id"] == messageData["group_id"] &&
+            newMessage["chat_id"] == messageData.groupId &&
             newMessage["type"] == "text") {
           final String senderid = newMessage["sender_id"]["_id"];
           final Map<String, dynamic> sender = newMessage["sender_id"];
@@ -425,9 +494,9 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
           });
         }
 
-        if (messageData["group_id"].isNotEmpty &&
+        if (messageData.groupId!.isNotEmpty &&
             newMessage["chat_id"] != null &&
-            newMessage["chat_id"] == messageData["group_id"] &&
+            newMessage["chat_id"] == messageData.groupId &&
             newMessage["type"] == "image") {
           // print(newMessage);
           final String senderid = newMessage["sender_id"]["_id"];
@@ -447,9 +516,9 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
           });
         }
 
-        if (messageData["group_id"].isNotEmpty &&
+        if (messageData.groupId!.isNotEmpty &&
             newMessage["chat_id"] != null &&
-            newMessage["chat_id"] == messageData["group_id"] &&
+            newMessage["chat_id"] == messageData.groupId &&
             newMessage["type"] == "file") {
           // print(newMessage);
           final String senderid = newMessage["sender_id"]["_id"];
@@ -485,7 +554,7 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
   }
 
   void _sendMessage(String text) {
-    if (messageData["message"] != null && messageData["message"].isNotEmpty) {
+    if (messageData.message != null && messageData.message!.isNotEmpty) {
       DateTime now = DateTime.now().toUtc();
       String isoDate = DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'").format(now);
       final defaultMessage = jsonEncode({
@@ -665,10 +734,13 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
           ref.read(getGroupchatMessagesProvider(widget.groupId).future);
 
       return await getGroupChatMessages.then((groupData) {
+        // for each map element in groupData add isFromWeb to true
+        for (var element in groupData) {
+          element["isFromWeb"] = true;
+        }
         return groupData;
       });
     } catch (error) {
-      // print(error);
       // Or, if you want to rethrow the error:
       rethrow;
     }
