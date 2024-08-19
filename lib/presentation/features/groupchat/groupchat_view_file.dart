@@ -48,8 +48,7 @@ class _FileDownloaderState extends State<FileDownloader> {
         children: [
           Icon(Icons.file_copy_outlined, color: Colors.grey.shade700),
           const SizedBox(width: 10),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.75,
+          Expanded(
             child: ElevatedButton(
               onPressed: () {
                 if (fileDownloaded) {
@@ -67,9 +66,13 @@ class _FileDownloaderState extends State<FileDownloader> {
                   ? const CupertinoActivityIndicator(
                       radius: 10,
                     )
-                  : Text(fileDownloaded
-                      ? 'View File'
-                      : 'Download \n ${widget.fileName}'),
+                  : Text(
+                      fileDownloaded
+                          ? 'View File'
+                          : 'Download \n ${widget.fileName}',
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
+                    ),
             ),
           ),
         ],
@@ -343,5 +346,43 @@ class _FileDownloaderState extends State<FileDownloader> {
     if (filePath != null) {
       OpenFilex.open(filePath!);
     }
+  }
+}
+
+class FilelargeView extends StatelessWidget {
+  final bool? isFromWeb;
+  final String? imageUrl;
+  final Uint8List? imageBytes;
+  const FilelargeView(
+      {super.key, this.isFromWeb = false, this.imageUrl, this.imageBytes});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("View Image"),
+      ),
+      extendBody: true,
+      body: Container(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          children: [
+            isFromWeb!
+                ? SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.8,
+                    width: MediaQuery.of(context).size.width,
+                    child: Image.network(imageUrl!, fit: BoxFit.cover),
+                  )
+                : SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.8,
+                    width: MediaQuery.of(context).size.width,
+                    child: imageBytes != null
+                        ? Image.memory(imageBytes!, fit: BoxFit.cover)
+                        : const SizedBox(),
+                  ),
+          ],
+        ),
+      ),
+    );
   }
 }

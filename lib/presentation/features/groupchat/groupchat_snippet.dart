@@ -175,25 +175,75 @@ class GroupChatImageSnippet extends StatelessWidget {
               const SizedBox(height: 5.0),
               if (imageChat != null)
                 if (!isFromWeb)
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: SizedBox(
-                      height: 200,
-                      width: MediaQuery.of(context).size.width * 0.9,
-                      child: imageBytes != null
-                          ? Image.memory(imageBytes, fit: BoxFit.cover)
-                          : const SizedBox(),
+                  GestureDetector(
+                    onDoubleTap: () {
+                      showGeneralDialog(
+                        context: context,
+                        transitionDuration: const Duration(
+                            milliseconds: 100), // Adjust animation duration
+                        transitionBuilder: (context, a1, a2, widget) {
+                          return FadeTransition(
+                            opacity: CurvedAnimation(
+                                parent: a1, curve: Curves.easeIn),
+                            child: widget,
+                          );
+                        },
+                        barrierLabel: MaterialLocalizations.of(context)
+                            .modalBarrierDismissLabel, // Optional accessibility label
+                        pageBuilder: (context, animation1, animation2) {
+                          return FilelargeView(
+                            isFromWeb: false,
+                            imageUrl: null,
+                            imageBytes: imageBytes,
+                          );
+                        },
+                      );
+                    },
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: SizedBox(
+                        height: 200,
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        child: imageBytes != null
+                            ? Image.memory(imageBytes, fit: BoxFit.cover)
+                            : const SizedBox(),
+                      ),
                     ),
                   ),
               if (imageChat != null)
                 if (isFromWeb)
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: SizedBox(
-                      height: 200,
-                      width: MediaQuery.of(context).size.width * 0.9,
-                      child:
-                          Image.network(imageChat[0]["url"], fit: BoxFit.cover),
+                  GestureDetector(
+                    onDoubleTap: () {
+                      showGeneralDialog(
+                        context: context,
+                        transitionDuration: const Duration(
+                            milliseconds: 100), // Adjust animation duration
+                        transitionBuilder: (context, a1, a2, widget) {
+                          return FadeTransition(
+                            opacity: CurvedAnimation(
+                                parent: a1, curve: Curves.easeIn),
+                            child: widget,
+                          );
+                        },
+                        barrierLabel: MaterialLocalizations.of(context)
+                            .modalBarrierDismissLabel, // Optional accessibility label
+                        pageBuilder: (context, animation1, animation2) {
+                          return FilelargeView(
+                            isFromWeb: true,
+                            imageUrl: imageChat[0]["url"],
+                            imageBytes: null,
+                          );
+                        },
+                      );
+                    },
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: SizedBox(
+                        height: 200,
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        child: Image.network(imageChat[0]["url"],
+                            fit: BoxFit.cover),
+                      ),
                     ),
                   ),
               const SizedBox(height: 5.0),
@@ -252,24 +302,75 @@ class GroupChatImageSnippet2 extends StatelessWidget {
         children: [
           if (imageChat != null)
             if (!isFromWeb)
-              Align(
-                alignment: Alignment.topLeft,
-                child: SizedBox(
-                  height: 200,
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  child: imageBytes != null
-                      ? Image.memory(imageBytes, fit: BoxFit.cover)
-                      : const SizedBox(),
+              GestureDetector(
+                onDoubleTap: () {
+                  showGeneralDialog(
+                    context: context,
+                    transitionDuration: const Duration(
+                        milliseconds: 100), // Adjust animation duration
+                    transitionBuilder: (context, a1, a2, widget) {
+                      return FadeTransition(
+                        opacity:
+                            CurvedAnimation(parent: a1, curve: Curves.easeIn),
+                        child: widget,
+                      );
+                    },
+                    barrierLabel: MaterialLocalizations.of(context)
+                        .modalBarrierDismissLabel, // Optional accessibility label
+                    pageBuilder: (context, animation1, animation2) {
+                      return FilelargeView(
+                        isFromWeb: false,
+                        imageUrl: null,
+                        imageBytes: imageBytes,
+                      );
+                    },
+                  );
+                },
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: SizedBox(
+                    height: 200,
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    child: imageBytes != null
+                        ? Image.memory(imageBytes, fit: BoxFit.cover)
+                        : const SizedBox(),
+                  ),
                 ),
               ),
           if (imageChat != null)
             if (isFromWeb)
-              Align(
-                alignment: Alignment.topLeft,
-                child: SizedBox(
-                  height: 200,
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  child: Image.network(imageChat[0]["url"], fit: BoxFit.cover),
+              GestureDetector(
+                onDoubleTap: () {
+                  showGeneralDialog(
+                    context: context,
+                    transitionDuration: const Duration(
+                        milliseconds: 100), // Adjust animation duration
+                    transitionBuilder: (context, a1, a2, widget) {
+                      return FadeTransition(
+                        opacity:
+                            CurvedAnimation(parent: a1, curve: Curves.easeIn),
+                        child: widget,
+                      );
+                    },
+                    barrierLabel: MaterialLocalizations.of(context)
+                        .modalBarrierDismissLabel, // Optional accessibility label
+                    pageBuilder: (context, animation1, animation2) {
+                      return FilelargeView(
+                        isFromWeb: true,
+                        imageUrl: imageChat[0]["url"],
+                        imageBytes: null,
+                      );
+                    },
+                  );
+                },
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: SizedBox(
+                    height: 200,
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    child:
+                        Image.network(imageChat[0]["url"], fit: BoxFit.cover),
+                  ),
                 ),
               ),
           const SizedBox(height: 5.0),
@@ -385,6 +486,38 @@ class GroupChatFileSnippet extends StatelessWidget {
                             color: Colors.white,
                             child: FileDownloader(
                               fileBytes: fileBytes,
+                              fileName: fileName!,
+                            ),
+                          ),
+                        ),
+              if (isFromWeb && fileChat != null)
+                if (fileExtension == "jpg" ||
+                    fileExtension == "png" ||
+                    fileExtension == "image/jpeg" ||
+                    fileExtension == "image/png")
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: SizedBox(
+                      height: 200,
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      child:
+                          Image.network(fileChat[0]["url"], fit: BoxFit.cover),
+                    ),
+                  ),
+              if (isFromWeb && fileChat != null)
+                if (fileExtension?.toLowerCase() != "jpg")
+                  if (fileExtension?.toLowerCase() != "png")
+                    if (fileExtension?.toLowerCase() != "image/jpeg")
+                      if (fileExtension?.toLowerCase() != "image/png")
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Container(
+                            padding: const EdgeInsets.all(15.0),
+                            color: Colors.white,
+                            child: FileDownloader(
+                              isFromWeb: true,
+                              fileBytes: null,
+                              fileFromWeb: fileChat,
                               fileName: fileName!,
                             ),
                           ),

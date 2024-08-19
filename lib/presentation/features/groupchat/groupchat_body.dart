@@ -33,8 +33,10 @@ class GroupChatBody extends ConsumerStatefulWidget {
 }
 
 class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
+  // for groupchat messages
   late GroupChatPostMessageType messageData;
 
+  // for user profile
   Map<String, dynamic> profileData = {};
 
   // for websocket connection
@@ -49,6 +51,9 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
   // for the chat data
   List<dynamic> chatData = [];
   bool _isInitialFetchDone = false; // Flag to track if initial fetch is done
+
+  // Initialize TextEditingController
+  final TextEditingController _messageController = TextEditingController();
 
   @override
   void initState() {
@@ -81,9 +86,6 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
       });
     });
   }
-
-  // Initialize TextEditingController
-  final TextEditingController _messageController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -237,7 +239,6 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                               );
                             }
                             if (chatData[index]["type"] == "file") {
-                              // return const SizedBox();
                               return GestureDetector(
                                 onDoubleTap: () {
                                   _goToUserChat(
@@ -311,12 +312,17 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                             ? IconButton(
                                 onPressed: () async {
                                   if (messageData.message!.isNotEmpty) {
+                                    // Send the message through the web socket
                                     _sendMessage(messageData.message!);
+
+                                    // refresh the send message provider
                                     ref.invalidate(
                                         sendMessageGroupChatProvider);
 
+                                    // assign data to message type
                                     messageData.type = "text";
 
+                                    // send message through the api
                                     await ref
                                         .read(sendMessageGroupChatProvider
                                             .notifier)
@@ -369,14 +375,35 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                                         onSetFile: (value) async {
                                           if (value.count > 0 &&
                                               value.files.isNotEmpty) {
+                                            // Check if the file size is greater than 3MB
+                                            if (_checkFileSizeIsGreaterThan3MB(
+                                                value)) {
+                                              // ignore: use_build_context_synchronously
+                                              AnimatedSnackBar.rectangle(
+                                                'Error',
+                                                "File size is greater than 3MB(file size should be less than 3MB)",
+                                                type: AnimatedSnackBarType
+                                                    .warning,
+                                                brightness: Brightness.light,
+                                              ).show(
+                                                context,
+                                              );
+                                              return;
+                                            }
+
+                                            // Send the file through the web socket
                                             _sendFile(value);
+
+                                            // refresh the send message provider
                                             ref.invalidate(
                                                 sendMessageGroupChatProvider);
 
+                                            // assign data to message type and message
                                             messageData.file = value;
                                             messageData.message = "file";
                                             messageData.type = "file";
 
+                                            // send message through the api
                                             await ref
                                                 .read(
                                                     sendMessageGroupChatProvider
@@ -403,16 +430,37 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                                         },
                                         onSetImage: (value) async {
                                           if (value.path.isNotEmpty) {
+                                            // Check if the file size is greater than 3MB
+                                            if (await _checkImageSizeIsGreaterThan3MB(
+                                                value)) {
+                                              // ignore: use_build_context_synchronously
+                                              AnimatedSnackBar.rectangle(
+                                                'Error',
+                                                "File size is greater than 3MB(file size should be less than 3MB)",
+                                                type: AnimatedSnackBarType
+                                                    .warning,
+                                                brightness: Brightness.light,
+                                              ).show(
+                                                context,
+                                              );
+                                              return;
+                                            }
+
+                                            // Send the image through the web socket
                                             setState(() {
                                               _sendImage(value);
                                             });
+
+                                            // refresh the send message provider
                                             ref.invalidate(
                                                 sendMessageGroupChatProvider);
 
+                                            // assign data to message type and message
                                             messageData.image = value;
                                             messageData.message = "image";
                                             messageData.type = "image";
 
+                                            // send message through the api
                                             await ref
                                                 .read(
                                                     sendMessageGroupChatProvider
@@ -460,12 +508,14 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     );
   }
 
+// function to go to user private chat
   void _goToUserChat(String? senderId, String? receiverId,
       Map<String, dynamic>? receiverData) {
     context.push('/inbox/chat/${receiverId ?? "nil"}/${senderId ?? "nil"}',
         extra: {"sender_data": profileData, "receiver_data": receiverData});
   }
 
+// function to connect to the web socket and receive messages
   void _connectWebSocket() {
     _channel = WebSocketChannel.connect(Uri.parse(_socketUrl));
 
@@ -553,6 +603,7 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     );
   }
 
+// function to send message through websocket
   void _sendMessage(String text) {
     if (messageData.message != null && messageData.message!.isNotEmpty) {
       DateTime now = DateTime.now().toUtc();
@@ -589,6 +640,7 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     }
   }
 
+// function to send image through websocket
   Future<void> _sendImage(XFile image) async {
     if (image.path.isNotEmpty) {
       DateTime now = DateTime.now().toUtc();
@@ -650,6 +702,7 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     }
   }
 
+// function to send file through web socket
   Future<void> _sendFile(FilePickerResult result) async {
     // Iterate through the selected files (FilePickerResult can contain multiple files)
     for (PlatformFile file in result.files) {
@@ -715,6 +768,7 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     }
   }
 
+// function to join chat room through websocket
   void _joinChatInitialize() {
     if (widget.groupId.isNotEmpty && widget.userId != "") {
       final defaultMessage = jsonEncode({
@@ -728,6 +782,7 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     }
   }
 
+// function to fetch initial message data
   Future<List<dynamic>> _fetchInitialData() async {
     try {
       final getGroupChatMessages =
@@ -746,6 +801,7 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     }
   }
 
+// function to fetch user profile
   Future<Map<String, dynamic>> _fetchUserProfile() async {
     try {
       final getProfileData = ref.read(getProfileByIdProvider.future);
@@ -768,6 +824,42 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     }
   }
 
+// function to check if the file size is greater than 3MB
+  bool _checkFileSizeIsGreaterThan3MB(FilePickerResult file) {
+    bool status = false;
+
+    // Check if the file size is greater than 3MB
+    for (var element in file.files) {
+      final int fileSize = element.size;
+
+      // Convert bytes to megabytes
+      final double fileSizeInMB = fileSize / (1024 * 1024);
+
+      if (fileSizeInMB > 3) {
+        status = true;
+        break;
+      }
+    }
+
+    return status;
+  }
+
+// function to check if the image size is greater than 3MB
+  Future<bool> _checkImageSizeIsGreaterThan3MB(XFile image) async {
+    // Get the file size in bytes
+    final int fileSize = await image.length();
+
+    // Convert bytes to megabytes
+    final double fileSizeInMB = fileSize / (1024 * 1024);
+
+    if (fileSizeInMB > 3) {
+      return true;
+    }
+
+    return false;
+  }
+
+// dispose the channel and dispose the message controller
   @override
   void dispose() {
     _channel.sink.close();
