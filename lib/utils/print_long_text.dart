@@ -11,9 +11,3 @@ void printPrettyJson(Map<String, dynamic> json) {
   String prettyJson = encoder.convert(json);
   printFullText(prettyJson);
 }
-
-
-// you can still use debugPrint()
-     // debugPrint(
-     //     ref.watch(productOrderDataprovider).toJson().toString(),
-     //     wrapWidth: 1024);

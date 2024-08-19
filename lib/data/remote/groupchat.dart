@@ -1,10 +1,13 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'package:sondya_app/data/api_constants.dart';
 import 'package:sondya_app/data/local/get_local_auth.dart';
 import 'package:sondya_app/data/repositories/token_interceptors.dart';
 import 'package:sondya_app/domain/hive_models/auth/auth.dart';
+import 'package:sondya_app/domain/models/groupchat.dart';
 
 // final getUserGroupchatsProvider = FutureProvider.autoDispose
 //     .family<List<Map<String, dynamic>>, String>((ref, id) async {
@@ -219,7 +222,8 @@ class SendMessageGroupChatNotifier
     extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
   SendMessageGroupChatNotifier() : super(const AsyncValue.data({}));
 
-  Future<void> sendMessage(details) async {
+  Future<void> sendMessage(
+      GroupChatPostMessageType details, String type) async {
     try {
       // Set loading state
       state = const AsyncValue.loading();
@@ -232,26 +236,89 @@ class SendMessageGroupChatNotifier
       AuthInfo localAuth = await getLocalAuth();
       String userId = localAuth.id;
 
-      details['sender_id'] = userId;
+      details.senderId = userId;
 
-      print(details);
+      if (type == "text") {
+        // Make the POST request
+        final response = await dio.post(
+          EnvironmentGroupChatConfig.sendMessage,
+          data: details.toJson(),
+        );
 
-      // Make the PUT request
-      final response = await dio.post(
-        EnvironmentGroupChatConfig.sendMessage,
-        data: details,
-      );
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          state = AsyncValue.data(response.data as Map<String, dynamic>);
+        }
+      } else if (type == "image") {
+        // check file mime type and set form data
+        final mimeTypeData = lookupMimeType(details.image!.path);
+        final formData = FormData.fromMap(
+          {
+            ...details.toJson(),
+            'file_attachments': await MultipartFile.fromFile(
+                details.image!.path,
+                filename: details.image!.name,
+                contentType: MediaType(
+                    'image', mimeTypeData!.split('/').last.toString())),
+          },
+        );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        state = AsyncValue.data(response.data as Map<String, dynamic>);
+        // Make the POST request
+        final response = await dio.post(
+          EnvironmentGroupChatConfig.sendMessage,
+          data: formData,
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          state = AsyncValue.data(response.data as Map<String, dynamic>);
+        }
+      } else {
+        // assign file to formdata
+        List<MultipartFile> fileList = [];
+
+        for (PlatformFile file in details.file!.files) {
+          // check file mime type and set form data
+          final mimeTypeData = lookupMimeType(file.path!);
+
+          // print(mimeTypeData);
+          final mimeType = mimeTypeData?.split('/');
+
+          // add file to list
+          fileList.add(
+            await MultipartFile.fromFile(
+              file.path!,
+              filename: file.name,
+              contentType:
+                  MediaType(mimeType![0].toString(), mimeType[1].toString()),
+            ),
+          );
+        }
+
+        // check file mime type and set form data
+        final formData = FormData.fromMap(
+          {
+            ...details.toJson(),
+            'file_attachments': fileList,
+          },
+        );
+
+        // Make the POST request
+        final response = await dio.post(
+          EnvironmentGroupChatConfig.sendMessage,
+          data: formData,
+        );
+
+        // print(response.data);
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          state = AsyncValue.data(response.data as Map<String, dynamic>);
+        }
       }
     } on DioException catch (e) {
       if (e.response != null) {
         state = AsyncValue.error(e.response?.data['message'], e.stackTrace);
-        debugPrint(e.response?.data['message'].toString());
+        // debugPrint(e.response?.data['message'].toString());
       } else {
         state = AsyncValue.error(e.message.toString(), e.stackTrace);
-        debugPrint(e.message.toString());
+        // debugPrint(e.message.toString());
       }
     }
   }

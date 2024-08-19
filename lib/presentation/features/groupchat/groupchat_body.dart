@@ -16,6 +16,7 @@ import 'package:sondya_app/data/extra_constants.dart';
 import 'package:sondya_app/data/legal_mimetypes.dart';
 import 'package:sondya_app/data/remote/groupchat.dart';
 import 'package:sondya_app/data/remote/profile.dart';
+import 'package:sondya_app/domain/models/groupchat.dart';
 import 'package:sondya_app/domain/providers/groupchat.dart';
 import 'package:sondya_app/presentation/features/groupchat/groupchat_snippet.dart';
 import 'package:sondya_app/presentation/widgets/image_selection.dart';
@@ -32,12 +33,10 @@ class GroupChatBody extends ConsumerStatefulWidget {
 }
 
 class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
-  Map<String, dynamic> messageData = {
-    "message": "",
-    "group_id": "",
-    "sender_id": "",
-  };
+  // for groupchat messages
+  late GroupChatPostMessageType messageData;
 
+  // for user profile
   Map<String, dynamic> profileData = {};
 
   // for websocket connection
@@ -53,19 +52,18 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
   List<dynamic> chatData = [];
   bool _isInitialFetchDone = false; // Flag to track if initial fetch is done
 
-  // for image and files
-  // Uint8List? _imageBytes;
-  // XFile? _image;
-  // // dynamic _pickImageError;
-  // FilePickerResult? _result;
-  // // image and files ends here
+  // Initialize TextEditingController
+  final TextEditingController _messageController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
 
+    messageData = GroupChatPostMessageType();
+
     // Initialize the variable in initState
-    messageData["group_id"] = widget.groupId;
+    messageData.groupId = widget.groupId;
+    messageData.message = '';
 
     _fetchUserProfile().then((data) {
       profileData = data;
@@ -88,9 +86,6 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
       });
     });
   }
-
-  // Initialize TextEditingController
-  final TextEditingController _messageController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -184,6 +179,8 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                             if (chatData[index]["isMe"]) {
                               if (chatData[index]["type"] == "image") {
                                 return GroupChatImageSnippet2(
+                                  isFromWeb:
+                                      chatData[index]["isFromWeb"] ?? false,
                                   text: chatData[index]["message"],
                                   time: sondyaFormattedDate(
                                       chatData[index]["createdAt"]),
@@ -191,7 +188,10 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                                 );
                               }
                               if (chatData[index]["type"] == "file") {
+                                // return const SizedBox();
                                 return GroupChatFileSnippet2(
+                                  isFromWeb:
+                                      chatData[index]["isFromWeb"] ?? false,
                                   text: chatData[index]["message"],
                                   time: sondyaFormattedDate(
                                       chatData[index]["createdAt"]),
@@ -223,6 +223,8 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                                       chatData[index]["sender"]);
                                 },
                                 child: GroupChatImageSnippet(
+                                  isFromWeb:
+                                      chatData[index]["isFromWeb"] ?? false,
                                   text: chatData[index]["message"],
                                   senderName:
                                       "${chatData[index]["sender"]["first_name"] ?? ""} ${chatData[index]["sender"]["last_name"] ?? ""}",
@@ -251,6 +253,8 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                                       chatData[index]["sender"]);
                                 },
                                 child: GroupChatFileSnippet(
+                                  isFromWeb:
+                                      chatData[index]["isFromWeb"] ?? false,
                                   text: chatData[index]["message"],
                                   senderName:
                                       "${chatData[index]["sender"]["first_name"] ?? ""} ${chatData[index]["sender"]["last_name"] ?? ""}",
@@ -304,24 +308,32 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                       controller: _messageController,
                       decoration: InputDecoration(
                         hintText: "Type your message...",
-                        suffixIcon: messageData["message"].isNotEmpty
+                        suffixIcon: messageData.message!.isNotEmpty
                             ? IconButton(
                                 onPressed: () async {
-                                  if (messageData["message"].isNotEmpty) {
-                                    _sendMessage(messageData["message"]);
-                                    // ref.invalidate(
-                                    //     sendMessageGroupChatProvider);
+                                  if (messageData.message!.isNotEmpty) {
+                                    // Send the message through the web socket
+                                    _sendMessage(messageData.message!);
 
-                                    // await ref
-                                    //     .read(sendMessageGroupChatProvider
-                                    //         .notifier)
-                                    //     .sendMessage(
-                                    //       messageData,
-                                    //     );
+                                    // refresh the send message provider
+                                    ref.invalidate(
+                                        sendMessageGroupChatProvider);
+
+                                    // assign data to message type
+                                    messageData.type = "text";
+
+                                    // send message through the api
+                                    await ref
+                                        .read(sendMessageGroupChatProvider
+                                            .notifier)
+                                        .sendMessage(
+                                          messageData,
+                                          "text",
+                                        );
 
                                     // Clear the TextField
                                     _messageController.clear();
-                                    messageData["message"] = "";
+                                    messageData.message = "";
                                   } else {
                                     AnimatedSnackBar.rectangle(
                                       'Error',
@@ -360,13 +372,118 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                                     pageBuilder:
                                         (context, animation1, animation2) {
                                       return SondyaFileAttachmentWidget(
-                                        onSetFile: (value) {
-                                          _sendFile(value);
+                                        onSetFile: (value) async {
+                                          if (value.count > 0 &&
+                                              value.files.isNotEmpty) {
+                                            // Check if the file size is greater than 3MB
+                                            if (_checkFileSizeIsGreaterThan3MB(
+                                                value)) {
+                                              // ignore: use_build_context_synchronously
+                                              AnimatedSnackBar.rectangle(
+                                                'Error',
+                                                "File size is greater than 3MB(file size should be less than 3MB)",
+                                                type: AnimatedSnackBarType
+                                                    .warning,
+                                                brightness: Brightness.light,
+                                              ).show(
+                                                context,
+                                              );
+                                              return;
+                                            }
+
+                                            // Send the file through the web socket
+                                            _sendFile(value);
+
+                                            // refresh the send message provider
+                                            ref.invalidate(
+                                                sendMessageGroupChatProvider);
+
+                                            // assign data to message type and message
+                                            messageData.file = value;
+                                            messageData.message = "file";
+                                            messageData.type = "file";
+
+                                            // send message through the api
+                                            await ref
+                                                .read(
+                                                    sendMessageGroupChatProvider
+                                                        .notifier)
+                                                .sendMessage(
+                                                  messageData,
+                                                  "file",
+                                                );
+
+                                            // Clear the TextField
+                                            _messageController.clear();
+                                            messageData.message = "";
+                                          } else {
+                                            AnimatedSnackBar.rectangle(
+                                              'Error',
+                                              "Please enter a message",
+                                              type:
+                                                  AnimatedSnackBarType.warning,
+                                              brightness: Brightness.light,
+                                            ).show(
+                                              context,
+                                            );
+                                          }
                                         },
-                                        onSetImage: (value) {
-                                          setState(() {
-                                            _sendImage(value);
-                                          });
+                                        onSetImage: (value) async {
+                                          if (value.path.isNotEmpty) {
+                                            // Check if the file size is greater than 3MB
+                                            if (await _checkImageSizeIsGreaterThan3MB(
+                                                value)) {
+                                              // ignore: use_build_context_synchronously
+                                              AnimatedSnackBar.rectangle(
+                                                'Error',
+                                                "File size is greater than 3MB(file size should be less than 3MB)",
+                                                type: AnimatedSnackBarType
+                                                    .warning,
+                                                brightness: Brightness.light,
+                                              ).show(
+                                                context,
+                                              );
+                                              return;
+                                            }
+
+                                            // Send the image through the web socket
+                                            setState(() {
+                                              _sendImage(value);
+                                            });
+
+                                            // refresh the send message provider
+                                            ref.invalidate(
+                                                sendMessageGroupChatProvider);
+
+                                            // assign data to message type and message
+                                            messageData.image = value;
+                                            messageData.message = "image";
+                                            messageData.type = "image";
+
+                                            // send message through the api
+                                            await ref
+                                                .read(
+                                                    sendMessageGroupChatProvider
+                                                        .notifier)
+                                                .sendMessage(
+                                                  messageData,
+                                                  "image",
+                                                );
+
+                                            // Clear the TextField
+                                            _messageController.clear();
+                                            messageData.message = "";
+                                          } else {
+                                            AnimatedSnackBar.rectangle(
+                                              'Error',
+                                              "Please enter a message",
+                                              type:
+                                                  AnimatedSnackBarType.warning,
+                                              brightness: Brightness.light,
+                                            ).show(
+                                              context,
+                                            );
+                                          }
                                         },
                                       );
                                     },
@@ -377,7 +494,7 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
                       ),
                       onChanged: (value) {
                         setState(() {
-                          messageData["message"] = value;
+                          messageData.message = value;
                         });
                       },
                     ),
@@ -391,12 +508,14 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     );
   }
 
+// function to go to user private chat
   void _goToUserChat(String? senderId, String? receiverId,
       Map<String, dynamic>? receiverData) {
     context.push('/inbox/chat/${receiverId ?? "nil"}/${senderId ?? "nil"}',
         extra: {"sender_data": profileData, "receiver_data": receiverData});
   }
 
+// function to connect to the web socket and receive messages
   void _connectWebSocket() {
     _channel = WebSocketChannel.connect(Uri.parse(_socketUrl));
 
@@ -404,9 +523,9 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
       (message) {
         final newMessage = jsonDecode(message);
 
-        if (messageData["group_id"].isNotEmpty &&
+        if (messageData.groupId!.isNotEmpty &&
             newMessage["chat_id"] != null &&
-            newMessage["chat_id"] == messageData["group_id"] &&
+            newMessage["chat_id"] == messageData.groupId &&
             newMessage["type"] == "text") {
           final String senderid = newMessage["sender_id"]["_id"];
           final Map<String, dynamic> sender = newMessage["sender_id"];
@@ -425,9 +544,9 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
           });
         }
 
-        if (messageData["group_id"].isNotEmpty &&
+        if (messageData.groupId!.isNotEmpty &&
             newMessage["chat_id"] != null &&
-            newMessage["chat_id"] == messageData["group_id"] &&
+            newMessage["chat_id"] == messageData.groupId &&
             newMessage["type"] == "image") {
           // print(newMessage);
           final String senderid = newMessage["sender_id"]["_id"];
@@ -447,9 +566,9 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
           });
         }
 
-        if (messageData["group_id"].isNotEmpty &&
+        if (messageData.groupId!.isNotEmpty &&
             newMessage["chat_id"] != null &&
-            newMessage["chat_id"] == messageData["group_id"] &&
+            newMessage["chat_id"] == messageData.groupId &&
             newMessage["type"] == "file") {
           // print(newMessage);
           final String senderid = newMessage["sender_id"]["_id"];
@@ -484,8 +603,9 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     );
   }
 
+// function to send message through websocket
   void _sendMessage(String text) {
-    if (messageData["message"] != null && messageData["message"].isNotEmpty) {
+    if (messageData.message != null && messageData.message!.isNotEmpty) {
       DateTime now = DateTime.now().toUtc();
       String isoDate = DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'").format(now);
       final defaultMessage = jsonEncode({
@@ -520,6 +640,7 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     }
   }
 
+// function to send image through websocket
   Future<void> _sendImage(XFile image) async {
     if (image.path.isNotEmpty) {
       DateTime now = DateTime.now().toUtc();
@@ -581,6 +702,7 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     }
   }
 
+// function to send file through web socket
   Future<void> _sendFile(FilePickerResult result) async {
     // Iterate through the selected files (FilePickerResult can contain multiple files)
     for (PlatformFile file in result.files) {
@@ -646,6 +768,7 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     }
   }
 
+// function to join chat room through websocket
   void _joinChatInitialize() {
     if (widget.groupId.isNotEmpty && widget.userId != "") {
       final defaultMessage = jsonEncode({
@@ -659,21 +782,26 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     }
   }
 
+// function to fetch initial message data
   Future<List<dynamic>> _fetchInitialData() async {
     try {
       final getGroupChatMessages =
           ref.read(getGroupchatMessagesProvider(widget.groupId).future);
 
       return await getGroupChatMessages.then((groupData) {
+        // for each map element in groupData add isFromWeb to true
+        for (var element in groupData) {
+          element["isFromWeb"] = true;
+        }
         return groupData;
       });
     } catch (error) {
-      // print(error);
       // Or, if you want to rethrow the error:
       rethrow;
     }
   }
 
+// function to fetch user profile
   Future<Map<String, dynamic>> _fetchUserProfile() async {
     try {
       final getProfileData = ref.read(getProfileByIdProvider.future);
@@ -696,6 +824,42 @@ class _GroupChatBodyState extends ConsumerState<GroupChatBody> {
     }
   }
 
+// function to check if the file size is greater than 3MB
+  bool _checkFileSizeIsGreaterThan3MB(FilePickerResult file) {
+    bool status = false;
+
+    // Check if the file size is greater than 3MB
+    for (var element in file.files) {
+      final int fileSize = element.size;
+
+      // Convert bytes to megabytes
+      final double fileSizeInMB = fileSize / (1024 * 1024);
+
+      if (fileSizeInMB > 3) {
+        status = true;
+        break;
+      }
+    }
+
+    return status;
+  }
+
+// function to check if the image size is greater than 3MB
+  Future<bool> _checkImageSizeIsGreaterThan3MB(XFile image) async {
+    // Get the file size in bytes
+    final int fileSize = await image.length();
+
+    // Convert bytes to megabytes
+    final double fileSizeInMB = fileSize / (1024 * 1024);
+
+    if (fileSizeInMB > 3) {
+      return true;
+    }
+
+    return false;
+  }
+
+// dispose the channel and dispose the message controller
   @override
   void dispose() {
     _channel.sink.close();
