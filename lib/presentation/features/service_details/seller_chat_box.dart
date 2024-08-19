@@ -211,7 +211,7 @@ class _SellerChatBoxState extends ConsumerState<SellerChatBox> {
                           // send message to server
                           ref
                               .read(postMessagesProvider.notifier)
-                              .postMessages(chatMessage.toJson());
+                              .postMessages(chatMessage, "text");
 
                           // ignore: unused_result
                           ref.refresh(getMessagesProvider((
