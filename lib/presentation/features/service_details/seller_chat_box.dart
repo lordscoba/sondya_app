@@ -1,15 +1,23 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:mime/mime.dart';
 import 'package:sondya_app/data/api_constants.dart';
 import 'package:sondya_app/data/extra_constants.dart';
+import 'package:sondya_app/data/legal_mimetypes.dart';
 import 'package:sondya_app/data/remote/chat.dart';
 import 'package:sondya_app/domain/models/chat.dart';
 import 'package:sondya_app/domain/providers/chat.provider.dart';
+import 'package:sondya_app/presentation/features/service_details/seller_chat_box_snippet.dart';
+import 'package:sondya_app/presentation/widgets/image_selection.dart';
 import 'package:sondya_app/utils/dateTime_to_string.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -17,8 +25,12 @@ class SellerChatBox extends ConsumerStatefulWidget {
   final String? serviceId;
   final Map<String, dynamic>? sellerData;
   final Map<String, dynamic>? buyerData;
-  const SellerChatBox(
-      {super.key, this.sellerData, this.buyerData, this.serviceId});
+  const SellerChatBox({
+    super.key,
+    this.sellerData,
+    this.buyerData,
+    this.serviceId,
+  });
 
   @override
   ConsumerState<SellerChatBox> createState() => _SellerChatBoxState();
@@ -171,12 +183,74 @@ class _SellerChatBoxState extends ConsumerState<SellerChatBox> {
                       itemBuilder: (context, index) {
                         if (chatData[index]["sender_id"]["_id"] ==
                             buyer["id"]) {
+                          // check if the message is an image
+                          if (chatData[index]["type"] == "image") {
+                            return BorderImageForChat(
+                              isFromWeb: chatData[index]["isFromWeb"] ?? false,
+                              text: chatData[index]["message"],
+                              time: sondyaFormattedDate(
+                                  chatData[index]["createdAt"]),
+                              imageChat: chatData[index]["file_attachments"],
+                            );
+                          }
+
+                          // check if the message is a file
+                          if (chatData[index]["type"] == "file") {
+                            return BorderFileForChat(
+                              isFromWeb: chatData[index]["isFromWeb"] ?? false,
+                              text: chatData[index]["message"],
+                              time: sondyaFormattedDate(
+                                  chatData[index]["createdAt"]),
+                              fileChat: chatData[index]["file_attachments"],
+                              fileSize: chatData[index]["file_size"] ?? 0,
+                              fileName: chatData[index]["file_name"] ?? "",
+                              fileExtension:
+                                  chatData[index]["file_extension"] ?? "",
+                            );
+                          }
+
+                          // check if the message is a text
                           return BorderTextForChat(
                             text: chatData[index]["message"],
                             time: sondyaFormattedDate(
                                 chatData[index]["createdAt"]),
                           );
                         }
+
+                        // check if the message is an image
+                        if (chatData[index]["type"] == "image") {
+                          return ReceiverBorderImageForChat(
+                            isFromWeb: chatData[index]["isFromWeb"] ?? false,
+                            text: chatData[index]["message"],
+                            time: sondyaFormattedDate(
+                                chatData[index]["createdAt"]),
+                            image: chatData[index]["image"] != null &&
+                                    chatData[index]["image"].isNotEmpty
+                                ? chatData[index]["image"][0]["url"]
+                                : networkImagePlaceholder,
+                            imageChat: chatData[index]["file_attachments"],
+                          );
+                        }
+
+                        // check if the message is a file
+                        if (chatData[index]["type"] == "file") {
+                          return ReceiverBorderFileForChat(
+                            isFromWeb: chatData[index]["isFromWeb"] ?? false,
+                            text: chatData[index]["message"],
+                            time: sondyaFormattedDate(
+                                chatData[index]["createdAt"]),
+                            image: chatData[index]["image"] != null &&
+                                    chatData[index]["image"].isNotEmpty
+                                ? chatData[index]["image"][0]["url"]
+                                : networkImagePlaceholder,
+                            fileChat: chatData[index]["file_attachments"],
+                            fileSize: chatData[index]["file_size"],
+                            fileName: chatData[index]["file_name"],
+                            fileExtension: chatData[index]["file_extension"],
+                          );
+                        }
+
+                        // check if the message is a text
                         return ReceiverBorderTextForChat(
                           text: chatData[index]["message"],
                           time:
@@ -232,13 +306,127 @@ class _SellerChatBoxState extends ConsumerState<SellerChatBox> {
                     )
                   : IconButton(
                       onPressed: () {
-                        AnimatedSnackBar.rectangle(
-                          'Error',
-                          "Attachment coming soon",
-                          type: AnimatedSnackBarType.warning,
-                          brightness: Brightness.light,
-                        ).show(
-                          context,
+                        showGeneralDialog(
+                          context: context,
+                          transitionDuration: const Duration(
+                              milliseconds: 100), // Adjust animation duration
+                          transitionBuilder: (context, a1, a2, widget) {
+                            return FadeTransition(
+                              opacity: CurvedAnimation(
+                                  parent: a1, curve: Curves.easeIn),
+                              child: widget,
+                            );
+                          },
+                          barrierLabel: MaterialLocalizations.of(context)
+                              .modalBarrierDismissLabel, // Optional accessibility label
+                          pageBuilder: (context, animation1, animation2) {
+                            return SondyaFileAttachmentWidget(
+                              onSetFile: (value) async {
+                                if (value.count > 0 && value.files.isNotEmpty) {
+                                  // Check if the file size is greater than 3MB
+                                  if (_checkFileSizeIsGreaterThan3MB(value)) {
+                                    // ignore: use_build_context_synchronously
+                                    AnimatedSnackBar.rectangle(
+                                      'Error',
+                                      "File size is greater than 3MB(file size should be less than 3MB)",
+                                      type: AnimatedSnackBarType.warning,
+                                      brightness: Brightness.light,
+                                    ).show(
+                                      context,
+                                    );
+                                    return;
+                                  }
+                                  // refresh the send message provider
+                                  ref.invalidate(postMessagesProvider);
+
+                                  // Send the file through the web socket
+                                  _sendFile(value);
+
+                                  // assign data to message type and message
+                                  chatMessage.file = value;
+                                  chatMessage.messageText = "file";
+                                  chatMessage.type = "file";
+                                  chatMessage.senderId = buyer["id"];
+                                  chatMessage.receiverId = seller["id"];
+
+                                  // send message through the api
+                                  await ref
+                                      .read(postMessagesProvider.notifier)
+                                      .postMessages(
+                                        chatMessage,
+                                        "file",
+                                      );
+
+                                  // Clear the TextField
+                                  _messageController.clear();
+                                  chatMessage.messageText = "";
+                                } else {
+                                  AnimatedSnackBar.rectangle(
+                                    'Error',
+                                    "Please enter a message",
+                                    type: AnimatedSnackBarType.warning,
+                                    brightness: Brightness.light,
+                                  ).show(
+                                    context,
+                                  );
+                                }
+                              },
+                              onSetImage: (value) async {
+                                if (value.path.isNotEmpty) {
+                                  // Check if the file size is greater than 3MB
+                                  if (await _checkImageSizeIsGreaterThan3MB(
+                                      value)) {
+                                    // ignore: use_build_context_synchronously
+                                    AnimatedSnackBar.rectangle(
+                                      'Error',
+                                      "File size is greater than 3MB(file size should be less than 3MB)",
+                                      type: AnimatedSnackBarType.warning,
+                                      brightness: Brightness.light,
+                                    ).show(
+                                      context,
+                                    );
+                                    return;
+                                  }
+
+                                  // Send the image through the web socket
+                                  setState(() {
+                                    _sendImage(value);
+                                  });
+
+                                  // refresh the send message provider
+                                  ref.invalidate(postMessagesProvider);
+
+                                  // assign data to message type and message
+                                  chatMessage.image = value;
+                                  chatMessage.messageText = "image";
+                                  chatMessage.type = "image";
+                                  chatMessage.senderId = buyer["id"];
+                                  chatMessage.receiverId = seller["id"];
+
+                                  // send message through the api
+                                  await ref
+                                      .read(postMessagesProvider.notifier)
+                                      .postMessages(
+                                        chatMessage,
+                                        "image",
+                                      );
+
+                                  // Clear the TextField
+                                  _messageController.clear();
+                                  chatMessage.messageText = "";
+                                } else {
+                                  AnimatedSnackBar.rectangle(
+                                    'Error',
+                                    "Please enter a message",
+                                    type: AnimatedSnackBarType.warning,
+                                    brightness: Brightness.light,
+                                  ).show(
+                                    context,
+                                  );
+                                }
+                              },
+                            );
+                          },
                         );
                       },
                       icon: const Icon(Icons.attach_file_outlined),
@@ -335,6 +523,130 @@ class _SellerChatBoxState extends ConsumerState<SellerChatBox> {
     }
   }
 
+  // function to send image through websocket
+  Future<void> _sendImage(XFile image) async {
+    if (image.path.isNotEmpty) {
+      DateTime now = DateTime.now().toUtc();
+      String isoDate = DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'").format(now);
+
+      // check mime type of image
+      final mimeTypeData = lookupMimeType(image.path)!.split("/");
+      if (mimeTypeData[0] != 'image') {
+        // ignore: use_build_context_synchronously
+        AnimatedSnackBar.rectangle(
+          'File type not supported',
+          "Error: File type not supported",
+          type: AnimatedSnackBarType.warning,
+          brightness: Brightness.light,
+        ).show(
+          context,
+        );
+        return;
+      }
+
+      // Read the image as bytes
+      Uint8List imageBytes = await image.readAsBytes();
+
+      // Encode the image to base64
+      String base64Image = base64Encode(imageBytes);
+
+      final defaultMessage = jsonEncode({
+        "meta": "echo_payload",
+        "sender_id": buyer["id"],
+        "receiver_id": seller["id"],
+        "message": "image",
+        "payload": {
+          "chat_id": _chatId,
+          "sender_id": {
+            "_id": buyer["id"],
+            "first_name": buyer["username"].isNotEmpty
+                ? buyer["username"]
+                : chatData[0]["sender_id"]["username"] ?? "nil",
+            "last_name": "",
+            "username": buyer["username"].isNotEmpty
+                ? buyer["username"]
+                : chatData[0]["sender_id"]["username"] ?? "nil",
+            "email": buyer["email"].isNotEmpty
+                ? buyer["email"]
+                : chatData[0]["sender_id"]["email"] ?? "nil",
+          },
+          "type": "image",
+          "message": "image",
+          "file_attachments": base64Image,
+          "file_name": image.name,
+          "createdAt": isoDate,
+          "updatedAt": isoDate
+        }
+      });
+
+      _channel.sink.add(defaultMessage);
+    }
+  }
+
+// function to send file through web socket
+  Future<void> _sendFile(FilePickerResult result) async {
+    // Iterate through the selected files (FilePickerResult can contain multiple files)
+    for (PlatformFile file in result.files) {
+      // check mime type of file and throw error if not supported
+      final mimeTypeData = lookupMimeType(file.path!);
+      if (!legalMimeTypesList.contains(mimeTypeData)) {
+        // ignore: use_build_context_synchronously
+        AnimatedSnackBar.rectangle(
+          'File type not supported',
+          "Error: File type not supported",
+          type: AnimatedSnackBarType.warning,
+          brightness: Brightness.light,
+        ).show(
+          context,
+        );
+        return;
+      }
+
+      // Read the file as bytes
+      File fileToRead = File(file.path!);
+      Uint8List fileBytes = await fileToRead.readAsBytes();
+
+      // Encode the file bytes to base64
+      String base64File = base64Encode(fileBytes);
+
+      // generate timestamp
+      DateTime now = DateTime.now().toUtc();
+      String isoDate = DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'").format(now);
+
+      final defaultMessage = jsonEncode({
+        "meta": "echo_payload",
+        "sender_id": buyer["id"],
+        "receiver_id": seller["id"],
+        "message": "file",
+        "payload": {
+          "chat_id": _chatId,
+          "sender_id": {
+            "_id": buyer["id"],
+            "first_name": buyer["username"].isNotEmpty
+                ? buyer["username"]
+                : chatData[0]["sender_id"]["username"] ?? "nil",
+            "last_name": "",
+            "username": buyer["username"].isNotEmpty
+                ? buyer["username"]
+                : chatData[0]["sender_id"]["username"] ?? "nil",
+            "email": buyer["email"].isNotEmpty
+                ? buyer["email"]
+                : chatData[0]["sender_id"]["email"] ?? "nil",
+          },
+          "type": "file",
+          "message": "file",
+          "file_attachments": base64File,
+          'file_name': file.name,
+          'file_extension': file.extension,
+          'file_size': file.size,
+          "createdAt": isoDate,
+          "updatedAt": isoDate
+        }
+      });
+      _channel.sink.add(defaultMessage);
+    }
+  }
+
   // Join Chat
   void _joinChatInitialize() {
     if (_chatId.isNotEmpty && seller["id"] != "") {
@@ -364,6 +676,11 @@ class _SellerChatBoxState extends ConsumerState<SellerChatBox> {
           }
         });
 
+        // Add the "isFromWeb" flag to each message
+        for (var element in data3) {
+          element["isFromWeb"] = true;
+        }
+
         return data3;
       });
     } catch (error) {
@@ -376,139 +693,45 @@ class _SellerChatBoxState extends ConsumerState<SellerChatBox> {
     }
   }
 
+  // function to check if the file size is greater than 3MB
+  bool _checkFileSizeIsGreaterThan3MB(FilePickerResult file) {
+    bool status = false;
+
+    // Check if the file size is greater than 3MB
+    for (var element in file.files) {
+      final int fileSize = element.size;
+
+      // Convert bytes to megabytes
+      final double fileSizeInMB = fileSize / (1024 * 1024);
+
+      if (fileSizeInMB > 3) {
+        status = true;
+        break;
+      }
+    }
+
+    return status;
+  }
+
+// function to check if the image size is greater than 3MB
+  Future<bool> _checkImageSizeIsGreaterThan3MB(XFile image) async {
+    // Get the file size in bytes
+    final int fileSize = await image.length();
+
+    // Convert bytes to megabytes
+    final double fileSizeInMB = fileSize / (1024 * 1024);
+
+    if (fileSizeInMB > 3) {
+      return true;
+    }
+
+    return false;
+  }
+
   @override
   void dispose() {
     _channel.sink.close();
     _messageController.dispose();
     super.dispose();
-  }
-}
-
-class ReceiverBorderTextForChat extends StatelessWidget {
-  final String text;
-  final String? time;
-  const ReceiverBorderTextForChat({super.key, required this.text, this.time});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.black38,
-                width: 1,
-              ),
-              image: const DecorationImage(
-                image: NetworkImage(networkImagePlaceholder),
-                fit: BoxFit.cover,
-              ),
-              shape: BoxShape.circle),
-        ),
-        Container(
-          width: MediaQuery.of(context).size.width * 0.6,
-          margin: const EdgeInsets.all(8),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.black38,
-              width: 1,
-            ),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            children: [
-              SizedBox(
-                width: 260,
-                child: SelectableText(
-                  text,
-                ),
-              ),
-              const SizedBox(height: 5.0),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: SizedBox(
-                  width: 130,
-                  child: SelectableText(
-                    time ?? "unknown",
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class BorderTextForChat extends StatelessWidget {
-  final String text;
-  final String? time;
-  const BorderTextForChat({super.key, required this.text, this.time});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Container(
-          margin: const EdgeInsets.all(8),
-          padding: const EdgeInsets.all(12),
-          width: MediaQuery.of(context).size.width * 0.6,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.black38,
-              width: 1,
-            ),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            children: [
-              SizedBox(
-                width: 260,
-                child: SelectableText(
-                  text,
-                ),
-              ),
-              const SizedBox(height: 5.0),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: SizedBox(
-                  width: 130,
-                  child: SelectableText(
-                    time ?? "unknown",
-                    style: const TextStyle(
-                      fontSize: 10,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.black38,
-              width: 1,
-            ),
-            image: const DecorationImage(
-              image: NetworkImage(networkImagePlaceholder),
-              fit: BoxFit.cover,
-            ),
-            shape: BoxShape.circle,
-          ),
-        ),
-      ],
-    );
   }
 }

@@ -26,11 +26,12 @@ class InboxChatBody extends ConsumerStatefulWidget {
   final String userId;
   final String receiverId;
   final Map<String, dynamic> data;
-  const InboxChatBody(
-      {super.key,
-      required this.userId,
-      required this.receiverId,
-      required this.data});
+  const InboxChatBody({
+    super.key,
+    required this.userId,
+    required this.receiverId,
+    required this.data,
+  });
 
   @override
   ConsumerState<InboxChatBody> createState() => _InboxChatBodyState();
@@ -270,54 +271,51 @@ class _InboxChatBodyState extends ConsumerState<InboxChatBody> {
                                               "",
                                         );
                                       }
-                                      if (chatData[index]["type"] == "image") {
-                                        return ChatImageSnippet(
-                                          isFromWeb: chatData[index]
-                                                  ["isFromWeb"] ??
-                                              false,
-                                          text: chatData[index]["message"],
-                                          time: sondyaFormattedDate(
-                                              chatData[index]["createdAt"]),
-                                          image: chatData[index]["image"] !=
-                                                      null &&
-                                                  chatData[index]["image"]
-                                                      .isNotEmpty
-                                              ? chatData[index]["image"][0]
-                                                  ["url"]
-                                              : networkImagePlaceholder,
-                                          imageChat: chatData[index]
-                                              ["file_attachments"],
-                                        );
-                                      }
-                                      if (chatData[index]["type"] == "file") {
-                                        return ChatFileSnippet(
-                                          isFromWeb: chatData[index]
-                                                  ["isFromWeb"] ??
-                                              false,
-                                          text: chatData[index]["message"],
-                                          time: sondyaFormattedDate(
-                                              chatData[index]["createdAt"]),
-                                          image: chatData[index]["image"] !=
-                                                      null &&
-                                                  chatData[index]["image"]
-                                                      .isNotEmpty
-                                              ? chatData[index]["image"][0]
-                                                  ["url"]
-                                              : networkImagePlaceholder,
-                                          fileChat: chatData[index]
-                                              ["file_attachments"],
-                                          fileSize: chatData[index]
-                                              ["file_size"],
-                                          fileName: chatData[index]
-                                              ["file_name"],
-                                          fileExtension: chatData[index]
-                                              ["file_extension"],
-                                        );
-                                      }
+
                                       return ChatSnippet2(
                                         text: chatData[index]["message"],
                                         time: sondyaFormattedDate(
                                             chatData[index]["createdAt"]),
+                                      );
+                                    }
+                                    if (chatData[index]["type"] == "image") {
+                                      return ChatImageSnippet(
+                                        isFromWeb: chatData[index]
+                                                ["isFromWeb"] ??
+                                            false,
+                                        text: chatData[index]["message"],
+                                        time: sondyaFormattedDate(
+                                            chatData[index]["createdAt"]),
+                                        image: chatData[index]["image"] !=
+                                                    null &&
+                                                chatData[index]["image"]
+                                                    .isNotEmpty
+                                            ? chatData[index]["image"][0]["url"]
+                                            : networkImagePlaceholder,
+                                        imageChat: chatData[index]
+                                            ["file_attachments"],
+                                      );
+                                    }
+                                    if (chatData[index]["type"] == "file") {
+                                      return ChatFileSnippet(
+                                        isFromWeb: chatData[index]
+                                                ["isFromWeb"] ??
+                                            false,
+                                        text: chatData[index]["message"],
+                                        time: sondyaFormattedDate(
+                                            chatData[index]["createdAt"]),
+                                        image: chatData[index]["image"] !=
+                                                    null &&
+                                                chatData[index]["image"]
+                                                    .isNotEmpty
+                                            ? chatData[index]["image"][0]["url"]
+                                            : networkImagePlaceholder,
+                                        fileChat: chatData[index]
+                                            ["file_attachments"],
+                                        fileSize: chatData[index]["file_size"],
+                                        fileName: chatData[index]["file_name"],
+                                        fileExtension: chatData[index]
+                                            ["file_extension"],
                                       );
                                     }
                                     return ChatSnippet(
@@ -776,6 +774,8 @@ class _InboxChatBodyState extends ConsumerState<InboxChatBody> {
             _isInitialFetchDone = true; // Set the flag to true
           }
         });
+
+        // Add the "isFromWeb" flag to each message
         for (var element in data3) {
           element["isFromWeb"] = true;
         }

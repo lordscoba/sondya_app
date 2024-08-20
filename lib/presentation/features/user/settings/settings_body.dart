@@ -19,7 +19,7 @@ class SettingsBody extends ConsumerStatefulWidget {
 }
 
 class _SettingsBodyState extends ConsumerState<SettingsBody> {
-  bool _isSwitched = false;
+  late bool _isSwitched = false;
 
   @override
   void initState() {
@@ -28,15 +28,25 @@ class _SettingsBodyState extends ConsumerState<SettingsBody> {
   }
 
   void _toggleSwitch(bool value) {
+    if (!mounted) return;
+    ref.invalidate(isSellerProvider);
     if (mounted) {
       setState(() {
         _isSwitched = value;
         if (value == true) {
-          context.push("/seller/products");
           ref.read(isSellerProvider.notifier).update1(value);
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (mounted) {
+              context.push("/seller/products");
+            }
+          });
         } else {
-          context.push("/");
           ref.read(isSellerProvider.notifier).update1(value);
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (mounted) {
+              context.push("/");
+            }
+          });
         }
       });
     }
@@ -159,7 +169,6 @@ class _SettingsBodyState extends ConsumerState<SettingsBody> {
               title: "Change Password",
               iconColor: const Color(0xFFFFC749),
               onTap: () {
-                // context.push("/login");
                 showGeneralDialog(
                   context: context,
                   transitionDuration: const Duration(
@@ -228,7 +237,6 @@ class _SettingsBodyState extends ConsumerState<SettingsBody> {
               icon: Icons.cases_outlined,
               title: "Company Details",
               onTap: () {
-                // context.push("/login");
                 showGeneralDialog(
                   context: context,
                   transitionDuration: const Duration(
@@ -266,7 +274,6 @@ class _SettingsBodyState extends ConsumerState<SettingsBody> {
               title: "Delete Account",
               iconColor: const Color(0xFFFF8038),
               onTap: () {
-                // context.push("/login");
                 sondyaUrlLauncher(
                     url: Uri.parse('https://www.sondya.com/delete/account'));
               },
@@ -293,7 +300,6 @@ class _SettingsBodyState extends ConsumerState<SettingsBody> {
               icon: Icons.logout,
               title: "Logout",
               onTap: () {
-                // context.push("/login");
                 showGeneralDialog(
                   context: context,
                   transitionDuration: const Duration(

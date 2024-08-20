@@ -132,13 +132,6 @@ GoRouter goRouterFunc(WidgetRef ref) {
   }
 
   return GoRouter(
-    // initialLocation: "/inbox",
-    // initialLocation:
-    //     "/inbox/chat/65a10a66df8051503766b227/65392eefb7498d248b07c91b",
-    // initialLocation: "/group/chat/list",
-    // initialLocation: "/group/chat/656dca98138f07e0f17648f9",
-    // initialLocation: "/group/chat/details/656dca98138f07e0f17648f9",
-    // initialLocation: "/service/details/65a111ccdf8051503766b374/ricestew",
     initialLocation: hasInitializedAppSession() ? '/' : "/splash",
     errorBuilder: (context, state) => const ErrorScreen(),
     routes: [

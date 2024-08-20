@@ -45,34 +45,49 @@ class _FileDownloaderState extends State<FileDownloader> {
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.85,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.file_copy_outlined, color: Colors.grey.shade700),
-          const SizedBox(width: 10),
+          Icon(
+            Icons.file_copy_outlined,
+            color: Colors.grey.shade700,
+          ),
+          const SizedBox(width: 5),
           Expanded(
-            child: ElevatedButton(
-              onPressed: () {
-                if (fileDownloaded) {
-                  openFile();
-                } else {
-                  if (isFromWeb) {
-                    saveFileFromUrl(
-                        fileFromWeb?[0]["url"], fileFromWeb?[0]["filename"]);
-                  } else {
-                    saveFileFromBytes();
-                  }
-                }
-              },
-              child: isDownloading
-                  ? const CupertinoActivityIndicator(
-                      radius: 10,
-                    )
-                  : Text(
-                      fileDownloaded
-                          ? 'View File'
-                          : 'Download \n ${widget.fileName}',
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    if (fileDownloaded) {
+                      openFile();
+                    } else {
+                      if (isFromWeb) {
+                        saveFileFromUrl(fileFromWeb?[0]["url"],
+                            fileFromWeb?[0]["filename"]);
+                      } else {
+                        saveFileFromBytes();
+                      }
+                    }
+                  },
+                  child: isDownloading
+                      ? const CupertinoActivityIndicator(
+                          radius: 10,
+                        )
+                      : Text(
+                          fileDownloaded
+                              ? 'View File'
+                              : 'Download \n ${widget.fileName}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  widget.fileName,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                )
+              ],
             ),
           ),
         ],

@@ -1,4 +1,5 @@
-String sondyaSlugify(String text, {String delimiter = '-', bool lowercase = false}) {
+String sondyaSlugify(String text,
+    {String delimiter = '-', bool lowercase = false}) {
   // Replace special characters with the delimiter
   text = text.replaceAll(RegExp(r'[^\w\s]'), delimiter);
 
@@ -12,9 +13,6 @@ String sondyaSlugify(String text, {String delimiter = '-', bool lowercase = fals
   if (lowercase) {
     text = text.toLowerCase();
   }
-  //  else {
-  //   text = text.toUpperCase();
-  // }
 
   return text;
 }
